@@ -1,0 +1,151 @@
+syntax = "proto2";
+
+/**
+ * A unique ID assigned to a slave. Currently, a slave gets a new ID
+ * whenever it (re)registers. Framework writers shouldn't
+ * assume any binding between a slave ID and and a hostname.
+ */
+message SlaveID {
+  required string value = 1;
+}
+
+/**
+ * Notifies the agent that the master has registered it.
+ * The `slave_id` holds a unique ID for distinguishing this agent.
+ */
+message SlaveRegisteredMessage {
+  required SlaveID slave_id = 1;
+}
+
+/**
+ * This message is periodically sent by the master to the agent.
+ * If the agent is connected to the master, "connected" is true.
+ */
+message PingSlaveMessage {
+  required bool connected = 1;
+}
+
+/**
+ * This message is sent by the agent to the master in response to the
+ * `PingSlaveMessage`.
+ */
+message PongSlaveMessage {}
+
+/**
+ * Describes an attribute that can be set on a machine. For now,
+ * attributes and resources share the same "value" type, but this may
+ * change in the future and attributes may only be string based.
+ */
+message Attribute {
+  required string name = 1;
+  required Value.Type type = 2;
+  optional Value.Scalar scalar = 3;
+  optional Value.Ranges ranges = 4;
+  optional Value.Set set = 6;
+  optional Value.Text text = 5;
+}
+
+/**
+ * Describes a slave. Note that the 'id' field is only available after
+ * a slave is registered with the master, and is made available here
+ * to facilitate re-registration.
+ */
+message SlaveInfo {
+  // The configured resources at the agent.
+  repeated Resource resources = 3;
+
+  // Attributes associated with the agent.
+  repeated Attribute attributes = 5;
+
+  // The Agent's ID
+  optional SlaveID id = 6;
+}
+
+
+/**
+ * Registers the agent with the master.
+ */
+message RegisterSlaveMessage {
+  // The `Resources` in `SlaveInfo` offered by the agent
+  required SlaveInfo slave = 1;
+}
+
+
+/**
+ * Describes a resource from a resource provider. The `name` field is
+ * a string like "cpus" or "mem" that indicates which kind of resource
+ * this is; the rest of the fields describe the properties of the
+ * resource. A resource can take on one of three types: scalar
+ * (double), a list of finite and discrete ranges (e.g., [1-10,
+ * 20-30]), or a set of items. A resource is described using the
+ * standard protocol buffer "union" trick.
+ *
+ * Note that "disk" and "mem" resources are scalar values expressed in
+ * megabytes. Fractional "cpus" values are allowed (e.g., "0.5"),
+ * which correspond to partial shares of a CPU.
+ */
+message Resource {
+  // Specified if the resource comes from a particular resource provider.
+  optional ResourceProviderID provider_id = 12;
+
+  required string name = 1;
+  required Value.Type type = 2;
+  optional Value.Scalar scalar = 3;
+  optional Value.Ranges ranges = 4;
+  optional Value.Set set = 5;
+
+  // If this is set, resource can be shared, i.e. multiple tasks
+  // can be launched using this resource and all of them shall refer
+  // to the same physical resource on the cluster. 
+  //
+  // NOTE: Different shared resources must be uniquely identifiable.
+  optional bool shared = 0;
+}
+
+/**
+ * Describes an Attribute or Resource "value". A value is described
+ * using the standard protocol buffer "union" trick.
+ */
+message Value {
+  enum Type {
+    SCALAR = 0;
+    RANGES = 1;
+    SET = 2;
+    TEXT = 3;
+  }
+
+  message Scalar {
+    // Scalar values are represented using floating point. To reduce
+    // the chance of unpredictable floating point behavior due to
+    // roundoff error, we only support three decimal digits of
+    // precision for scalar resource values. That is, floating point
+    // values are converted to a fixed point format that supports
+    // three decimal digits of precision, and then converted back to
+    // floating point on output. Any additional precision in scalar
+    // resource values is discarded (via rounding).
+    required double value = 1;
+  }
+
+  message Range {
+    required uint64 begin = 1;
+    required uint64 end = 2;
+  }
+
+  message Ranges {
+    repeated Range range = 1;
+  }
+
+  message Set {
+    repeated string item = 1;
+  }
+
+  message Text {
+    required string value = 1;
+  }
+
+  required Type type = 1;
+  optional Scalar scalar = 2;
+  optional Ranges ranges = 3;
+  optional Set set = 4;
+  optional Text text = 5;
+}
