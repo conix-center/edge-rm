@@ -1,5 +1,15 @@
 syntax = "proto2";
 
+message WrapperMessage {
+  // required string type = 1;
+  oneof msg {
+    RegisterSlaveMessage register_slave = 2;
+    SlaveRegisteredMessage slave_registered = 3;
+    PingSlaveMessage ping = 4;
+    PongSlaveMessage pong = 5;
+  }
+}
+
 /**
  * A unique ID assigned to a slave. Currently, a slave gets a new ID
  * whenever it (re)registers. Framework writers shouldn't
@@ -52,13 +62,13 @@ message Attribute {
  */
 message SlaveInfo {
   // The configured resources at the agent.
-  repeated Resource resources = 3;
+  repeated Resource resources = 1;
 
   // Attributes associated with the agent.
-  repeated Attribute attributes = 5;
+  repeated Attribute attributes = 2;
 
   // The Agent's ID
-  optional SlaveID id = 6;
+  optional SlaveID id = 3;
 }
 
 
@@ -85,9 +95,6 @@ message RegisterSlaveMessage {
  * which correspond to partial shares of a CPU.
  */
 message Resource {
-  // Specified if the resource comes from a particular resource provider.
-  optional ResourceProviderID provider_id = 12;
-
   required string name = 1;
   required Value.Type type = 2;
   optional Value.Scalar scalar = 3;
@@ -99,7 +106,7 @@ message Resource {
   // to the same physical resource on the cluster. 
   //
   // NOTE: Different shared resources must be uniquely identifiable.
-  optional bool shared = 0;
+  optional bool shared = 6;
 }
 
 /**

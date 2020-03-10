@@ -1,0 +1,11 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Edge RM Master",
+  "main": "index.js",
+  "dependencies": {
+    "express": "latest",
+    "ws": "latest",
+    "google-protobuf": "latest"
+  }
+}
