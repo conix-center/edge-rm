@@ -4,11 +4,14 @@
 
 import asyncio
 import websockets
-import messages_pb2
-import logging
-import json
+import argparse
 
-logging.basicConfig()
+import messages_pb2
+
+parser = argparse.ArgumentParser(description='Launch the Resource Manager Master')
+parser.add_argument('--host', required=True, help='the LAN IP to bind to.')
+parser.add_argument('--port', required=True, help='the local machine port to bind to.')
+args = parser.parse_args()
 
 STATE = {"counter": 0}
 SLAVES = dict()
@@ -54,6 +57,6 @@ async def entry(websocket, path):
 		await unregister_slave(websocket)
 
 
-start_server = websockets.serve(entry, host="localhost", port=3005)
+start_server = websockets.serve(entry, host=args.host, port=args.port)
 asyncio.get_event_loop().run_until_complete(start_server)
 asyncio.get_event_loop().run_forever()

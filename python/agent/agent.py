@@ -5,9 +5,15 @@
 import asyncio
 import websockets
 import messages_pb2
+import argparse
+
+parser = argparse.ArgumentParser(description='Launch the Resource Manager Agent')
+parser.add_argument('--host', required=True, help='the RM Master IP to bind to.')
+parser.add_argument('--port', required=True, help='the RM Master Port to bind to.')
+args = parser.parse_args()
 
 async def hello():
-	uri = "ws://128.97.92.77:3005"
+	uri = "ws://" + args.host + ":" + args.port
 	async with websockets.connect(uri) as websocket:
 
 		wrapper = messages_pb2.WrapperMessage()
