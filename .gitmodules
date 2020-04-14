@@ -1,3 +1,6 @@
 [submodule "python/coap/CoAPthon"]
 	path = python/coap/CoAPthon
 	url = https://github.com/Tanganelli/CoAPthon
+[submodule "agent/support/nanopb"]
+	path = agent/support/nanopb
+	url = https://github.com/nanopb/nanopb
