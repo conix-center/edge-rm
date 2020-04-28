@@ -4,3 +4,6 @@
 [submodule "agent/support/nanopb"]
 	path = agent/support/nanopb
 	url = https://github.com/nanopb/nanopb
+[submodule "agent/c/hal-nrf/permamote"]
+	path = agent/c/hal-nrf/permamote
+	url = https://github.com/lab11/permamote
