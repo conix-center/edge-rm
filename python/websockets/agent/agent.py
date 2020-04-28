@@ -6,6 +6,7 @@ import asyncio
 import websockets
 import messages_pb2
 import argparse
+import psutil
 
 parser = argparse.ArgumentParser(description='Launch the Resource Manager Agent')
 parser.add_argument('--host', required=True, help='the RM Master IP to bind to.')
@@ -20,15 +21,23 @@ async def hello():
 
 		# add CPU
 		cpu_resource = wrapper.register_slave.slave.resources.add()
-		cpu_resource.name = "cpu"
+		cpu_resource.name = "cpus"
 		cpu_resource.type = messages_pb2.Value.Type.SCALAR
-		cpu_resource.scalar.value = 1
+		cpu_list = psutil.cpu_percent(interval=1,percpu=True)
+		cpu_value = 0
+		for cpu in cpu_list:
+			cpu_value += (100 - cpu)/100
+		cpu_resource.scalar.value = cpu_value
+		print("CPU Available:")
+		print(cpu_resource)
 
 		# add MEMORY
 		mem_resource = wrapper.register_slave.slave.resources.add()
 		mem_resource.name = "mem"
 		mem_resource.type = messages_pb2.Value.Type.SCALAR
-		mem_resource.scalar.value = 1024
+		mem_resource.scalar.value = psutil.virtual_memory().available
+		print("Memory Available:")
+		print(mem_resource)
 
 		print("Registering with master...")
 

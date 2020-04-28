@@ -2,6 +2,7 @@
 import getopt
 import socket
 import sys
+import psutil
 sys.path.insert(1, './CoAPthon')
 
 from coapthon.client.helperclient import HelperClient
@@ -32,16 +33,26 @@ def main():  # pragma: no cover
     # construct message
     wrapper = messages_pb2.WrapperMessage()
     # add CPU
+
+    # add CPU
     cpu_resource = wrapper.register_slave.slave.resources.add()
-    cpu_resource.name = "cpu"
+    cpu_resource.name = "cpus"
     cpu_resource.type = messages_pb2.Value.Type.SCALAR
-    cpu_resource.scalar.value = 1
+    cpu_list = psutil.cpu_percent(interval=1,percpu=True)
+    cpu_value = 0
+    for cpu in cpu_list:
+        cpu_value += (100 - cpu)/100
+    cpu_resource.scalar.value = cpu_value
+    print("CPU Available:")
+    print(cpu_resource)
 
     # add MEMORY
     mem_resource = wrapper.register_slave.slave.resources.add()
     mem_resource.name = "mem"
     mem_resource.type = messages_pb2.Value.Type.SCALAR
-    mem_resource.scalar.value = 1024
+    mem_resource.scalar.value = psutil.virtual_memory().available
+    print("Memory Available:")
+    print(mem_resource)
 
     register_payload = wrapper.SerializeToString()
 
