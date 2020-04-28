@@ -3,6 +3,7 @@ import getopt
 import socket
 import sys
 import psutil
+import time
 sys.path.insert(1, './CoAPthon')
 
 from coapthon.client.helperclient import HelperClient
@@ -14,12 +15,11 @@ client = None
 
 def main():  # pragma: no cover
     global client
-    op = "GET"
-    payload = "test"
     
     host = "128.97.92.77"
     port = 3000
-    path = 'basic'
+    # host = "127.0.0.1"
+    # port = 5683
 
     try:
         tmp = socket.gethostbyname(host)
@@ -32,7 +32,6 @@ def main():  # pragma: no cover
 
     # construct message
     wrapper = messages_pb2.WrapperMessage()
-    # add CPU
 
     # add CPU
     cpu_resource = wrapper.register_slave.slave.resources.add()
@@ -58,14 +57,30 @@ def main():  # pragma: no cover
 
     print("Registering with master...")
 
+    # register with master
     response = client.post('register', register_payload, timeout=2)
-    print("Got a response!")
     if response:
-        print(response.pretty_print())
+        wrapper = messages_pb2.WrapperMessage()
+        wrapper.ParseFromString(response.payload)
+        print("My Slave ID is " + wrapper.slave_registered.slave_id.value)
     else:
         print("Something went wrong...")
-    client.stop()
-    sys.exit(1)
+        client.stop()
+        sys.exit(1)
+
+    # loop ping/pong
+    try:
+        while True:
+            time.sleep(5)
+            wrapper = messages_pb2.WrapperMessage()
+            wrapper.ping.connected = True
+            response = client.get('ping', wrapper.SerializeToString(), timeout=2)
+            if response:
+                print("Pong!")
+    except KeyboardInterrupt:
+        print "Client Shutdown"
+        # TODO: Deregister
+        client.stop()
 
 
 if __name__ == '__main__':  # pragma: no cover

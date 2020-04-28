@@ -47,26 +47,62 @@ class RegisterResource(Resource):
         self.counter = 0
         self.slaves = dict()
 
-    def render_GET(self, request):
+    def render_GET_advanced(self, request, response):
         return self
 
-    def render_PUT(self, request):
+    def render_PUT_advanced(self, request, response):
         return self
 
-    def render_POST(self, request):
+    def render_POST_advanced(self, request, response):
         print("Registering new agent!")
+
+        # unpack request
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(request.payload)
         self.counter += 1
         agent = {"id": self.counter}
         for resource in wrapper.register_slave.slave.resources:
             agent[resource.name] = resource.scalar.value
+
+        # add slave resource
         self.slaves[agent["id"]] = agent
-        print("Num Slaves:", len(agent.keys()))
-        print("Slaves:", self.slaves)
+        print(self.slaves)
+
+        # construct response
+        wrapper = messages_pb2.WrapperMessage()
+        wrapper.slave_registered.slave_id.value = str(agent["id"])
+        response.payload = wrapper.SerializeToString()
+        response.code = defines.Codes.CHANGED.number
+        return self, response
+
+    def render_DELETE_advanced(self, request, response):
+        return True
+
+class PingResource(Resource):
+    def __init__(self, name="PingResource", coap_server=None):
+        super(PingResource, self).__init__(name, coap_server, visible=True,
+                                            observable=True, allow_children=True)
+        self.payload = "Hello World"
+        self.resource_type = "rt1"
+        self.content_type = "text/plain"
+        self.interface_type = "if1"
+
+    def render_GET_advanced(self, request, response):
+        print("Ping!")
+        wrapper = messages_pb2.WrapperMessage()
+        response.payload = wrapper.SerializeToString()
+        response.code = defines.Codes.CONTENT.number
+        return self, response
+
+    def render_PUT_advanced(self, request, response):
+        # self.edit_resource(request)
         return self
 
-    def render_DELETE(self, request):
+    def render_POST_advanced(self, request, response):
+        res = self.init_resource(request, PingResource())
+        return res
+
+    def render_DELETE_advanced(self, request, response):
         return True
 
 class CoAPServer(CoAP):
@@ -74,6 +110,7 @@ class CoAPServer(CoAP):
         CoAP.__init__(self, (host, port), multicast)
         self.add_resource('basic/', BasicResource())
         self.add_resource('register/', RegisterResource())
+        self.add_resource('ping/', PingResource())
 
         print "CoAP Server start on " + host + ":" + str(port)
         print self.root.dump()
