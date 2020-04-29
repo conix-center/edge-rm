@@ -29,6 +29,10 @@ void edge_hal_process(void);
 //Method for going into a low-power state
 void edge_hal_sleep(void);
 
+void edge_hal_print(const char* fmt);
+void edge_hal_debug_led_on(void);
+void edge_hal_debug_led_off(void);
+
 // Sends COAP message to the requests URI, and calls the callback when it is acknowledged
 typedef void (*callback)(uint8_t upper_response_code, uint8_t lower_response_code);
 uint8_t edge_hal_coap_send(uint8_t* ipv4_address, const char* path, uint8_t* payload, uint8_t payload_len, callback acknowledge_callback);

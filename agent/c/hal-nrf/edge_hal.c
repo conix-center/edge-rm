@@ -1,5 +1,6 @@
 #include "string.h"
 #include "stddef.h"
+#include "stdarg.h"
 
 #include "edge_hal.h"
 #include "nrf.h"
@@ -77,11 +78,12 @@ uint8_t edge_hal_initialize(void) {
     };
     thread_init(&thread_config);
 
-    return 0;
+    return err_code;
 }
 
 void edge_hal_process(void) {
     thread_process();
+    NRF_LOG_PROCESS();
 }
 
 void edge_hal_sleep(void) {
@@ -89,6 +91,18 @@ void edge_hal_sleep(void) {
     {
       thread_sleep();
     }
+}
+
+void edge_hal_print(const char* fmt) {
+    NRF_LOG_INFO(fmt);
+}
+
+void edge_hal_debug_led_on(void) {
+    nrf_gpio_pin_clear(LED_1);
+}
+
+void edge_hal_debug_led_off(void) {
+    nrf_gpio_pin_set(LED_1);
 }
 
 void gateway_response_handler (void* context, otMessage* message, const
