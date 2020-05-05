@@ -7,14 +7,14 @@ def refresh_db():
 		c = conn.cursor()
 		c.execute("DROP TABLE IF EXISTS agents")
 		c.execute("DROP TABLE IF EXISTS resources")
-		c.execute("CREATE TABLE agents (id integer primary key autoincrement)")
+		c.execute("CREATE TABLE agents (id integer primary key autoincrement, conn text)")
 		c.execute("CREATE TABLE resources (agentID integer, name text, value text)")
 		conn.commit()
 
-def add_agent(resources):
+def add_agent(resources, connection):
 	with sqlite3.connect(dbname) as conn:
 		c = conn.cursor()
-		c.execute("INSERT INTO agents (id) VALUES (null)")
+		c.execute("INSERT INTO agents (conn) VALUES (?)", (connection,))
 		agent_id = c.lastrowid
 		for (rname, rval) in resources:
 			c.execute("INSERT INTO resources VALUES (?,?,?)", (agent_id, rname, rval))
@@ -47,4 +47,3 @@ def delete_agent(agent_id):
 		c.execute("DELETE FROM agents WHERE id = ?", str(agent_id))
 		c.execute("DELETE FROM resources WHERE agentID = ?", str(agent_id))
 		conn.commit()
-		conn.close()

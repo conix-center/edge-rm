@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # WS server example
-
+import sys
 import asyncio
 import websockets
 import argparse
@@ -21,7 +21,7 @@ async def register_slave(websocket, wrapper):
 		resources.append([resource.name, resource.scalar.value])
 
 	# add agent to db
-	agent_id = db.add_agent(resources)
+	agent_id = db.add_agent(resources, "webs")
 	sockets[websocket] = agent_id
 	print(db.get_all())
 
@@ -54,6 +54,8 @@ async def entry(websocket, path):
 		await unregister_slave(websocket)
 
 def main(host, port):  # pragma: no cover
+	if sys.version_info[0] < 3:
+		raise Exception("Must be using Python 3")
 	db.refresh_db()
 	loop = asyncio.new_event_loop()
 	start_server = websockets.serve(entry, host=host, port=port, loop=loop)

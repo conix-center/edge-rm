@@ -64,7 +64,7 @@ class RegisterResource(Resource):
             resources.append((resource.name, resource.scalar.value))
 
         # add resource to db
-        agent_id = db.add_agent(resources)
+        agent_id = db.add_agent(resources, "coap")
         print(db.get_all())
 
         # construct response
@@ -127,6 +127,8 @@ def main(ip, port):  # pragma: no cover
 
 
 if __name__ == "__main__":  # pragma: no cover
+    if sys.version_info[0] >= 3:
+        raise Exception("Must be using Python 2 (yeah...)")
     parser = argparse.ArgumentParser(description='Launch the CoAP Resource Manager Master')
     parser.add_argument('--host', required=True, help='the LAN IP to bind to.')
     parser.add_argument('--port', required=True, help='the local machine port to bind to.')
