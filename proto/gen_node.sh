@@ -1,1 +1,0 @@
-protoc --js_out=import_style=commonjs,binary:. messages.proto
