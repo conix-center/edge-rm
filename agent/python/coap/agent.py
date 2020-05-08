@@ -16,10 +16,10 @@ client = None
 def main():  # pragma: no cover
     global client
     
-    # host = "128.97.92.77"
-    # port = 3000
-    host = "127.0.0.1"
+    host = "128.97.92.77"
     port = 3000
+    # host = "127.0.0.1"
+    # port = 3000
 
     try:
         tmp = socket.gethostbyname(host)
