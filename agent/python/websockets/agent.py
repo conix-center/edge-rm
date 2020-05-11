@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # WS client example
 
@@ -22,7 +22,7 @@ async def hello():
 		# add CPU
 		cpu_resource = wrapper.register_slave.slave.resources.add()
 		cpu_resource.name = "cpus"
-		cpu_resource.type = messages_pb2.Value.Type.SCALAR
+		cpu_resource.type = messages_pb2.Value.SCALAR
 		cpu_list = psutil.cpu_percent(interval=1,percpu=True)
 		cpu_value = 0
 		for cpu in cpu_list:
@@ -34,7 +34,7 @@ async def hello():
 		# add MEMORY
 		mem_resource = wrapper.register_slave.slave.resources.add()
 		mem_resource.name = "mem"
-		mem_resource.type = messages_pb2.Value.Type.SCALAR
+		mem_resource.type = messages_pb2.Value.SCALAR
 		mem_resource.scalar.value = psutil.virtual_memory().available
 		print("Memory Available:")
 		print(mem_resource)

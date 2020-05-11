@@ -74,6 +74,8 @@ def main():  # pragma: no cover
             time.sleep(5)
             wrapper = messages_pb2.WrapperMessage()
             wrapper.ping.connected = True
+            print("")
+            print("Ping!")
             response = client.get('ping', wrapper.SerializeToString(), timeout=2)
             if response:
                 print("Pong!")
