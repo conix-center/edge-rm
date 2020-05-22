@@ -7,6 +7,7 @@ def refresh_db():
 		c = conn.cursor()
 		c.execute("DROP TABLE IF EXISTS agents")
 		c.execute("DROP TABLE IF EXISTS resources")
+		c.execute("DROP TABLE IF EXISTS attributes")
 		c.execute("CREATE TABLE agents (id integer primary key autoincrement, conn text)")
 		c.execute("CREATE TABLE resources (agentID integer, name text, type integer, value blob)")
 		c.execute("CREATE TABLE attributes (agentID integer, name text, type integer, value blob)")
