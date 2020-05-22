@@ -7,6 +7,7 @@ message WrapperMessage {
     SlaveRegisteredMessage slave_registered = 3;
     PingSlaveMessage ping = 4;
     PongSlaveMessage pong = 5;
+    RunTaskMessage run_task = 6;
   }
 }
 
