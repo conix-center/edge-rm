@@ -8,16 +8,19 @@ def refresh_db():
 		c.execute("DROP TABLE IF EXISTS agents")
 		c.execute("DROP TABLE IF EXISTS resources")
 		c.execute("CREATE TABLE agents (id integer primary key autoincrement, conn text)")
-		c.execute("CREATE TABLE resources (agentID integer, name text, value text)")
+		c.execute("CREATE TABLE resources (agentID integer, name text, type integer, value blob)")
+		c.execute("CREATE TABLE attributes (agentID integer, name text, type integer, value blob)")
 		conn.commit()
 
-def add_agent(resources, connection):
+def add_agent(resources, attributes, connection):
 	with sqlite3.connect(dbname) as conn:
 		c = conn.cursor()
 		c.execute("INSERT INTO agents (conn) VALUES (?)", (connection,))
 		agent_id = c.lastrowid
-		for (rname, rval) in resources:
-			c.execute("INSERT INTO resources VALUES (?,?,?)", (agent_id, rname, rval))
+		for (rname, rtype, rval) in resources:
+			c.execute("INSERT INTO resources VALUES (?,?,?,?)", (agent_id, rname, rtype, rval))
+		for (rname, rtype, rval) in attributes:
+			c.execute("INSERT INTO attributes VALUES (?,?,?,?)", (agent_id, rname, rtype, rval))
 		conn.commit()
 		return agent_id
 	return None
@@ -31,13 +34,22 @@ def get_all():
 		for row in rows:
 			agent_id = row[0]
 			resources = []
+			attributes = []
 			c.execute("SELECT * FROM resources WHERE agentID = ?",str(agent_id))
 			rrows = c.fetchall()
 			for rrow in rrows:
 				rname = rrow[1]
-				rval = rrow[2]
-				resources.append((rname, rval))
-			agents[agent_id] = resources
+				rtype = rrow[2]
+				rval = rrow[3]
+				resources.append((rname, rtype, rval))
+			c.execute("SELECT * FROM attributes WHERE agentID = ?",str(agent_id))
+			rrows = c.fetchall()
+			for rrow in rrows:
+				rname = rrow[1]
+				rtype = rrow[2]
+				rval = rrow[3]
+				attributes.append((rname, rtype, rval))
+			agents[agent_id] = (resources, attributes)
 		conn.commit()
 	return agents
 

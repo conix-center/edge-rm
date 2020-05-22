@@ -18,10 +18,30 @@ async def register_slave(websocket, wrapper):
 	# build agent info
 	resources = []
 	for resource in wrapper.register_slave.slave.resources:
-		resources.append([resource.name, resource.scalar.value])
+		if resource.type == messages_pb2.Value.SCALAR:
+			resources.append([resource.name, resource.type, resource.scalar.value])
+		elif resource.type == messages_pb2.Value.SET:
+			resources.append([resource.name, resource.type, resource.set.item])
+		elif resource.type == messages_pb2.Value.RANGE:
+			resources.append([resource.name, resource.type, resource.ranges.range])
+		elif resource.type == messages_pb2.Value.TEXT:
+			resources.append([resource.name, resource.type, resource.text.value])
+
+	# build agent info
+	attributes = []
+	for resource in wrapper.register_slave.slave.attributes:
+		if resource.type == messages_pb2.Value.SCALAR:
+			attributes.append([resource.name, resource.type, resource.scalar.value])
+		elif resource.type == messages_pb2.Value.SET:
+			attributes.append([resource.name, resource.type, resource.set.item])
+		elif resource.type == messages_pb2.Value.RANGE:
+			attributes.append([resource.name, resource.type, resource.ranges.range])
+		elif resource.type == messages_pb2.Value.TEXT:
+			attributes.append([resource.name, resource.type, resource.text.value])
+
 
 	# add agent to db
-	agent_id = db.add_agent(resources, "webs")
+	agent_id = db.add_agent(resources, attributes, "webs")
 	sockets[websocket] = agent_id
 	print(db.get_all())
 
