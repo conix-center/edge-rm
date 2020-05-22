@@ -13,13 +13,17 @@ def refresh_db():
 		conn.commit()
 
 def add_agent(resources, attributes, connection):
+	print(resources)
+	print(attributes)
 	with sqlite3.connect(dbname) as conn:
 		c = conn.cursor()
 		c.execute("INSERT INTO agents (conn) VALUES (?)", (connection,))
 		agent_id = c.lastrowid
 		for (rname, rtype, rval) in resources:
+			print("Inserting resource",rname,rtype,rval)
 			c.execute("INSERT INTO resources VALUES (?,?,?,?)", (agent_id, rname, rtype, rval))
 		for (rname, rtype, rval) in attributes:
+			print("Inserting attribute",rname,rtype,rval)
 			c.execute("INSERT INTO attributes VALUES (?,?,?,?)", (agent_id, rname, rtype, rval))
 		conn.commit()
 		return agent_id
