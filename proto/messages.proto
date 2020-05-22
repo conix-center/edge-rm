@@ -156,3 +156,115 @@ message Value {
   optional Set set = 4;
   optional Text text = 5;
 }
+
+/**
+ * This part of the proto will specify the minimal info needed to launch a task with a docker container
+ *
+ */
+message ContainerInfo {
+
+  enum Type {
+    DOCKER = 1;
+    WASM = 2;
+  }
+
+  message DockerInfo {
+   // The docker image that is going to be passed to the registry.
+    required string image = 1;
+
+    // Network options.
+    enum Network {
+      HOST = 1;
+      BRIDGE = 2;
+      NONE = 3;
+      USER = 4;
+    }
+
+    optional Network network = 2 [default = HOST];
+
+    message PortMapping {
+      required uint32 host_port = 1;
+      required uint32 container_port = 2;
+      // Protocol to expose as (ie: tcp, udp).
+      optional string protocol = 3;
+    }
+
+    repeated PortMapping port_mappings = 3;
+
+    //optional bool privileged = 4 [default = false];
+
+    // Allowing arbitrary parameters to be passed to docker CLI.
+    // Note that anything passed to this field is not guaranteed
+    // to be supported moving forward, as we might move away from
+    // the docker CLI.
+    //repeated Parameter parameters = 5;
+
+    // With this flag set to true, the docker containerizer will
+    // pull the docker image from the registry even if the image
+    // is already downloaded on the slave.
+    optional bool force_pull_image = 6;
+
+    // The name of volume driver plugin.
+    optional string volume_driver = 7 [deprecated = true]; // Since 1.0
+  }
+
+  message WASMInfo {
+    //TODO fill out WASMInfo for how to launch a wasm task.
+    required string empty = 1; 
+  }
+
+  required Type type = 1;
+  //repeated Volume volumes = 2;
+  //optional string hostname = 4;
+
+  // At most one of the following *Info messages should be set to match
+  // the type, i.e. the "protobuf union" in ContainerInfo should be valid.
+  optional DockerInfo docker = 3;
+  optional WASMInfo wasm = 5;
+
+  /*// A list of network requests. A framework can request multiple IP addresses
+  // for the container.
+  repeated NetworkInfo network_infos = 7;
+
+
+  // If specified a tty will be attached to the container entrypoint.
+  optional TTYInfo tty_info = 10;*/
+}
+
+message FrameworkID {
+  required string value = 1;
+}
+
+message FrameworkInfo {
+  required string name = 2;
+  optional FrameworkID id = 3;
+  // There are more fields but they are mainly useful for how the master
+  // Interacts with the framework scheduler, so for now we are going to forget them.
+}
+
+message TaskID {
+  required string value = 1;
+}
+
+message TaskInfo {
+  required string name = 1;
+  required TaskID task_id = 2;
+  required SlaveID slave_id = 3;
+  repeated Resource resources = 4;
+
+  // In Mesos there is an idea of an executor that manages multiple tasks
+  // For now I propose that we don't worry about the performance benefits that would allow
+  // and instead we just launch tasks with different runtimes.
+  // So to specify a task you must specify its runtime  (docker, wasm) and it's code (docker container, wasm binary)
+  // It's likely in the future we will need to support the executor/task split to support existing frameworks that expect to run many tiny tasks in a managed way.
+
+  required ContainerInfo container = 9;
+}
+
+// Run task message is sent from master to agent to launch a task as requested by a framework
+// Mostly copied from mesos
+message RunTaskMessage {
+  required FrameworkInfo framework = 2;
+  required TaskInfo task = 4;
+  //required bool launch_executor = 6;
+}
