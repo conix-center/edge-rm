@@ -29,12 +29,12 @@ def add_agent(resources, attributes, connection):
 				c.execute("INSERT INTO resources VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, None, None, rval))
 		for (rname, rtype, rval) in attributes:
 			if rtype == messages_pb2.Value.SCALAR:
-				c.execute("INSERT INTO resources VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, rval, None, None))
+				c.execute("INSERT INTO attributes VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, rval, None, None))
 			elif rtype == messages_pb2.Value.SET:
 				for r in rval:
-					c.execute("INSERT INTO resources VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, None, r, None))
+					c.execute("INSERT INTO attributes VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, None, r, None))
 			elif rtype == messages_pb2.Value.TEXT:
-				c.execute("INSERT INTO resources VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, None, None, rval))
+				c.execute("INSERT INTO attributes VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, None, None, rval))
 		conn.commit()
 		return agent_id
 	return None

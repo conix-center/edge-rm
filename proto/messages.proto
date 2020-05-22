@@ -81,6 +81,20 @@ message RegisterSlaveMessage {
   required SlaveInfo slave = 1;
 }
 
+/**
+ * Describes an attribute of a resource provider
+ * Attributes are info about an agent that is non-consumable
+ * otherwise they are just like a resource.  Unclear how this is 
+ * different from a shared resource? Maybe a shared resource can still run out?
+ */
+message Attribute {
+  required string name = 1;
+  required Value.Type type = 2;
+  optional Value.Scalar scalar = 3;
+  optional Value.Ranges ranges = 4;
+  optional Value.Set set = 5;
+  optional Value.Text text = 6;
+}
 
 /**
  * Describes a resource from a resource provider. The `name` field is
@@ -101,6 +115,7 @@ message Resource {
   optional Value.Scalar scalar = 3;
   optional Value.Ranges ranges = 4;
   optional Value.Set set = 5;
+  optional Value.Text text = 7;
 
   // If this is set, resource can be shared, i.e. multiple tasks
   // can be launched using this resource and all of them shall refer
@@ -238,7 +253,7 @@ message FrameworkID {
 
 message FrameworkInfo {
   required string name = 2;
-  optional FrameworkID id = 3;
+  optional FrameworkID framework_id = 3;
   // There are more fields but they are mainly useful for how the master
   // Interacts with the framework scheduler, so for now we are going to forget them.
 }
