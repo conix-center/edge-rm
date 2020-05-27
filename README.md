@@ -29,19 +29,14 @@ Hopefully this will be combined into a single program at some point in the futur
 
 Local linux-class devices serve as gateways for constrained network protocols
 and perform local compute and data storage. Currently we are using raspberry
-pis that are setup as thread border routers as described here: https://github.com/lab11/otbr.
+pis that are setup as thread border routers.
 
-To effectively use docker on an rpi you need to update the kernel to enable
-cpu bandwidth controls as described here: https://github.com/hypriot/rpi-kernel
+You need a custom kernel to run docker with all the cgroup features on a pi ([see this](github.com/hypriot/rpi-kernel)). We provide an 
+image with this kernel that is running thread border router software [here](https://drive.google.com/drive/u/1/folders/1SPO9n25aIeH7cvcsD7acbq7WBMO16mKg).
+Setup for this image, which is based off the lab11 open thread border router image, is described [here](https://github.com/lab11/otbr).
 
-Then you should install docker as described here: https://phoenixnap.com/kb/docker-on-raspberry-pi
-
-Finally install the requirements and run the agent in agent/python/websockets/agent
-
-Hopefully in the future we will build this into an easy to deploy image...
-
-You could also use your local computer as a gateway. For best performance it 
-should have cgroup cpu bandwidth control enabled.
+The image comes with a copy of this repo that automatically performs a git pull, updates library
+dependencies, and starts a resource manager agent on boot.
 
 ### Edge Devices
 
