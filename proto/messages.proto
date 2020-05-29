@@ -82,21 +82,6 @@ message RegisterSlaveMessage {
 }
 
 /**
- * Describes an attribute of a resource provider
- * Attributes are info about an agent that is non-consumable
- * otherwise they are just like a resource.  Unclear how this is 
- * different from a shared resource? Maybe a shared resource can still run out?
- */
-message Attribute {
-  required string name = 1;
-  required Value.Type type = 2;
-  optional Value.Scalar scalar = 3;
-  optional Value.Ranges ranges = 4;
-  optional Value.Set set = 5;
-  optional Value.Text text = 6;
-}
-
-/**
  * Describes a resource from a resource provider. The `name` field is
  * a string like "cpus" or "mem" that indicates which kind of resource
  * this is; the rest of the fields describe the properties of the
