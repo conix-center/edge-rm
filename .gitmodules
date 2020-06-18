@@ -7,3 +7,6 @@
 [submodule "CoAPthon"]
 	path = CoAPthon
 	url = https://github.com/Tanganelli/CoAPthon
+[submodule "CoAPthon3"]
+	path = CoAPthon3
+	url = https://github.com/Tanganelli/CoAPthon3

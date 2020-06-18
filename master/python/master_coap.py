@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# python 3
+# python 2
 
 import argparse
 import getopt
@@ -63,8 +63,12 @@ class RegisterResource(Resource):
         for resource in wrapper.register_slave.slave.resources:
             resources.append((resource.name, resource.scalar.value))
 
+        attributes = []
+        for attribute in wrapper.register_slave.slave.attributes:
+            attributes.append((attribute.name, attribute.scalar.value))
+
         # add resource to db
-        agent_id = db.add_agent(resources, "coap")
+        agent_id = db.add_agent(resources, attributes)
         print(db.get_all())
 
         # construct response
@@ -98,8 +102,20 @@ class PingResource(Resource):
         return self
 
     def render_POST_advanced(self, request, response):
-        res = self.init_resource(request, PingResource())
-        return res
+        # res = self.init_resource(request, PingResource())
+
+        #unpack request
+        wrapper = messages_pb2.WrapperMessage()
+        wrapper.ParseFromString(request.payload)
+
+        agent_id = wrapper.ping.slave_id.value
+        print("Ping! Agent (" + str(agent_id)) + ")"
+
+        # construct response
+        wrapper = messages_pb2.WrapperMessage()
+        response.payload = wrapper.SerializeToString()
+        response.code = defines.Codes.CONTENT.number
+        return self, response
 
     def render_DELETE_advanced(self, request, response):
         return True
@@ -115,7 +131,6 @@ class CoAPServer(CoAP):
         print (self.root.dump())
 
 def main(ip, port):  # pragma: no cover
-    db.refresh_db()
     multicast = False
     server = CoAPServer(ip, int(port), multicast)
     try:
@@ -127,8 +142,8 @@ def main(ip, port):  # pragma: no cover
 
 
 if __name__ == "__main__":  # pragma: no cover
-    if sys.version_info[0] >= 3:
-        raise Exception("Must be using Python 2 (yeah...)")
+    # if sys.version_info[0] >= 3:
+    #     raise Exception("Must be using Python 2 (yeah...)")
     parser = argparse.ArgumentParser(description='Launch the CoAP Resource Manager Master')
     parser.add_argument('--host', required=True, help='the LAN IP to bind to.')
     parser.add_argument('--port', required=True, help='the local machine port to bind to.')

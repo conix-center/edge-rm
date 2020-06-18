@@ -1,79 +1,41 @@
-import sqlite3
 import messages_pb2
+import threading
 
-dbname = 'edgerm.db'
+agents = {}
+id_counter = 0
 
-def refresh_db():
-	with sqlite3.connect(dbname) as conn:
-		c = conn.cursor()
-		c.execute("DROP TABLE IF EXISTS agents")
-		c.execute("DROP TABLE IF EXISTS resources")
-		c.execute("DROP TABLE IF EXISTS attributes")
-		c.execute("CREATE TABLE agents (id integer primary key autoincrement, conn text)")
-		c.execute("CREATE TABLE resources (agentID integer, name text, type integer, scalar_value double, set_value text, text_value text)")
-		c.execute("CREATE TABLE attributes (agentID integer, name text, type integer, scalar_value double, set_value text, text_value text)")
-		conn.commit()
+class AtomicCounter:
+    def __init__(self, initial=0):
+        """Initialize a new atomic counter to given initial value (default 0)."""
+        self.value = initial
+        self._lock = threading.Lock()
 
-def add_agent(resources, attributes, connection):
-	with sqlite3.connect(dbname) as conn:
-		c = conn.cursor()
-		c.execute("INSERT INTO agents (conn) VALUES (?)", (connection,))
-		agent_id = c.lastrowid
-		for (rname, rtype, rval) in resources:
-			if rtype == messages_pb2.Value.SCALAR:
-				c.execute("INSERT INTO resources VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, rval, None, None))
-			elif rtype == messages_pb2.Value.SET:
-				for r in rval:
-					c.execute("INSERT INTO resources VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, None, r, None))
-			elif rtype == messages_pb2.Value.TEXT:
-				c.execute("INSERT INTO resources VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, None, None, rval))
-		for (rname, rtype, rval) in attributes:
-			if rtype == messages_pb2.Value.SCALAR:
-				c.execute("INSERT INTO attributes VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, rval, None, None))
-			elif rtype == messages_pb2.Value.SET:
-				for r in rval:
-					c.execute("INSERT INTO attributes VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, None, r, None))
-			elif rtype == messages_pb2.Value.TEXT:
-				c.execute("INSERT INTO attributes VALUES (?,?,?,?,?,?)", (agent_id, rname, rtype, None, None, rval))
-		conn.commit()
-		return agent_id
-	return None
+    def increment(self, num=1):
+        """Atomically increment the counter by num (default 1) and return the
+        new value.
+        """
+        with self._lock:
+            self.value += num
+            return self.value
+counter = AtomicCounter()
+
+def add_agent(resources, attributes):
+	aid = counter.increment()
+	while aid in agents:
+		aid = counter.increment()
+	agents[aid] = {
+		"id":aid,
+		"resources":resources,
+		"attributes":attributes
+	}
+	return aid
 
 def get_all():
-	agents = {}
-	with sqlite3.connect(dbname) as conn:
-		c = conn.cursor()
-		c.execute("SELECT * FROM agents")
-		rows = c.fetchall()
-		for row in rows:
-			agent_id = row[0]
-			resources = []
-			attributes = []
-			c.execute("SELECT * FROM resources WHERE agentID = ?",str(agent_id))
-			rrows = c.fetchall()
-			for rrow in rrows:
-				rname = rrow[1]
-				rtype = rrow[2]
-				scalar_val = rrow[3]
-				set_val = rrow[4]
-				text_val = rrow[5]
-				resources.append((rname, rtype, scalar_val, set_val, text_val))
-			c.execute("SELECT * FROM attributes WHERE agentID = ?",str(agent_id))
-			rrows = c.fetchall()
-			for rrow in rrows:
-				rname = rrow[1]
-				rtype = rrow[2]
-				scalar_val = rrow[3]
-				set_val = rrow[4]
-				text_val = rrow[5]
-				attributes.append((rname, rtype, scalar_val, set_val, text_val))
-			agents[agent_id] = (resources, attributes)
-		conn.commit()
-	return agents
+	return agents.values()
+
+def get_agent(agent_id):
+	return agents[agent_id]
 
 def delete_agent(agent_id):
-	with sqlite3.connect(dbname) as conn:
-		c = conn.cursor()
-		c.execute("DELETE FROM agents WHERE id = ?", str(agent_id))
-		c.execute("DELETE FROM resources WHERE agentID = ?", str(agent_id))
-		conn.commit()
+	if agent_id in agents:
+		del agents[agent_id]

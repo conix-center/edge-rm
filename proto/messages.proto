@@ -29,15 +29,15 @@ message SlaveRegisteredMessage {
 }
 
 /**
- * This message is periodically sent by the master to the agent.
+ * This message is periodically sent by the agent to the master.
  * If the agent is connected to the master, "connected" is true.
  */
 message PingSlaveMessage {
-  required bool connected = 1;
+  required SlaveID slave_id = 1;
 }
 
 /**
- * This message is sent by the agent to the master in response to the
+ * This message is sent by the master to the agent in response to the
  * `PingSlaveMessage`.
  */
 message PongSlaveMessage {}

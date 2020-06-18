@@ -4,6 +4,7 @@ import socket
 import sys
 import psutil
 import time
+import argparse
 sys.path.insert(1, '../../../CoAPthon')
 
 from coapthon.client.helperclient import HelperClient
@@ -11,15 +12,11 @@ from coapthon.client.helperclient import HelperClient
 import messages_pb2
 
 client = None
+agent_id = None
 
 
-def main():  # pragma: no cover
+def main(host, port):  # pragma: no cover
     global client
-    
-    host = "128.97.92.77"
-    port = 3000
-    # host = "127.0.0.1"
-    # port = 3000
 
     try:
         tmp = socket.gethostbyname(host)
@@ -27,7 +24,7 @@ def main():  # pragma: no cover
     except socket.gaierror:
         pass
     
-    client = HelperClient(server=(host, port))
+    client = HelperClient(server=(host, int(port)))
     
 
     # construct message
@@ -62,7 +59,8 @@ def main():  # pragma: no cover
     if response:
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.payload)
-        print("My Slave ID is " + wrapper.slave_registered.slave_id.value)
+        agent_id = wrapper.slave_registered.slave_id.value
+        print("My Agent ID is " + wrapper.slave_registered.slave_id.value)
     else:
         print("Something went wrong...")
         client.stop()
@@ -73,10 +71,10 @@ def main():  # pragma: no cover
         while True:
             time.sleep(5)
             wrapper = messages_pb2.WrapperMessage()
-            wrapper.ping.connected = True
+            wrapper.ping.slave_id.value = agent_id
             print("")
             print("Ping!")
-            response = client.get('ping', wrapper.SerializeToString(), timeout=2)
+            response = client.post('ping', wrapper.SerializeToString(), timeout=2)
             if response:
                 print("Pong!")
     except KeyboardInterrupt:
@@ -86,4 +84,9 @@ def main():  # pragma: no cover
 
 
 if __name__ == '__main__':  # pragma: no cover
+    parser = argparse.ArgumentParser(description='Launch the CoAP Resource Manager Agent')
+    parser.add_argument('--host', required=True, help='the Master IP to register with.')
+    parser.add_argument('--port', required=True, help='the Master port to register on.')
+    args = parser.parse_args()
+    main(args.host, args.port)
     main()
