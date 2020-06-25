@@ -5,7 +5,7 @@ import argparse
 import getopt
 import time
 import sys
-sys.path.insert(1, '../../CoAPthon')
+sys.path.insert(1, '../../CoAPthon3')
 from coapthon.server.coap import CoAP
 from coapthon import defines
 from coapthon.resources.resource import Resource
