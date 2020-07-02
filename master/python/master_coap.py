@@ -69,11 +69,96 @@ class RegisterResource(Resource):
 
         # add resource to db
         agent_id = db.add_agent(resources, attributes)
-        print(db.get_all())
+        print(db.get_all_agents())
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
         wrapper.slave_registered.slave_id.value = str(agent_id)
+        response.payload = wrapper.SerializeToString()
+        response.code = defines.Codes.CHANGED.number
+        return self, response
+
+    def render_DELETE_advanced(self, request, response):
+        return True
+
+class RequestResource(Resource):
+    def __init__(self, name="RequestResource", coap_server=None):
+        super(RequestResource, self).__init__(name, coap_server, visible=True,
+                                            observable=True, allow_children=True)
+        self.payload = "Test"
+        self.resource_type = "rt1"
+        self.content_type = "text/plain"
+        self.interface_type = "if1"
+
+    def render_GET_advanced(self, request, response):
+        return self
+
+    def render_PUT_advanced(self, request, response):
+        return self
+
+    def render_POST_advanced(self, request, response):
+        wrapper = messages_pb2.WrapperMessage()
+        wrapper.ParseFromString(request.payload)
+        framework_id = wrapper.request.framework_id.value
+        print("Got resource request from Framework \"" + framework_id + "\"")
+
+        #construct resource offer
+        #currently just giving the framework everything we got
+        wrapper = messages_pb2.WrapperMessage()
+        wrapper.offer.framework_id.value = framework_id
+        for agent in db.get_all_agents():
+            offer = wrapper.offer.offers.add()
+            offer.id.value = db.get_offer_id()
+            offer.framework_id.value = framework_id
+            offer.slave_id.value = agent.id
+            for resrc in agent.resources:
+                resource = offer.resources.add()
+                resource.name = resrc[0]
+                resource.type = messages_pb2.Value.SCALAR
+                resource.scalar.value = resrc[1]
+            for attrib in agent.attributes:
+                attribute = offer.attributes.add()
+                attribute.name = attrib[0]
+                attribute.type = messages_pb2.Value.SCALAR
+                attribute.scalar.value = attrib[1]
+        response.payload = wrapper.SerializeToString()
+        response.code = defines.Codes.CHANGED.number
+        return self, response
+
+    def render_DELETE_advanced(self, request, response):
+        return True
+
+class RunTaskResource(Resource):
+    def __init__(self, name="RunTaskResource", coap_server=None):
+        super(RunTaskResource, self).__init__(name, coap_server, visible=True,
+                                            observable=True, allow_children=True)
+        self.payload = "Test"
+        self.resource_type = "rt1"
+        self.content_type = "text/plain"
+        self.interface_type = "if1"
+
+    def render_GET_advanced(self, request, response):
+        return self
+
+    def render_PUT_advanced(self, request, response):
+        return self
+
+    def render_POST_advanced(self, request, response):
+        print("Received Task Request!")
+
+        # unpack request
+        wrapper = messages_pb2.WrapperMessage()
+        wrapper.ParseFromString(request.payload)
+
+        # print request (do nothing right now)
+        print("    Framework Name: " + wrapper.run_task.framework.name)
+        print("    Framework ID:   " + wrapper.run_task.framework.framework_id.value)
+
+        # TODO: Forward the request onto the particular device through a ping/pong
+
+        # construct response
+        wrapper = messages_pb2.WrapperMessage()
+        wrapper.ping.slave_id.value = "1234"
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
         return self, response
@@ -114,6 +199,7 @@ class PingResource(Resource):
         # construct response
         wrapper = messages_pb2.WrapperMessage()
         response.payload = wrapper.SerializeToString()
+        print(response.payload)
         response.code = defines.Codes.CONTENT.number
         return self, response
 
@@ -125,6 +211,8 @@ class CoAPServer(CoAP):
         CoAP.__init__(self, (host, port), multicast)
         self.add_resource('basic/', BasicResource())
         self.add_resource('register/', RegisterResource())
+        self.add_resource('request/', RequestResource())
+        self.add_resource('task/', RunTaskResource())
         self.add_resource('ping/', PingResource())
 
         print ("CoAP Server start on " + host + ":" + str(port))
@@ -135,7 +223,7 @@ def main(ip, port):  # pragma: no cover
     server = CoAPServer(ip, int(port), multicast)
     try:
         server.listen(10)
-    except KeyboardInterrupt:
+    except:
         print("Server Shutdown")
         server.close()
         print("Exiting...")

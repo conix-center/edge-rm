@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=b'\n\x0emessages.proto\"\xe8\x01\n\x0eWrapperMessage\x12/\n\x0eregister_slave\x18\x02 \x01(\x0b\x32\x15.RegisterSlaveMessageH\x00\x12\x33\n\x10slave_registered\x18\x03 \x01(\x0b\x32\x17.SlaveRegisteredMessageH\x00\x12!\n\x04ping\x18\x04 \x01(\x0b\x32\x11.PingSlaveMessageH\x00\x12!\n\x04pong\x18\x05 \x01(\x0b\x32\x11.PongSlaveMessageH\x00\x12#\n\x08run_task\x18\x06 \x01(\x0b\x32\x0f.RunTaskMessageH\x00\x42\x05\n\x03msg\"\x18\n\x07SlaveID\x12\r\n\x05value\x18\x01 \x02(\t\"4\n\x16SlaveRegisteredMessage\x12\x1a\n\x08slave_id\x18\x01 \x02(\x0b\x32\x08.SlaveID\".\n\x10PingSlaveMessage\x12\x1a\n\x08slave_id\x18\x01 \x02(\x0b\x32\x08.SlaveID\"\x12\n\x10PongSlaveMessage\"\xa6\x01\n\tAttribute\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x06 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\"_\n\tSlaveInfo\x12\x1c\n\tresources\x18\x01 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x02 \x03(\x0b\x32\n.Attribute\x12\x14\n\x02id\x18\x03 \x01(\x0b\x32\x08.SlaveID\"1\n\x14RegisterSlaveMessage\x12\x19\n\x05slave\x18\x01 \x02(\x0b\x32\n.SlaveInfo\"\xb5\x01\n\x08Resource\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x05 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x07 \x01(\x0b\x32\x0b.Value.Text\x12\x0e\n\x06shared\x18\x06 \x01(\x08\"\xd8\x02\n\x05Value\x12\x19\n\x04type\x18\x01 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x02 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x03 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x04 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\x1a\x17\n\x06Scalar\x12\r\n\x05value\x18\x01 \x02(\x01\x1a#\n\x05Range\x12\r\n\x05\x62\x65gin\x18\x01 \x02(\x04\x12\x0b\n\x03\x65nd\x18\x02 \x02(\x04\x1a%\n\x06Ranges\x12\x1b\n\x05range\x18\x01 \x03(\x0b\x32\x0c.Value.Range\x1a\x13\n\x03Set\x12\x0c\n\x04item\x18\x01 \x03(\t\x1a\x15\n\x04Text\x12\r\n\x05value\x18\x01 \x02(\t\"1\n\x04Type\x12\n\n\x06SCALAR\x10\x00\x12\n\n\x06RANGES\x10\x01\x12\x07\n\x03SET\x10\x02\x12\x08\n\x04TEXT\x10\x03\"\x89\x04\n\rContainerInfo\x12!\n\x04type\x18\x01 \x02(\x0e\x32\x13.ContainerInfo.Type\x12)\n\x06\x64ocker\x18\x03 \x01(\x0b\x32\x19.ContainerInfo.DockerInfo\x12%\n\x04wasm\x18\x05 \x01(\x0b\x32\x17.ContainerInfo.WASMInfo\x1a\xc9\x02\n\nDockerInfo\x12\r\n\x05image\x18\x01 \x02(\t\x12\x38\n\x07network\x18\x02 \x01(\x0e\x32!.ContainerInfo.DockerInfo.Network:\x04HOST\x12<\n\rport_mappings\x18\x03 \x03(\x0b\x32%.ContainerInfo.DockerInfo.PortMapping\x12\x18\n\x10\x66orce_pull_image\x18\x06 \x01(\x08\x12\x19\n\rvolume_driver\x18\x07 \x01(\tB\x02\x18\x01\x1aJ\n\x0bPortMapping\x12\x11\n\thost_port\x18\x01 \x02(\r\x12\x16\n\x0e\x63ontainer_port\x18\x02 \x02(\r\x12\x10\n\x08protocol\x18\x03 \x01(\t\"3\n\x07Network\x12\x08\n\x04HOST\x10\x01\x12\n\n\x06\x42RIDGE\x10\x02\x12\x08\n\x04NONE\x10\x03\x12\x08\n\x04USER\x10\x04\x1a\x19\n\x08WASMInfo\x12\r\n\x05\x65mpty\x18\x01 \x02(\t\"\x1c\n\x04Type\x12\n\n\x06\x44OCKER\x10\x01\x12\x08\n\x04WASM\x10\x02\"\x1c\n\x0b\x46rameworkID\x12\r\n\x05value\x18\x01 \x02(\t\"A\n\rFrameworkInfo\x12\x0c\n\x04name\x18\x02 \x02(\t\x12\"\n\x0c\x66ramework_id\x18\x03 \x01(\x0b\x32\x0c.FrameworkID\"\x17\n\x06TaskID\x12\r\n\x05value\x18\x01 \x02(\t\"\x8f\x01\n\x08TaskInfo\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x18\n\x07task_id\x18\x02 \x02(\x0b\x32\x07.TaskID\x12\x1a\n\x08slave_id\x18\x03 \x02(\x0b\x32\x08.SlaveID\x12\x1c\n\tresources\x18\x04 \x03(\x0b\x32\t.Resource\x12!\n\tcontainer\x18\t \x02(\x0b\x32\x0e.ContainerInfo\"L\n\x0eRunTaskMessage\x12!\n\tframework\x18\x02 \x02(\x0b\x32\x0e.FrameworkInfo\x12\x17\n\x04task\x18\x04 \x02(\x0b\x32\t.TaskInfo'
+  serialized_pb=b'\n\x0emessages.proto\"\xbc\x02\n\x0eWrapperMessage\x12/\n\x0eregister_slave\x18\x02 \x01(\x0b\x32\x15.RegisterSlaveMessageH\x00\x12\x33\n\x10slave_registered\x18\x03 \x01(\x0b\x32\x17.SlaveRegisteredMessageH\x00\x12!\n\x04ping\x18\x04 \x01(\x0b\x32\x11.PingSlaveMessageH\x00\x12!\n\x04pong\x18\x05 \x01(\x0b\x32\x11.PongSlaveMessageH\x00\x12#\n\x08run_task\x18\x06 \x01(\x0b\x32\x0f.RunTaskMessageH\x00\x12&\n\x05offer\x18\x07 \x01(\x0b\x32\x15.ResourceOfferMessageH\x00\x12*\n\x07request\x18\x08 \x01(\x0b\x32\x17.ResourceRequestMessageH\x00\x42\x05\n\x03msg\"\x18\n\x07SlaveID\x12\r\n\x05value\x18\x01 \x02(\t\"4\n\x16SlaveRegisteredMessage\x12\x1a\n\x08slave_id\x18\x01 \x02(\x0b\x32\x08.SlaveID\".\n\x10PingSlaveMessage\x12\x1a\n\x08slave_id\x18\x01 \x02(\x0b\x32\x08.SlaveID\"\x12\n\x10PongSlaveMessage\"\xa6\x01\n\tAttribute\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x06 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\"_\n\tSlaveInfo\x12\x1c\n\tresources\x18\x01 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x02 \x03(\x0b\x32\n.Attribute\x12\x14\n\x02id\x18\x03 \x01(\x0b\x32\x08.SlaveID\"1\n\x14RegisterSlaveMessage\x12\x19\n\x05slave\x18\x01 \x02(\x0b\x32\n.SlaveInfo\"\xb5\x01\n\x08Resource\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x05 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x07 \x01(\x0b\x32\x0b.Value.Text\x12\x0e\n\x06shared\x18\x06 \x01(\x08\"\xd8\x02\n\x05Value\x12\x19\n\x04type\x18\x01 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x02 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x03 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x04 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\x1a\x17\n\x06Scalar\x12\r\n\x05value\x18\x01 \x02(\x01\x1a#\n\x05Range\x12\r\n\x05\x62\x65gin\x18\x01 \x02(\x04\x12\x0b\n\x03\x65nd\x18\x02 \x02(\x04\x1a%\n\x06Ranges\x12\x1b\n\x05range\x18\x01 \x03(\x0b\x32\x0c.Value.Range\x1a\x13\n\x03Set\x12\x0c\n\x04item\x18\x01 \x03(\t\x1a\x15\n\x04Text\x12\r\n\x05value\x18\x01 \x02(\t\"1\n\x04Type\x12\n\n\x06SCALAR\x10\x00\x12\n\n\x06RANGES\x10\x01\x12\x07\n\x03SET\x10\x02\x12\x08\n\x04TEXT\x10\x03\"\x89\x04\n\rContainerInfo\x12!\n\x04type\x18\x01 \x02(\x0e\x32\x13.ContainerInfo.Type\x12)\n\x06\x64ocker\x18\x03 \x01(\x0b\x32\x19.ContainerInfo.DockerInfo\x12%\n\x04wasm\x18\x05 \x01(\x0b\x32\x17.ContainerInfo.WASMInfo\x1a\xc9\x02\n\nDockerInfo\x12\r\n\x05image\x18\x01 \x02(\t\x12\x38\n\x07network\x18\x02 \x01(\x0e\x32!.ContainerInfo.DockerInfo.Network:\x04HOST\x12<\n\rport_mappings\x18\x03 \x03(\x0b\x32%.ContainerInfo.DockerInfo.PortMapping\x12\x18\n\x10\x66orce_pull_image\x18\x06 \x01(\x08\x12\x19\n\rvolume_driver\x18\x07 \x01(\tB\x02\x18\x01\x1aJ\n\x0bPortMapping\x12\x11\n\thost_port\x18\x01 \x02(\r\x12\x16\n\x0e\x63ontainer_port\x18\x02 \x02(\r\x12\x10\n\x08protocol\x18\x03 \x01(\t\"3\n\x07Network\x12\x08\n\x04HOST\x10\x01\x12\n\n\x06\x42RIDGE\x10\x02\x12\x08\n\x04NONE\x10\x03\x12\x08\n\x04USER\x10\x04\x1a\x19\n\x08WASMInfo\x12\r\n\x05\x65mpty\x18\x01 \x02(\t\"\x1c\n\x04Type\x12\n\n\x06\x44OCKER\x10\x01\x12\x08\n\x04WASM\x10\x02\"\x1c\n\x0b\x46rameworkID\x12\r\n\x05value\x18\x01 \x02(\t\"A\n\rFrameworkInfo\x12\x0c\n\x04name\x18\x02 \x02(\t\x12\"\n\x0c\x66ramework_id\x18\x03 \x01(\x0b\x32\x0c.FrameworkID\"\x17\n\x06TaskID\x12\r\n\x05value\x18\x01 \x02(\t\"\x8f\x01\n\x08TaskInfo\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x18\n\x07task_id\x18\x02 \x02(\x0b\x32\x07.TaskID\x12\x1a\n\x08slave_id\x18\x03 \x02(\x0b\x32\x08.SlaveID\x12\x1c\n\tresources\x18\x04 \x03(\x0b\x32\t.Resource\x12!\n\tcontainer\x18\t \x02(\x0b\x32\x0e.ContainerInfo\"L\n\x0eRunTaskMessage\x12!\n\tframework\x18\x02 \x02(\x0b\x32\x0e.FrameworkInfo\x12\x17\n\x04task\x18\x04 \x02(\x0b\x32\t.TaskInfo\"<\n\x16ResourceRequestMessage\x12\"\n\x0c\x66ramework_id\x18\x01 \x02(\x0b\x32\x0c.FrameworkID\"R\n\x14ResourceOfferMessage\x12\"\n\x0c\x66ramework_id\x18\x01 \x02(\x0b\x32\x0c.FrameworkID\x12\x16\n\x06offers\x18\x02 \x03(\x0b\x32\x06.Offer\"\x9b\x01\n\x05Offer\x12\x14\n\x02id\x18\x01 \x02(\x0b\x32\x08.OfferID\x12\"\n\x0c\x66ramework_id\x18\x02 \x02(\x0b\x32\x0c.FrameworkID\x12\x1a\n\x08slave_id\x18\x03 \x02(\x0b\x32\x08.SlaveID\x12\x1c\n\tresources\x18\x05 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x07 \x03(\x0b\x32\n.Attribute\"\x18\n\x07OfferID\x12\r\n\x05value\x18\x01 \x02(\t'
 )
 
 
@@ -48,8 +48,8 @@ _VALUE_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1198,
-  serialized_end=1247,
+  serialized_start=1282,
+  serialized_end=1331,
 )
 _sym_db.RegisterEnumDescriptor(_VALUE_TYPE)
 
@@ -78,8 +78,8 @@ _CONTAINERINFO_DOCKERINFO_NETWORK = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1663,
-  serialized_end=1714,
+  serialized_start=1747,
+  serialized_end=1798,
 )
 _sym_db.RegisterEnumDescriptor(_CONTAINERINFO_DOCKERINFO_NETWORK)
 
@@ -100,8 +100,8 @@ _CONTAINERINFO_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1743,
-  serialized_end=1771,
+  serialized_start=1827,
+  serialized_end=1855,
 )
 _sym_db.RegisterEnumDescriptor(_CONTAINERINFO_TYPE)
 
@@ -148,6 +148,20 @@ _WRAPPERMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='offer', full_name='WrapperMessage.offer', index=5,
+      number=7, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='request', full_name='WrapperMessage.request', index=6,
+      number=8, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -164,7 +178,7 @@ _WRAPPERMESSAGE = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=19,
-  serialized_end=251,
+  serialized_end=335,
 )
 
 
@@ -194,8 +208,8 @@ _SLAVEID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=253,
-  serialized_end=277,
+  serialized_start=337,
+  serialized_end=361,
 )
 
 
@@ -225,8 +239,8 @@ _SLAVEREGISTEREDMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=279,
-  serialized_end=331,
+  serialized_start=363,
+  serialized_end=415,
 )
 
 
@@ -256,8 +270,8 @@ _PINGSLAVEMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=333,
-  serialized_end=379,
+  serialized_start=417,
+  serialized_end=463,
 )
 
 
@@ -280,8 +294,8 @@ _PONGSLAVEMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=381,
-  serialized_end=399,
+  serialized_start=465,
+  serialized_end=483,
 )
 
 
@@ -346,8 +360,8 @@ _ATTRIBUTE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=402,
-  serialized_end=568,
+  serialized_start=486,
+  serialized_end=652,
 )
 
 
@@ -391,8 +405,8 @@ _SLAVEINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=570,
-  serialized_end=665,
+  serialized_start=654,
+  serialized_end=749,
 )
 
 
@@ -422,8 +436,8 @@ _REGISTERSLAVEMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=667,
-  serialized_end=716,
+  serialized_start=751,
+  serialized_end=800,
 )
 
 
@@ -495,8 +509,8 @@ _RESOURCE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=719,
-  serialized_end=900,
+  serialized_start=803,
+  serialized_end=984,
 )
 
 
@@ -526,8 +540,8 @@ _VALUE_SCALAR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1053,
-  serialized_end=1076,
+  serialized_start=1137,
+  serialized_end=1160,
 )
 
 _VALUE_RANGE = _descriptor.Descriptor(
@@ -563,8 +577,8 @@ _VALUE_RANGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1078,
-  serialized_end=1113,
+  serialized_start=1162,
+  serialized_end=1197,
 )
 
 _VALUE_RANGES = _descriptor.Descriptor(
@@ -593,8 +607,8 @@ _VALUE_RANGES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1115,
-  serialized_end=1152,
+  serialized_start=1199,
+  serialized_end=1236,
 )
 
 _VALUE_SET = _descriptor.Descriptor(
@@ -623,8 +637,8 @@ _VALUE_SET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1154,
-  serialized_end=1173,
+  serialized_start=1238,
+  serialized_end=1257,
 )
 
 _VALUE_TEXT = _descriptor.Descriptor(
@@ -653,8 +667,8 @@ _VALUE_TEXT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1175,
-  serialized_end=1196,
+  serialized_start=1259,
+  serialized_end=1280,
 )
 
 _VALUE = _descriptor.Descriptor(
@@ -712,8 +726,8 @@ _VALUE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=903,
-  serialized_end=1247,
+  serialized_start=987,
+  serialized_end=1331,
 )
 
 
@@ -757,8 +771,8 @@ _CONTAINERINFO_DOCKERINFO_PORTMAPPING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1587,
-  serialized_end=1661,
+  serialized_start=1671,
+  serialized_end=1745,
 )
 
 _CONTAINERINFO_DOCKERINFO = _descriptor.Descriptor(
@@ -816,8 +830,8 @@ _CONTAINERINFO_DOCKERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1385,
-  serialized_end=1714,
+  serialized_start=1469,
+  serialized_end=1798,
 )
 
 _CONTAINERINFO_WASMINFO = _descriptor.Descriptor(
@@ -846,8 +860,8 @@ _CONTAINERINFO_WASMINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1716,
-  serialized_end=1741,
+  serialized_start=1800,
+  serialized_end=1825,
 )
 
 _CONTAINERINFO = _descriptor.Descriptor(
@@ -891,8 +905,8 @@ _CONTAINERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1250,
-  serialized_end=1771,
+  serialized_start=1334,
+  serialized_end=1855,
 )
 
 
@@ -922,8 +936,8 @@ _FRAMEWORKID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1773,
-  serialized_end=1801,
+  serialized_start=1857,
+  serialized_end=1885,
 )
 
 
@@ -960,8 +974,8 @@ _FRAMEWORKINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1803,
-  serialized_end=1868,
+  serialized_start=1887,
+  serialized_end=1952,
 )
 
 
@@ -991,8 +1005,8 @@ _TASKID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1870,
-  serialized_end=1893,
+  serialized_start=1954,
+  serialized_end=1977,
 )
 
 
@@ -1050,8 +1064,8 @@ _TASKINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1896,
-  serialized_end=2039,
+  serialized_start=1980,
+  serialized_end=2123,
 )
 
 
@@ -1088,8 +1102,167 @@ _RUNTASKMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2041,
-  serialized_end=2117,
+  serialized_start=2125,
+  serialized_end=2201,
+)
+
+
+_RESOURCEREQUESTMESSAGE = _descriptor.Descriptor(
+  name='ResourceRequestMessage',
+  full_name='ResourceRequestMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='framework_id', full_name='ResourceRequestMessage.framework_id', index=0,
+      number=1, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2203,
+  serialized_end=2263,
+)
+
+
+_RESOURCEOFFERMESSAGE = _descriptor.Descriptor(
+  name='ResourceOfferMessage',
+  full_name='ResourceOfferMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='framework_id', full_name='ResourceOfferMessage.framework_id', index=0,
+      number=1, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='offers', full_name='ResourceOfferMessage.offers', index=1,
+      number=2, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2265,
+  serialized_end=2347,
+)
+
+
+_OFFER = _descriptor.Descriptor(
+  name='Offer',
+  full_name='Offer',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='id', full_name='Offer.id', index=0,
+      number=1, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='framework_id', full_name='Offer.framework_id', index=1,
+      number=2, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='slave_id', full_name='Offer.slave_id', index=2,
+      number=3, type=11, cpp_type=10, label=2,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='resources', full_name='Offer.resources', index=3,
+      number=5, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='attributes', full_name='Offer.attributes', index=4,
+      number=7, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2350,
+  serialized_end=2505,
+)
+
+
+_OFFERID = _descriptor.Descriptor(
+  name='OfferID',
+  full_name='OfferID',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='value', full_name='OfferID.value', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=2507,
+  serialized_end=2531,
 )
 
 _WRAPPERMESSAGE.fields_by_name['register_slave'].message_type = _REGISTERSLAVEMESSAGE
@@ -1097,6 +1270,8 @@ _WRAPPERMESSAGE.fields_by_name['slave_registered'].message_type = _SLAVEREGISTER
 _WRAPPERMESSAGE.fields_by_name['ping'].message_type = _PINGSLAVEMESSAGE
 _WRAPPERMESSAGE.fields_by_name['pong'].message_type = _PONGSLAVEMESSAGE
 _WRAPPERMESSAGE.fields_by_name['run_task'].message_type = _RUNTASKMESSAGE
+_WRAPPERMESSAGE.fields_by_name['offer'].message_type = _RESOURCEOFFERMESSAGE
+_WRAPPERMESSAGE.fields_by_name['request'].message_type = _RESOURCEREQUESTMESSAGE
 _WRAPPERMESSAGE.oneofs_by_name['msg'].fields.append(
   _WRAPPERMESSAGE.fields_by_name['register_slave'])
 _WRAPPERMESSAGE.fields_by_name['register_slave'].containing_oneof = _WRAPPERMESSAGE.oneofs_by_name['msg']
@@ -1112,6 +1287,12 @@ _WRAPPERMESSAGE.fields_by_name['pong'].containing_oneof = _WRAPPERMESSAGE.oneofs
 _WRAPPERMESSAGE.oneofs_by_name['msg'].fields.append(
   _WRAPPERMESSAGE.fields_by_name['run_task'])
 _WRAPPERMESSAGE.fields_by_name['run_task'].containing_oneof = _WRAPPERMESSAGE.oneofs_by_name['msg']
+_WRAPPERMESSAGE.oneofs_by_name['msg'].fields.append(
+  _WRAPPERMESSAGE.fields_by_name['offer'])
+_WRAPPERMESSAGE.fields_by_name['offer'].containing_oneof = _WRAPPERMESSAGE.oneofs_by_name['msg']
+_WRAPPERMESSAGE.oneofs_by_name['msg'].fields.append(
+  _WRAPPERMESSAGE.fields_by_name['request'])
+_WRAPPERMESSAGE.fields_by_name['request'].containing_oneof = _WRAPPERMESSAGE.oneofs_by_name['msg']
 _SLAVEREGISTEREDMESSAGE.fields_by_name['slave_id'].message_type = _SLAVEID
 _PINGSLAVEMESSAGE.fields_by_name['slave_id'].message_type = _SLAVEID
 _ATTRIBUTE.fields_by_name['type'].enum_type = _VALUE_TYPE
@@ -1157,6 +1338,14 @@ _TASKINFO.fields_by_name['resources'].message_type = _RESOURCE
 _TASKINFO.fields_by_name['container'].message_type = _CONTAINERINFO
 _RUNTASKMESSAGE.fields_by_name['framework'].message_type = _FRAMEWORKINFO
 _RUNTASKMESSAGE.fields_by_name['task'].message_type = _TASKINFO
+_RESOURCEREQUESTMESSAGE.fields_by_name['framework_id'].message_type = _FRAMEWORKID
+_RESOURCEOFFERMESSAGE.fields_by_name['framework_id'].message_type = _FRAMEWORKID
+_RESOURCEOFFERMESSAGE.fields_by_name['offers'].message_type = _OFFER
+_OFFER.fields_by_name['id'].message_type = _OFFERID
+_OFFER.fields_by_name['framework_id'].message_type = _FRAMEWORKID
+_OFFER.fields_by_name['slave_id'].message_type = _SLAVEID
+_OFFER.fields_by_name['resources'].message_type = _RESOURCE
+_OFFER.fields_by_name['attributes'].message_type = _ATTRIBUTE
 DESCRIPTOR.message_types_by_name['WrapperMessage'] = _WRAPPERMESSAGE
 DESCRIPTOR.message_types_by_name['SlaveID'] = _SLAVEID
 DESCRIPTOR.message_types_by_name['SlaveRegisteredMessage'] = _SLAVEREGISTEREDMESSAGE
@@ -1173,6 +1362,10 @@ DESCRIPTOR.message_types_by_name['FrameworkInfo'] = _FRAMEWORKINFO
 DESCRIPTOR.message_types_by_name['TaskID'] = _TASKID
 DESCRIPTOR.message_types_by_name['TaskInfo'] = _TASKINFO
 DESCRIPTOR.message_types_by_name['RunTaskMessage'] = _RUNTASKMESSAGE
+DESCRIPTOR.message_types_by_name['ResourceRequestMessage'] = _RESOURCEREQUESTMESSAGE
+DESCRIPTOR.message_types_by_name['ResourceOfferMessage'] = _RESOURCEOFFERMESSAGE
+DESCRIPTOR.message_types_by_name['Offer'] = _OFFER
+DESCRIPTOR.message_types_by_name['OfferID'] = _OFFERID
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 WrapperMessage = _reflection.GeneratedProtocolMessageType('WrapperMessage', (_message.Message,), {
@@ -1350,6 +1543,34 @@ RunTaskMessage = _reflection.GeneratedProtocolMessageType('RunTaskMessage', (_me
   # @@protoc_insertion_point(class_scope:RunTaskMessage)
   })
 _sym_db.RegisterMessage(RunTaskMessage)
+
+ResourceRequestMessage = _reflection.GeneratedProtocolMessageType('ResourceRequestMessage', (_message.Message,), {
+  'DESCRIPTOR' : _RESOURCEREQUESTMESSAGE,
+  '__module__' : 'messages_pb2'
+  # @@protoc_insertion_point(class_scope:ResourceRequestMessage)
+  })
+_sym_db.RegisterMessage(ResourceRequestMessage)
+
+ResourceOfferMessage = _reflection.GeneratedProtocolMessageType('ResourceOfferMessage', (_message.Message,), {
+  'DESCRIPTOR' : _RESOURCEOFFERMESSAGE,
+  '__module__' : 'messages_pb2'
+  # @@protoc_insertion_point(class_scope:ResourceOfferMessage)
+  })
+_sym_db.RegisterMessage(ResourceOfferMessage)
+
+Offer = _reflection.GeneratedProtocolMessageType('Offer', (_message.Message,), {
+  'DESCRIPTOR' : _OFFER,
+  '__module__' : 'messages_pb2'
+  # @@protoc_insertion_point(class_scope:Offer)
+  })
+_sym_db.RegisterMessage(Offer)
+
+OfferID = _reflection.GeneratedProtocolMessageType('OfferID', (_message.Message,), {
+  'DESCRIPTOR' : _OFFERID,
+  '__module__' : 'messages_pb2'
+  # @@protoc_insertion_point(class_scope:OfferID)
+  })
+_sym_db.RegisterMessage(OfferID)
 
 
 _CONTAINERINFO_DOCKERINFO.fields_by_name['volume_driver']._options = None

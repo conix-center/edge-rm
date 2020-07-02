@@ -1,4 +1,7 @@
 syntax = "proto2";
+//inspired by Mesos:
+//https://github.com/apache/mesos/blob/master/src/messages/messages.proto
+//https://github.com/apache/mesos/blob/master/include/mesos/mesos.proto
 
 message WrapperMessage {
   // required string type = 1;
@@ -8,6 +11,8 @@ message WrapperMessage {
     PingSlaveMessage ping = 4;
     PongSlaveMessage pong = 5;
     RunTaskMessage run_task = 6;
+    ResourceOfferMessage offer = 7;
+    ResourceRequestMessage request = 8;
   }
 }
 
@@ -262,10 +267,39 @@ message TaskInfo {
   required ContainerInfo container = 9;
 }
 
-// Run task message is sent from master to agent to launch a task as requested by a framework
+// Run task message is sent from scheduler to master to agent to launch a task as requested by a framework
 // Mostly copied from mesos
 message RunTaskMessage {
   required FrameworkInfo framework = 2;
   required TaskInfo task = 4;
   //required bool launch_executor = 6;
+}
+
+//=====================================
+//=====================================
+//==========Resource Offering==========
+//=====================================
+//=====================================
+
+/**
+ * Describes some resources available on a slave. An offer only
+ * contains resources from a single slave.
+ */
+message ResourceRequestMessage {
+  required FrameworkID framework_id = 1;
+}
+message ResourceOfferMessage {
+  required FrameworkID framework_id = 1;
+  repeated Offer offers = 2;
+}
+message Offer {
+  required OfferID id = 1;
+  required FrameworkID framework_id = 2;
+  required SlaveID slave_id = 3;
+
+  repeated Resource resources = 5;
+  repeated Attribute attributes = 7;
+}
+message OfferID {
+  required string value = 1;
 }

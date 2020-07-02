@@ -17,12 +17,16 @@ class AtomicCounter:
         with self._lock:
             self.value += num
             return self.value
-counter = AtomicCounter()
+agent_counter = AtomicCounter()
+offer_counter = AtomicCounter()
+
+def get_offer_id():
+	return offer_counter.increment()
 
 def add_agent(resources, attributes):
-	aid = counter.increment()
+	aid = agent_counter.increment()
 	while aid in agents:
-		aid = counter.increment()
+		aid = agent_counter.increment()
 	agents[aid] = {
 		"id":aid,
 		"resources":resources,
@@ -30,7 +34,7 @@ def add_agent(resources, attributes):
 	}
 	return aid
 
-def get_all():
+def get_all_agents():
 	return agents.values()
 
 def get_agent(agent_id):
