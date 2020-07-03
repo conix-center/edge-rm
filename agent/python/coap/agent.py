@@ -1,13 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import getopt
 import socket
 import sys
 import psutil
 import time
 import argparse
-sys.path.insert(1, '../../../CoAPthon')
+sys.path.insert(1, '../../../CoAPthon3')
 
 from coapthon.client.helperclient import HelperClient
+from coapthon import defines
 
 import messages_pb2
 
@@ -55,7 +56,8 @@ def main(host, port):  # pragma: no cover
     print("Registering with master...")
 
     # register with master
-    response = client.post('register', register_payload, timeout=2)
+    ct = {'content_type': defines.Content_types["application/octet-stream"]}
+    response = client.post('register', register_payload, timeout=2, **ct)
     if response:
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.payload)
@@ -74,7 +76,8 @@ def main(host, port):  # pragma: no cover
             wrapper.ping.slave_id.value = agent_id
             print("")
             print("Ping!")
-            response = client.post('ping', wrapper.SerializeToString(), timeout=2)
+            ct = {'content_type': defines.Content_types["application/octet-stream"]}
+            response = client.post('ping', wrapper.SerializeToString(), timeout=2, **ct)
             if response:
                 print("Pong!")
     except KeyboardInterrupt:

@@ -1,11 +1,10 @@
-#!/usr/bin/env python
-# python 2
+#!/usr/bin/env python3
 
 import argparse
 import getopt
 import time
 import sys
-sys.path.insert(1, '../../CoAPthon')
+sys.path.insert(1, '../../CoAPthon3')
 from coapthon.server.coap import CoAP
 from coapthon import defines
 from coapthon.resources.resource import Resource
@@ -76,6 +75,7 @@ class RegisterResource(Resource):
         wrapper.slave_registered.slave_id.value = str(agent_id)
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
+        response.content_type = defines.Content_types["application/octet-stream"]
         return self, response
 
     def render_DELETE_advanced(self, request, response):
@@ -194,13 +194,14 @@ class PingResource(Resource):
         wrapper.ParseFromString(request.payload)
 
         agent_id = wrapper.ping.slave_id.value
-        print("Ping! Agent (" + str(agent_id)) + ")"
+        print("Ping! Agent (" + str(agent_id) + ")")
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
         response.payload = wrapper.SerializeToString()
         print(response.payload)
         response.code = defines.Codes.CONTENT.number
+        response.content_type = defines.Content_types["application/octet-stream"]
         return self, response
 
     def render_DELETE_advanced(self, request, response):
