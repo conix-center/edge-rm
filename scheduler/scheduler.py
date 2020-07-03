@@ -5,9 +5,10 @@ import sys
 import psutil
 import time
 import argparse
-sys.path.insert(1, '../CoAPthon')
+sys.path.insert(1, '../CoAPthon3')
 
 from coapthon.client.helperclient import HelperClient
+from coapthon import defines
 
 import messages_pb2
 
@@ -16,18 +17,30 @@ framework_name = "Test Framework Name"
 framework_id = "TEST ID"
 
 def submitDummyTask(offers):
-    # TODO: find an offer that works for you...
+    print("Searching for a good offer...")
+    slave_to_use = None
+    resources_to_use = None
+    for i in range(len(offers)):
+        offer = offers[i]
+        if offer.slave_id.value:
+            slave_to_use = offer.slave_id.value
+            resources_to_use = offer.resources
+            break
+    if not slave_to_use:
+        print("No available agents...")
+        return
 
-    print("Submitting task...")
+
+    print("Submitting task to agent " + slave_to_use + "...")
 
     # construct message
     wrapper = messages_pb2.WrapperMessage()
     wrapper.run_task.framework.name = framework_name
     wrapper.run_task.framework.framework_id.value = framework_id
     wrapper.run_task.task.name = "test task"
-    wrapper.run_task.task.name = "12D3"
     wrapper.run_task.task.task_id.value = "12D3"
-    wrapper.run_task.task.slave_id.value = "1"
+    wrapper.run_task.task.slave_id.value = slave_to_use
+    wrapper.run_task.task.resources.extend(resources_to_use)
     wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.DOCKER
     runtask_payload = wrapper.SerializeToString()
     ct = {'content_type': defines.Content_types["application/octet-stream"]}
@@ -54,7 +67,7 @@ def getOffer():
     if response:
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.payload)
-        offers = wrapper.offer
+        offers = wrapper.offermsg.offers
         print("Got offers!")
         return offers
     else:
@@ -74,6 +87,8 @@ def main(host, port):  # pragma: no cover
     
     client = HelperClient(server=(host, int(port)))
     
+    # TODO: Should we register the framework first?
+
     offers = getOffer()
     submitDummyTask(offers)
 

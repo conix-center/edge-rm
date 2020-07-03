@@ -11,7 +11,7 @@ message WrapperMessage {
     PingSlaveMessage ping = 4;
     PongSlaveMessage pong = 5;
     RunTaskMessage run_task = 6;
-    ResourceOfferMessage offer = 7;
+    ResourceOfferMessage offermsg = 7;
     ResourceRequestMessage request = 8;
   }
 }
@@ -45,7 +45,9 @@ message PingSlaveMessage {
  * This message is sent by the master to the agent in response to the
  * `PingSlaveMessage`.
  */
-message PongSlaveMessage {}
+message PongSlaveMessage {
+  required SlaveID slave_id = 1;
+}
 
 /**
  * Describes an attribute that can be set on a machine. For now,

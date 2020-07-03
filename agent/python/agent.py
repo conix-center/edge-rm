@@ -80,6 +80,10 @@ def main(host, port):  # pragma: no cover
             response = client.post('ping', wrapper.SerializeToString(), timeout=2, **ct)
             if response:
                 print("Pong!")
+                wrapper = messages_pb2.WrapperMessage()
+                wrapper.ParseFromString(response.payload)
+                if wrapper.run_task.task.name:
+                    print("Received Task!!")
     except KeyboardInterrupt:
         print("Client Shutdown")
         # TODO: Deregister

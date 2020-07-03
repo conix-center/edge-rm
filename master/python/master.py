@@ -45,12 +45,6 @@ class RegisterResource(Resource):
         self.content_type = "text/plain"
         self.interface_type = "if1"
 
-    def render_GET_advanced(self, request, response):
-        return self
-
-    def render_PUT_advanced(self, request, response):
-        return self
-
     def render_POST_advanced(self, request, response):
         print("Registering new agent!")
 
@@ -72,56 +66,36 @@ class RegisterResource(Resource):
         response.content_type = defines.Content_types["application/octet-stream"]
         return self, response
 
-    def render_DELETE_advanced(self, request, response):
-        return True
-
-class RequestResource(Resource):
+class RequestOfferResource(Resource):
     def __init__(self, name="RequestResource", coap_server=None):
-        super(RequestResource, self).__init__(name, coap_server, visible=True,
+        super(RequestOfferResource, self).__init__(name, coap_server, visible=True,
                                             observable=True, allow_children=True)
         self.payload = "Test"
         self.resource_type = "rt1"
         self.content_type = "text/plain"
         self.interface_type = "if1"
 
-    def render_GET_advanced(self, request, response):
-        return self
-
-    def render_PUT_advanced(self, request, response):
-        return self
-
     def render_POST_advanced(self, request, response):
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(request.payload)
         framework_id = wrapper.request.framework_id.value
-        print("Got resource request from Framework \"" + framework_id + "\"")
+        print("\nGot resource offer request! Framework \"" + framework_id + "\"\n")
 
         #construct resource offer
         #currently just giving the framework everything we got
         wrapper = messages_pb2.WrapperMessage()
-        wrapper.offer.framework_id.value = framework_id
+        wrapper.offermsg.framework_id.value = framework_id
         for agent in db.get_all_agents():
-            offer = wrapper.offer.offers.add()
+            offer = wrapper.offermsg.offers.add()
             offer.id.value = db.get_offer_id()
             offer.framework_id.value = framework_id
-            offer.slave_id.value = agent.id
-            for resrc in agent.resources:
-                resource = offer.resources.add()
-                resource.name = resrc[0]
-                resource.type = messages_pb2.Value.SCALAR
-                resource.scalar.value = resrc[1]
-            for attrib in agent.attributes:
-                attribute = offer.attributes.add()
-                attribute.name = attrib[0]
-                attribute.type = messages_pb2.Value.SCALAR
-                attribute.scalar.value = attrib[1]
+            offer.slave_id.value = agent.id.value
+            offer.resources.extend(agent.resources)
+            offer.attributes.extend(agent.attributes)
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
         response.content_type = defines.Content_types["application/octet-stream"]
         return self, response
-
-    def render_DELETE_advanced(self, request, response):
-        return True
 
 class RunTaskResource(Resource):
     def __init__(self, name="RunTaskResource", coap_server=None):
@@ -131,12 +105,6 @@ class RunTaskResource(Resource):
         self.resource_type = "rt1"
         self.content_type = "text/plain"
         self.interface_type = "if1"
-
-    def render_GET_advanced(self, request, response):
-        return self
-
-    def render_PUT_advanced(self, request, response):
-        return self
 
     def render_POST_advanced(self, request, response):
         print("Received Task Request!")
@@ -148,8 +116,15 @@ class RunTaskResource(Resource):
         # print request (do nothing right now)
         print("    Framework Name: " + wrapper.run_task.framework.name)
         print("    Framework ID:   " + wrapper.run_task.framework.framework_id.value)
+        print("    Task Name:      " + wrapper.run_task.task.name)
+        print("    Task ID:        " + wrapper.run_task.task.task_id.value)
+        print("    Selected Slave: " + wrapper.run_task.task.slave_id.value)
+        for i in range(len(wrapper.run_task.task.resources)):
+            resource = wrapper.run_task.task.resources[i]
+            print("        Resource: (" + resource.name + ") type: " + str(resource.type) + " amt: " + str(resource.scalar).strip())
 
         # TODO: Forward the request onto the particular device through a ping/pong
+        db.schedule_task(wrapper.run_task)
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
@@ -159,8 +134,6 @@ class RunTaskResource(Resource):
         response.content_type = defines.Content_types["application/octet-stream"]
         return self, response
 
-    def render_DELETE_advanced(self, request, response):
-        return True
 
 class PingResource(Resource):
     def __init__(self, name="PingResource", coap_server=None):
@@ -171,13 +144,6 @@ class PingResource(Resource):
         self.content_type = "text/plain"
         self.interface_type = "if1"
 
-    def render_GET_advanced(self, request, response):
-        return self
-
-    def render_PUT_advanced(self, request, response):
-        # self.edit_resource(request)
-        return self
-
     def render_POST_advanced(self, request, response):
         # res = self.init_resource(request, PingResource())
 
@@ -187,24 +153,26 @@ class PingResource(Resource):
 
         agent_id = wrapper.ping.slave_id.value
         print("Ping! Agent (" + str(agent_id) + ")")
+        task_to_run = db.pop_task(agent_id)
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
+        if task_to_run:
+            print("Got a task to schedule!!!")
+            wrapper.run_task.CopyFrom(task_to_run)
+        else:
+            wrapper.pong.slave_id.value = agent_id
         response.payload = wrapper.SerializeToString()
-        print(response.payload)
         response.code = defines.Codes.CONTENT.number
         response.content_type = defines.Content_types["application/octet-stream"]
         return self, response
-
-    def render_DELETE_advanced(self, request, response):
-        return True
 
 class CoAPServer(CoAP):
     def __init__(self, host, port, multicast=False):
         CoAP.__init__(self, (host, port), multicast)
         self.add_resource('basic/', BasicResource())
         self.add_resource('register/', RegisterResource())
-        self.add_resource('request/', RequestResource())
+        self.add_resource('request/', RequestOfferResource())
         self.add_resource('task/', RunTaskResource())
         self.add_resource('ping/', PingResource())
 

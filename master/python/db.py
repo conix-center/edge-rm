@@ -2,7 +2,7 @@ import messages_pb2
 import threading
 
 agents = {}
-id_counter = 0
+tasks_to_issue = {}
 
 class AtomicCounter:
     def __init__(self, initial=0):
@@ -21,7 +21,7 @@ agent_counter = AtomicCounter()
 offer_counter = AtomicCounter()
 
 def get_offer_id():
-	return offer_counter.increment()
+	return str(offer_counter.increment())
 
 def add_agent(slave):
 	aid = str(agent_counter.increment())
@@ -29,7 +29,15 @@ def add_agent(slave):
 		aid = str(agent_counter.increment())
 	slave.id.value = aid
 	agents[aid] = slave
+	tasks_to_issue[aid] = []
 	return aid
+
+def schedule_task(runtaskmsg):
+	agent_id = runtaskmsg.task.slave_id.value
+	tasks_to_issue[agent_id].append(runtaskmsg)
+
+def pop_task(agent_id):
+	return tasks_to_issue[agent_id].pop() if tasks_to_issue[agent_id] else None
 
 def get_all_agents():
 	return agents.values()
