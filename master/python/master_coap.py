@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# python 2
+#!/usr/bin/env python3
 
 import argparse
 import getopt
@@ -76,6 +75,7 @@ class RegisterResource(Resource):
         wrapper.slave_registered.slave_id.value = str(agent_id)
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
+        response.content_type = defines.Content_types["application/octet-stream"]
         return self, response
 
     def render_DELETE_advanced(self, request, response):
