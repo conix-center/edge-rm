@@ -123,6 +123,7 @@ class RequestResource(Resource):
                 attribute.scalar.value = attrib[1]
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
+        response.content_type = defines.Content_types["application/octet-stream"]
         return self, response
 
     def render_DELETE_advanced(self, request, response):
@@ -161,6 +162,7 @@ class RunTaskResource(Resource):
         wrapper.ping.slave_id.value = "1234"
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
+        response.content_type = defines.Content_types["application/octet-stream"]
         return self, response
 
     def render_DELETE_advanced(self, request, response):
@@ -176,11 +178,7 @@ class PingResource(Resource):
         self.interface_type = "if1"
 
     def render_GET_advanced(self, request, response):
-        print("Ping!")
-        wrapper = messages_pb2.WrapperMessage()
-        response.payload = wrapper.SerializeToString()
-        response.code = defines.Codes.CONTENT.number
-        return self, response
+        return self
 
     def render_PUT_advanced(self, request, response):
         # self.edit_resource(request)

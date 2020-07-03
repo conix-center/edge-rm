@@ -30,7 +30,8 @@ def submitDummyTask(offers):
     wrapper.run_task.task.slave_id.value = "1"
     wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.DOCKER
     runtask_payload = wrapper.SerializeToString()
-    response = client.post('task', runtask_payload, timeout=2)
+    ct = {'content_type': defines.Content_types["application/octet-stream"]}
+    response = client.post('task', runtask_payload, timeout=2, **ct)
     if response:
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.payload)
@@ -48,7 +49,8 @@ def getOffer():
     wrapper = messages_pb2.WrapperMessage()
     wrapper.request.framework_id.value = framework_id
     request_payload = wrapper.SerializeToString()
-    response = client.post('request', request_payload, timeout=2)
+    ct = {'content_type': defines.Content_types["application/octet-stream"]}
+    response = client.post('request', request_payload, timeout=2, **ct)
     if response:
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.payload)
