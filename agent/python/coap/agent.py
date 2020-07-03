@@ -76,7 +76,8 @@ def main(host, port):  # pragma: no cover
             wrapper.ping.slave_id.value = agent_id
             print("")
             print("Ping!")
-            response = client.post('ping', wrapper.SerializeToString(), timeout=2)
+            ct = {'content_type': defines.Content_types["application/octet-stream"]}
+            response = client.post('ping', wrapper.SerializeToString(), timeout=2, **ct)
             if response:
                 print("Pong!")
     except KeyboardInterrupt:

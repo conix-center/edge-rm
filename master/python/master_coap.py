@@ -109,12 +109,13 @@ class PingResource(Resource):
         wrapper.ParseFromString(request.payload)
 
         agent_id = wrapper.ping.slave_id.value
-        print("Ping! Agent (" + str(agent_id)) + ")"
+        print("Ping! Agent (" + str(agent_id) + ")")
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CONTENT.number
+        response.content_type = defines.Content_types["application/octet-stream"]
         return self, response
 
     def render_DELETE_advanced(self, request, response):
