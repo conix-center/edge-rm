@@ -23,15 +23,12 @@ offer_counter = AtomicCounter()
 def get_offer_id():
 	return offer_counter.increment()
 
-def add_agent(resources, attributes):
-	aid = agent_counter.increment()
+def add_agent(slave):
+	aid = str(agent_counter.increment())
 	while aid in agents:
-		aid = agent_counter.increment()
-	agents[aid] = {
-		"id":aid,
-		"resources":resources,
-		"attributes":attributes
-	}
+		aid = str(agent_counter.increment())
+	slave.id.value = aid
+	agents[aid] = slave
 	return aid
 
 def get_all_agents():

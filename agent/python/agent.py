@@ -5,7 +5,7 @@ import sys
 import psutil
 import time
 import argparse
-sys.path.insert(1, '../../../CoAPthon3')
+sys.path.insert(1, '../../CoAPthon3')
 
 from coapthon.client.helperclient import HelperClient
 from coapthon import defines

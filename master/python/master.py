@@ -58,16 +58,10 @@ class RegisterResource(Resource):
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(request.payload)
 
-        resources = []
-        for resource in wrapper.register_slave.slave.resources:
-            resources.append((resource.name, resource.scalar.value))
-
-        attributes = []
-        for attribute in wrapper.register_slave.slave.attributes:
-            attributes.append((attribute.name, attribute.scalar.value))
-
         # add resource to db
-        agent_id = db.add_agent(resources, attributes)
+        if not wrapper.register_slave.slave:
+            return self
+        agent_id = db.add_agent(wrapper.register_slave.slave)
         print(db.get_all_agents())
 
         # construct response
