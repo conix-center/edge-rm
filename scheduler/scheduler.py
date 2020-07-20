@@ -19,17 +19,22 @@ framework_id = "TEST ID"
 def submitDummyTask(offers):
     print("Searching for a good offer...")
     slave_to_use = None
-    resources_to_use = None
+    resources_to_use = {}
     for i in range(len(offers)):
         offer = offers[i]
         if offer.slave_id.value:
-            slave_to_use = offer.slave_id.value
-            resources_to_use = offer.resources
+            resources_to_use = {}
+            for resource in offer.resources:
+                if resource.name == "cpus" and resource.scalar.value >= 1:
+                    resources_to_use["cpus"] = 1
+                if resource.name == "mem" and resource.scalar.value > 100000000:
+                    resources_to_use["mem"] = 100000000
+            if len(resources_to_use) == 2:
+                slave_to_use = offer.slave_id.value
             break
     if not slave_to_use:
         print("No available agents...")
         return
-
 
     print("Submitting task to agent " + slave_to_use + "...")
 
@@ -40,8 +45,18 @@ def submitDummyTask(offers):
     wrapper.run_task.task.name = "test task"
     wrapper.run_task.task.task_id.value = "12D3"
     wrapper.run_task.task.slave_id.value = slave_to_use
-    wrapper.run_task.task.resources.extend(resources_to_use)
+    for resource in resources_to_use:
+        r = wrapper.run_task.task.resources.add()
+        r.name = resource
+        r.type = messages_pb2.Value.SCALAR
+        r.scalar.value = resources_to_use[resource]
+    # wrapper.run_task.task.resources.extend(resources_to_use)
     wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.DOCKER
+    wrapper.run_task.task.container.docker.image = "hello-world"
+    wrapper.run_task.task.container.docker.network = messages_pb2.ContainerInfo.DockerInfo.Network.HOST
+    port_mapping = wrapper.run_task.task.container.docker.port_mappings.add()
+    port_mapping.host_port = 3000
+    port_mapping.container_port = 3000
     runtask_payload = wrapper.SerializeToString()
     ct = {'content_type': defines.Content_types["application/octet-stream"]}
     response = client.post('task', runtask_payload, timeout=2, **ct)

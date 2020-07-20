@@ -13,6 +13,12 @@ import messages_pb2
 
 import db
 
+# TODO + NOTES:
+# Issue: What if the slave never pings to receive their task?
+# Issue: How do we ensure that the slave successfully started the task we assigned them?
+# Todo: De-register agent when they dont ping for a while
+# Todo: Keep track of available resources
+
 class BasicResource(Resource):
     def __init__(self, name="BasicResource", coap_server=None):
         super(BasicResource, self).__init__(name, coap_server, visible=True,
