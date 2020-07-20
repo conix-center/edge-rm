@@ -5,10 +5,12 @@ import sys
 import psutil
 import time
 import argparse
+import dockerhelper
 sys.path.insert(1, '../../CoAPthon3')
 
 from coapthon.client.helperclient import HelperClient
 from coapthon import defines
+#import docker as docker_client
 
 import messages_pb2
 
@@ -71,7 +73,7 @@ def main(host, port):  # pragma: no cover
     # loop ping/pong
     try:
         while True:
-            time.sleep(5)
+            time.sleep(1)
             wrapper = messages_pb2.WrapperMessage()
             wrapper.ping.slave_id.value = agent_id
             print("")
@@ -83,11 +85,14 @@ def main(host, port):  # pragma: no cover
                 wrapper = messages_pb2.WrapperMessage()
                 wrapper.ParseFromString(response.payload)
                 if wrapper.run_task.task.name:
-                    print("Received Task!!")
+                    if wrapper.run_task.task.container.type == messages_pb2.ContainerInfo.Type.DOCKER:
+                        print("Received Docker Task!!")
+                        dockerhelper.runImageFromWrapper(wrapper)
     except KeyboardInterrupt:
         print("Client Shutdown")
         # TODO: Deregister
         client.stop()
+
 
 
 if __name__ == '__main__':  # pragma: no cover
