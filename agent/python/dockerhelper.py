@@ -37,7 +37,7 @@ def fetchImage(imageURL, forcepull=False):
     return image
 
 def runImage(image, cpu_shares, mem_limit, network, ports):
-    container = client.containers.run(image,cpu_shares=int(cpu_shares),mem_limit=int(mem_limit),network_mode=network,ports=ports,detach=True)
+    container = client.containers.run(image,cpu_quota=int(cpu_shares),cpu_period=100000,mem_limit=int(mem_limit),network_mode=network,ports=ports,detach=True)
     # container = client.containers.run(image,detach=True)
     # print(container.logs())
     time.sleep(5)
@@ -61,7 +61,7 @@ def runImageFromWrapper(wrapper):
         ports[container] = host
     for limit in wrapper.run_task.task.resources:
         if limit.name == "cpus":
-            cpu_shares = limit.scalar.value*1000
+            cpu_shares = limit.scalar.value*100000
         if limit.name == "mem":
             mem_limit = limit.scalar.value
     print(imageName, network_setting, ports)
