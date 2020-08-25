@@ -201,6 +201,6 @@ if __name__ == "__main__":  # pragma: no cover
     #     raise Exception("Must be using Python 2 (yeah...)")
     parser = argparse.ArgumentParser(description='Launch the CoAP Resource Manager Master')
     parser.add_argument('--host', required=True, help='the LAN IP to bind to.')
-    parser.add_argument('--port', required=True, help='the local machine port to bind to.')
+    parser.add_argument('--port', required=False, default=5683, help='the local machine port to bind to.')
     args = parser.parse_args()
     main(args.host, args.port)

@@ -98,7 +98,7 @@ def main(host, port):  # pragma: no cover
 if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(description='Launch the CoAP Resource Manager Agent')
     parser.add_argument('--host', required=True, help='the Master IP to register with.')
-    parser.add_argument('--port', required=True, help='the Master port to register on.')
+    parser.add_argument('--port', required=False, default=5683, help='the Master port to register on.')
     args = parser.parse_args()
     main(args.host, args.port)
     main()
