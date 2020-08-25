@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 import getopt
 import socket
+import os
 import sys
 import psutil
 import time
 import argparse
 import dockerhelper
-sys.path.insert(1, '../../CoAPthon3')
+coapPath = os.path.abspath("../../CoAPthon3")
+sys.path.insert(1, coapPath)
 
 from coapthon.client.helperclient import HelperClient
 from coapthon import defines
