@@ -23,7 +23,7 @@ def submitDummyTask(offers):
     resources_to_use = {}
     for i in reversed(range(len(offers))):
         offer = offers[i]
-        if offer.slave_id.value:
+        if offer.slave_id:
             resources_to_use = {}
             for resource in offer.resources:
                 if resource.name == "cpus" and resource.scalar.value >= 1:
@@ -31,7 +31,7 @@ def submitDummyTask(offers):
                 if resource.name == "mem" and resource.scalar.value > 100000000:
                     resources_to_use["mem"] = 100000000
             if len(resources_to_use) == 2:
-                slave_to_use = offer.slave_id.value
+                slave_to_use = offer.slave_id
             break
     if not slave_to_use:
         print("No available agents...")
@@ -42,10 +42,10 @@ def submitDummyTask(offers):
     # construct message
     wrapper = messages_pb2.WrapperMessage()
     wrapper.run_task.framework.name = framework_name
-    wrapper.run_task.framework.framework_id.value = framework_id
+    wrapper.run_task.framework.framework_id = framework_id
     wrapper.run_task.task.name = "test task"
-    wrapper.run_task.task.task_id.value = str(uuid.uuid1())
-    wrapper.run_task.task.slave_id.value = slave_to_use
+    wrapper.run_task.task.task_id = str(uuid.uuid1())
+    wrapper.run_task.task.slave_id = slave_to_use
     for resource in resources_to_use:
         r = wrapper.run_task.task.resources.add()
         r.name = resource
@@ -76,7 +76,7 @@ def getOffer():
     # get offers
     print("Requesting resource offers...")
     wrapper = messages_pb2.WrapperMessage()
-    wrapper.request.framework_id.value = framework_id
+    wrapper.request.framework_id = framework_id
     request_payload = wrapper.SerializeToString()
     ct = {'content_type': defines.Content_types["application/octet-stream"]}
     response = client.post('request', request_payload, timeout=2, **ct)
@@ -115,7 +115,7 @@ def main(host, port):  # pragma: no cover
     #     while True:
     #         time.sleep(5)
     #         wrapper = messages_pb2.WrapperMessage()
-    #         wrapper.ping.slave_id.value = agent_id
+    #         wrapper.ping.slave_id = agent_id
     #         print("")
     #         print("Ping!")
     #         response = client.post('ping', wrapper.SerializeToString(), timeout=2)

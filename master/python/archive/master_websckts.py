@@ -47,7 +47,7 @@ async def register_slave(websocket, wrapper):
 
 	# send response message
 	response = messages_pb2.WrapperMessage()
-	response.slave_registered.slave_id.value = str(agent_id)
+	response.slave_registered.slave_id = str(agent_id)
 	await websocket.send(response.SerializeToString())
 
 async def unregister_slave(websocket):
