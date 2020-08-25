@@ -115,7 +115,7 @@ def main(host, port):  # pragma: no cover
     #     while True:
     #         time.sleep(5)
     #         wrapper = messages_pb2.WrapperMessage()
-    #         wrapper.ping.slave_id = agent_id
+    #         wrapper.ping.slave.id = agent_id
     #         print("")
     #         print("Ping!")
     #         response = client.post('ping', wrapper.SerializeToString(), timeout=2)

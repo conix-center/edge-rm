@@ -27,6 +27,8 @@ def get_offer_id():
 
 def refresh_agent(aid, slave):
     last_ping[aid] = time.time() * 1000
+    if aid not in tasks_to_issue:
+        tasks_to_issue[aid] = []
     slave.id = aid
     agents[aid] = slave
     return aid

@@ -131,7 +131,7 @@ class PingResource(Resource):
         wrapper.ParseFromString(request.payload)
 
         # add resource to db
-        if wrapper.ping.slave_id == '':
+        if wrapper.ping.slave.id == '':
             # need to register
             if not wrapper.ping.slave:
                 # no slave info...
@@ -142,7 +142,7 @@ class PingResource(Resource):
             task_to_run = None
         else:
             # registered, this is a standard ping
-            agent_id = wrapper.ping.slave_id
+            agent_id = wrapper.ping.slave.id
             print("Ping! Agent (" + str(agent_id) + ")")
             db.refresh_agent(agent_id, wrapper.ping.slave)
             task_to_run = db.pop_task(agent_id)

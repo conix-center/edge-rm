@@ -5,6 +5,7 @@ import os
 import sys
 import psutil
 import time
+import uuid
 import argparse
 import dockerhelper
 coapPath = os.path.abspath("../../CoAPthon3")
@@ -17,11 +18,12 @@ from coapthon import defines
 import messages_pb2
 
 client = None
-agent_id = None
+agent_id = str(uuid.getnode())
 ping_rate = 1000 #ping every 1000ms
 
-def addResourcesToPing(wrapper):
+def constructPing(wrapper):
     wrapper.ping.slave.ping_rate = ping_rate
+    wrapper.ping.slave.id = agent_id
 
     # add CPU
     cpu_resource = wrapper.ping.slave.resources.add()
@@ -57,31 +59,18 @@ def main(host, port):  # pragma: no cover
 
     # construct message
     wrapper = messages_pb2.WrapperMessage()
-    addResourcesToPing(wrapper)
+    constructPing(wrapper)
     register_payload = wrapper.SerializeToString()
 
     print("Registering with master...")
-
-    # register with master
-    ct = {'content_type': defines.Content_types["application/octet-stream"]}
-    response = client.post('ping', register_payload, timeout=2, **ct)
-    if response:
-        wrapper = messages_pb2.WrapperMessage()
-        wrapper.ParseFromString(response.payload)
-        agent_id = wrapper.pong.slave_id
-        print("My Agent ID is " + wrapper.pong.slave_id)
-    else:
-        print("Something went wrong...")
-        client.stop()
-        sys.exit(1)
+    print("My Agent ID is " + agent_id)
 
     # loop ping/pong
     try:
         while True:
             time.sleep(ping_rate / 1000)
             wrapper = messages_pb2.WrapperMessage()
-            wrapper.ping.slave_id = agent_id
-            addResourcesToPing(wrapper)
+            constructPing(wrapper)
             print("")
             print("Ping!")
             ct = {'content_type': defines.Content_types["application/octet-stream"]}
