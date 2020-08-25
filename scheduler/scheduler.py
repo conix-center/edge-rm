@@ -53,7 +53,7 @@ def submitDummyTask(offers):
         r.scalar.value = resources_to_use[resource]
     # wrapper.run_task.task.resources.extend(resources_to_use)
     wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.DOCKER
-    wrapper.run_task.task.container.docker.image = "eclipse-mosquitto"
+    wrapper.run_task.task.container.docker.image = "hello-world"
     wrapper.run_task.task.container.docker.network = messages_pb2.ContainerInfo.DockerInfo.Network.HOST
     port_mapping = wrapper.run_task.task.container.docker.port_mappings.add()
     port_mapping.host_port = 3000
