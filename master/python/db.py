@@ -1,8 +1,10 @@
 import messages_pb2
 import threading
+import time
 
 agents = {}
 tasks_to_issue = {}
+last_ping = {}
 
 class AtomicCounter:
     def __init__(self, initial=0):
@@ -21,30 +23,50 @@ agent_counter = AtomicCounter()
 offer_counter = AtomicCounter()
 
 def get_offer_id():
-	return str(offer_counter.increment())
+    return str(offer_counter.increment())
+
+def refresh_agent(aid, slave):
+    last_ping[aid] = time.time() * 1000
+    slave.id = aid
+    agents[aid] = slave
+    return aid
 
 def add_agent(slave):
-	aid = str(agent_counter.increment())
-	while aid in agents:
-		aid = str(agent_counter.increment())
-	slave.id.value = aid
-	agents[aid] = slave
-	tasks_to_issue[aid] = []
-	return aid
+    aid = str(agent_counter.increment())
+    while aid in agents:
+        aid = str(agent_counter.increment())
+    tasks_to_issue[aid] = []
+    return refresh_agent(aid, slave)
 
 def schedule_task(runtaskmsg):
-	agent_id = runtaskmsg.task.slave_id.value
-	tasks_to_issue[agent_id].append(runtaskmsg)
+    agent_id = runtaskmsg.task.slave_id
+    tasks_to_issue[agent_id].append(runtaskmsg)
 
 def pop_task(agent_id):
-	return tasks_to_issue[agent_id].pop() if tasks_to_issue[agent_id] else None
+    return tasks_to_issue[agent_id].pop() if tasks_to_issue[agent_id] else None
 
 def get_all_agents():
-	return agents.values()
+    return agents.values()
 
 def get_agent(agent_id):
-	return agents[agent_id]
+    return agents[agent_id]
 
 def delete_agent(agent_id):
-	if agent_id in agents:
-		del agents[agent_id]
+    print("Deleting agent " + str(agent_id))
+    if agent_id in agents:
+        del agents[agent_id]
+
+def has_agent(agent_id):
+    return agent_id in agents
+
+def clear_stale_agents():
+    agents_to_remove = []
+    for agent_id in agents.keys():
+        ping_rate = 5000
+        if agents[agent_id].ping_rate:
+            ping_rate = agents[agent_id].ping_rate
+        elapsed = time.time() * 1000 - last_ping[agent_id]
+        if elapsed > ping_rate * 2:
+            agents_to_remove.append(agent_id)
+    for agent_id in agents_to_remove:
+        delete_agent(agent_id)

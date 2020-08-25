@@ -18,7 +18,30 @@ import messages_pb2
 
 client = None
 agent_id = None
+ping_rate = 1000 #ping every 1000ms
 
+def addResourcesToPing(wrapper):
+    wrapper.ping.slave.ping_rate = ping_rate
+
+    # add CPU
+    cpu_resource = wrapper.ping.slave.resources.add()
+    cpu_resource.name = "cpus"
+    cpu_resource.type = messages_pb2.Value.SCALAR
+    cpu_list = psutil.cpu_percent(interval=1,percpu=True)
+    cpu_value = 0
+    for cpu in cpu_list:
+        cpu_value += (100 - cpu)/100
+    cpu_resource.scalar.value = cpu_value
+    print("CPU Available:")
+    print(cpu_resource)
+
+    # add MEMORY
+    mem_resource = wrapper.ping.slave.resources.add()
+    mem_resource.name = "mem"
+    mem_resource.type = messages_pb2.Value.SCALAR
+    mem_resource.scalar.value = psutil.virtual_memory().available
+    print("Memory Available:")
+    print(mem_resource)
 
 def main(host, port):  # pragma: no cover
     global client
@@ -34,39 +57,19 @@ def main(host, port):  # pragma: no cover
 
     # construct message
     wrapper = messages_pb2.WrapperMessage()
-
-    # add CPU
-    cpu_resource = wrapper.register_slave.slave.resources.add()
-    cpu_resource.name = "cpus"
-    cpu_resource.type = messages_pb2.Value.SCALAR
-    cpu_list = psutil.cpu_percent(interval=1,percpu=True)
-    cpu_value = 0
-    for cpu in cpu_list:
-        cpu_value += (100 - cpu)/100
-    cpu_resource.scalar.value = cpu_value
-    print("CPU Available:")
-    print(cpu_resource)
-
-    # add MEMORY
-    mem_resource = wrapper.register_slave.slave.resources.add()
-    mem_resource.name = "mem"
-    mem_resource.type = messages_pb2.Value.SCALAR
-    mem_resource.scalar.value = psutil.virtual_memory().available
-    print("Memory Available:")
-    print(mem_resource)
-
+    addResourcesToPing(wrapper)
     register_payload = wrapper.SerializeToString()
 
     print("Registering with master...")
 
     # register with master
     ct = {'content_type': defines.Content_types["application/octet-stream"]}
-    response = client.post('register', register_payload, timeout=2, **ct)
+    response = client.post('ping', register_payload, timeout=2, **ct)
     if response:
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.payload)
-        agent_id = wrapper.slave_registered.slave_id.value
-        print("My Agent ID is " + wrapper.slave_registered.slave_id.value)
+        agent_id = wrapper.pong.slave_id
+        print("My Agent ID is " + wrapper.pong.slave_id)
     else:
         print("Something went wrong...")
         client.stop()
@@ -75,9 +78,10 @@ def main(host, port):  # pragma: no cover
     # loop ping/pong
     try:
         while True:
-            time.sleep(1)
+            time.sleep(ping_rate / 1000)
             wrapper = messages_pb2.WrapperMessage()
-            wrapper.ping.slave_id.value = agent_id
+            wrapper.ping.slave_id = agent_id
+            addResourcesToPing(wrapper)
             print("")
             print("Ping!")
             ct = {'content_type': defines.Content_types["application/octet-stream"]}

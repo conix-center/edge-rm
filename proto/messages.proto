@@ -6,39 +6,23 @@ syntax = "proto2";
 message WrapperMessage {
   // required string type = 1;
   oneof msg {
-    RegisterSlaveMessage register_slave = 2;
-    SlaveRegisteredMessage slave_registered = 3;
-    PingSlaveMessage ping = 4;
-    PongSlaveMessage pong = 5;
-    RunTaskMessage run_task = 6;
-    ResourceOfferMessage offermsg = 7;
-    ResourceRequestMessage request = 8;
+    PingSlaveMessage ping = 2;
+    PongSlaveMessage pong = 3;
+    RunTaskMessage run_task = 4;
+    ResourceOfferMessage offermsg = 5;
+    ResourceRequestMessage request = 6;
   }
 }
 
 /**
- * A unique ID assigned to a slave. Currently, a slave gets a new ID
- * whenever it (re)registers. Framework writers shouldn't
- * assume any binding between a slave ID and and a hostname.
- */
-message SlaveID {
-  required string value = 1;
-}
-
-/**
- * Notifies the agent that the master has registered it.
- * The `slave_id` holds a unique ID for distinguishing this agent.
- */
-message SlaveRegisteredMessage {
-  required SlaveID slave_id = 1;
-}
-
-/**
+ * Used to register and/or update the master.
+ *
  * This message is periodically sent by the agent to the master.
- * If the agent is connected to the master, "connected" is true.
  */
 message PingSlaveMessage {
-  required SlaveID slave_id = 1;
+  required SlaveInfo slave = 1;
+  optional string slave_id = 2;
+  optional string name = 3;
 }
 
 /**
@@ -46,22 +30,10 @@ message PingSlaveMessage {
  * `PingSlaveMessage`.
  */
 message PongSlaveMessage {
-  required SlaveID slave_id = 1;
+  required string slave_id = 1;
 }
 
-/**
- * Describes an attribute that can be set on a machine. For now,
- * attributes and resources share the same "value" type, but this may
- * change in the future and attributes may only be string based.
- */
-message Attribute {
-  required string name = 1;
-  required Value.Type type = 2;
-  optional Value.Scalar scalar = 3;
-  optional Value.Ranges ranges = 4;
-  optional Value.Set set = 6;
-  optional Value.Text text = 5;
-}
+
 
 /**
  * Describes a slave. Note that the 'id' field is only available after
@@ -76,16 +48,10 @@ message SlaveInfo {
   repeated Attribute attributes = 2;
 
   // The Agent's ID
-  optional SlaveID id = 3;
-}
+  optional string id = 3;
 
-
-/**
- * Registers the agent with the master.
- */
-message RegisterSlaveMessage {
-  // The `Resources` in `SlaveInfo` offered by the agent
-  required SlaveInfo slave = 1;
+  //Ping rate in milliseconds, defaults to 5s
+  optional int32 ping_rate = 4; 
 }
 
 /**
@@ -115,6 +81,19 @@ message Resource {
   //
   // NOTE: Different shared resources must be uniquely identifiable.
   optional bool shared = 6;
+}
+/**
+ * Describes an attribute that can be set on a machine. For now,
+ * attributes and resources share the same "value" type, but this may
+ * change in the future and attributes may only be string based.
+ */
+message Attribute {
+  required string name = 1;
+  required Value.Type type = 2;
+  optional Value.Scalar scalar = 3;
+  optional Value.Ranges ranges = 4;
+  optional Value.Set set = 6;
+  optional Value.Text text = 5;
 }
 
 /**
@@ -239,25 +218,17 @@ message ContainerInfo {
   optional TTYInfo tty_info = 10;*/
 }
 
-message FrameworkID {
-  required string value = 1;
-}
-
 message FrameworkInfo {
   required string name = 2;
-  optional FrameworkID framework_id = 3;
+  optional string framework_id = 3;
   // There are more fields but they are mainly useful for how the master
   // Interacts with the framework scheduler, so for now we are going to forget them.
 }
 
-message TaskID {
-  required string value = 1;
-}
-
 message TaskInfo {
   required string name = 1;
-  required TaskID task_id = 2;
-  required SlaveID slave_id = 3;
+  required string task_id = 2;
+  required string slave_id = 3;
   repeated Resource resources = 4;
 
   // In Mesos there is an idea of an executor that manages multiple tasks
@@ -288,16 +259,16 @@ message RunTaskMessage {
  * contains resources from a single slave.
  */
 message ResourceRequestMessage {
-  required FrameworkID framework_id = 1;
+  required string framework_id = 1;
 }
 message ResourceOfferMessage {
-  required FrameworkID framework_id = 1;
+  required string framework_id = 1;
   repeated Offer offers = 2;
 }
 message Offer {
-  required OfferID id = 1;
-  required FrameworkID framework_id = 2;
-  required SlaveID slave_id = 3;
+  required string id = 1;
+  required string framework_id = 2;
+  required string slave_id = 3;
 
   repeated Resource resources = 5;
   repeated Attribute attributes = 7;
