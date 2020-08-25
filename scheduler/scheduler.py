@@ -5,6 +5,7 @@ import sys
 import psutil
 import time
 import argparse
+import uuid
 sys.path.insert(1, '../CoAPthon3')
 
 from coapthon.client.helperclient import HelperClient
@@ -20,7 +21,7 @@ def submitDummyTask(offers):
     print("Searching for a good offer...")
     slave_to_use = None
     resources_to_use = {}
-    for i in range(len(offers)):
+    for i in reversed(range(len(offers))):
         offer = offers[i]
         if offer.slave_id.value:
             resources_to_use = {}
@@ -43,7 +44,7 @@ def submitDummyTask(offers):
     wrapper.run_task.framework.name = framework_name
     wrapper.run_task.framework.framework_id.value = framework_id
     wrapper.run_task.task.name = "test task"
-    wrapper.run_task.task.task_id.value = "12D3"
+    wrapper.run_task.task.task_id.value = str(uuid.uuid1())
     wrapper.run_task.task.slave_id.value = slave_to_use
     for resource in resources_to_use:
         r = wrapper.run_task.task.resources.add()
@@ -52,7 +53,7 @@ def submitDummyTask(offers):
         r.scalar.value = resources_to_use[resource]
     # wrapper.run_task.task.resources.extend(resources_to_use)
     wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.DOCKER
-    wrapper.run_task.task.container.docker.image = "hello-world"
+    wrapper.run_task.task.container.docker.image = "eclipse-mosquitto"
     wrapper.run_task.task.container.docker.network = messages_pb2.ContainerInfo.DockerInfo.Network.HOST
     port_mapping = wrapper.run_task.task.container.docker.port_mappings.add()
     port_mapping.host_port = 3000
@@ -129,6 +130,6 @@ def main(host, port):  # pragma: no cover
 if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(description='Launch a CoAP Resource Manager Framework')
     parser.add_argument('--host', required=True, help='the Edge RM Master IP to register with.')
-    parser.add_argument('--port', required=True, help='the Edge RM Master port to register on.')
+    parser.add_argument('--port', required=False, default=5683, help='the Edge RM Master port to register on.')
     args = parser.parse_args()
     main(args.host, args.port)

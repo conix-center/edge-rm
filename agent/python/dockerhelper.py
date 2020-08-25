@@ -36,8 +36,9 @@ def fetchImage(imageURL, forcepull=False):
 
     return image
 
-def runImage(image, cpu_shares, mem_limit, network, ports):
-    container = client.containers.run(image,cpu_quota=int(cpu_shares),cpu_period=100000,mem_limit=int(mem_limit),network_mode=network,ports=ports,detach=True)
+def runImage(image, cpu_shares, mem_limit, network, ports, frameworkName,taskID):
+    containerName = str(frameworkName + '-' + taskID).replace(" ","-")
+    container = client.containers.run(image,cpu_quota=int(cpu_shares),cpu_period=100000,mem_limit=int(mem_limit),network_mode=network,ports=ports,detach=True,name=containerName)
     # container = client.containers.run(image,detach=True)
     # print(container.logs())
     time.sleep(5)
@@ -45,6 +46,8 @@ def runImage(image, cpu_shares, mem_limit, network, ports):
 
 def runImageFromWrapper(wrapper):
     imageName = wrapper.run_task.task.container.docker.image
+    frameworkName = wrapper.run_task.framework.name
+    taskID = wrapper.run_task.task.task_id.value
     cpu_shares = None
     mem_limit = None
     network_setting = "host"
@@ -65,4 +68,4 @@ def runImageFromWrapper(wrapper):
         if limit.name == "mem":
             mem_limit = limit.scalar.value
     print(imageName, network_setting, ports)
-    runImage(imageName, cpu_shares, mem_limit, network_setting, ports)
+    runImage(imageName, cpu_shares, mem_limit, network_setting, ports,frameworkName,taskID)
