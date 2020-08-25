@@ -124,28 +124,16 @@ class PingResource(Resource):
         self.interface_type = "if1"
 
     def render_POST_advanced(self, request, response):
-        # res = self.init_resource(request, PingResource())
-
         #unpack request
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(request.payload)
 
-        # add resource to db
-        if wrapper.ping.slave.id == '':
-            # need to register
-            if not wrapper.ping.slave:
-                # no slave info...
-                return self
-            agent_id = db.add_agent(wrapper.ping.slave)
-            print("Registered Agent: " + str(agent_id))
-            print(db.get_all_agents())
-            task_to_run = None
-        else:
-            # registered, this is a standard ping
-            agent_id = wrapper.ping.slave.id
-            print("Ping! Agent (" + str(agent_id) + ")")
-            db.refresh_agent(agent_id, wrapper.ping.slave)
-            task_to_run = db.pop_task(agent_id)
+        agent_id = wrapper.ping.slave.id
+        if not agent_id:
+            return self
+        print("Ping! Agent (" + str(agent_id) + ")")
+        db.refresh_agent(agent_id, wrapper.ping.slave)
+        task_to_run = db.pop_task(agent_id)
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
