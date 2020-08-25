@@ -47,7 +47,7 @@ def runImage(image, cpu_shares, mem_limit, network, ports, frameworkName,taskID)
 def runImageFromWrapper(wrapper):
     imageName = wrapper.run_task.task.container.docker.image
     frameworkName = wrapper.run_task.framework.name
-    taskID = wrapper.run_task.task.task_id.value
+    taskID = wrapper.run_task.task.task_id
     cpu_shares = None
     mem_limit = None
     network_setting = "host"
