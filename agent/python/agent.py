@@ -83,10 +83,10 @@ def main(host, port):  # pragma: no cover
                 print("Pong!")
                 wrapper = messages_pb2.WrapperMessage()
                 wrapper.ParseFromString(response.payload)
-                if wrapper.run_task.task.name:
-                    if wrapper.run_task.task.container.type == messages_pb2.ContainerInfo.Type.DOCKER:
+                if wrapper.pong.run_task.task.name:
+                    if wrapper.pong.run_task.task.container.type == messages_pb2.ContainerInfo.Type.DOCKER:
                         print("Received Docker Task!!")
-                        dockerhelper.runImageFromWrapper(wrapper)
+                        dockerhelper.runImageFromRunTask(wrapper.pong.run_task)
     except KeyboardInterrupt:
         print("Client Shutdown")
         # TODO: Deregister
