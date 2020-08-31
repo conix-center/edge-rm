@@ -21,6 +21,7 @@ message WrapperMessage {
  */
 message PingSlaveMessage {
   required SlaveInfo slave = 1;
+  repeated TaskInfo tasks = 2;
 }
 
 /**
@@ -29,6 +30,7 @@ message PingSlaveMessage {
  */
 message PongSlaveMessage {
   required string slave_id = 1;
+  repeated RunTaskMessage tasks = 2;
 }
 
 
@@ -239,6 +241,16 @@ message TaskInfo {
   // It's likely in the future we will need to support the executor/task split to support existing frameworks that expect to run many tiny tasks in a managed way.
 
   required ContainerInfo container = 9;
+
+  enum TaskState {
+    COMPLETED = 0;
+    ERRORED = 1;
+    RUNNING = 2;
+    ISSUED = 3;
+  }
+
+  optional TaskState state = 5;
+  optional string error_message = 6;
 }
 
 // Run task message is sent from scheduler to master to agent to launch a task as requested by a framework
