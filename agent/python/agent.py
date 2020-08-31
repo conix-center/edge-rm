@@ -8,6 +8,7 @@ import time
 import uuid
 import argparse
 import dockerhelper
+import socket
 coapPath = os.path.abspath("../../CoAPthon3")
 sys.path.insert(1, coapPath)
 
@@ -19,11 +20,13 @@ import messages_pb2
 
 client = None
 agent_id = str(uuid.getnode())
+agent_name = socket.gethostname()
 ping_rate = 1000 #ping every 1000ms
 
 def constructPing(wrapper):
     wrapper.ping.slave.ping_rate = ping_rate
     wrapper.ping.slave.id = agent_id
+    wrapper.ping.slave.name = agent_name
 
     # add CPU
     cpu_resource = wrapper.ping.slave.resources.add()
