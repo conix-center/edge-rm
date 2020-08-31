@@ -12,7 +12,6 @@ agentsDict = {}
 
 #same for tasks
 tasks = {}
-tasksDict = {}
 
 #same for frameworks
 frameworks = {}
@@ -34,12 +33,10 @@ def refresh_agent(aid, slave):
 
 def add_task(runtaskmsg):
     task_id = runtaskmsg.task.task_id
-    tasks[task_id] = runtaskmsg
-    if task_id not in tasksDict:
-        tasksDict[task_id] = {}
-        tasksDict[task_id]['state'] = 'unissued'
-    else:
-        tasksDict[task_id]['state'] = 'unissued'
+
+    # Save the task and update state
+    tasks[task_id] = runtaskmsg.task
+    tasks[task_id].state = messages_pb2.TaskInfo.TaskState.UNISSUED
 
     # At the same time add the frameworks
     framework_id = runtaskmsg.task.framework.framework_id
@@ -50,15 +47,15 @@ def add_task(runtaskmsg):
 def get_tasks_by_agent(agent_id):
     tasks_by_agent = []
     for task_id, task in tasks.items():
-        if task.task.slave_id == agent_id:
+        if task.slave_id == agent_id:
             tasks_by_agent.append(task)
 
     return tasks_by_agent
     
 def get_next_unissued_task_by_agent(agent_id):
     for task_id, task in tasks.items():
-        if task.task.slave_id == agent_id and tasksDict[task_id]['state'] == 'unissued':
-            tasksDict[task_id]['state'] = 'issued'
+        if task.slave_id == agent_id and task.state == messages_pb2.TaskInfo.TaskState.UNISSUED:
+            task.state = messages_pb2.TaskInfo.TaskState.ISSUED
             return task
 
 def get_all_tasks():
@@ -68,7 +65,6 @@ def get_all_tasks_as_dict():
     tasks_as_dict = {}
     for task_id, task in tasks.items():
         tasks_as_dict[task_id] = MessageToDict(task)
-        tasks_as_dict[task_id].update(tasksDict[task_id])
 
     return tasks_as_dict.values()
 

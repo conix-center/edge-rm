@@ -151,7 +151,7 @@ class PingResource(Resource):
         wrapper.pong.slave_id = str(agent_id)
         if task_to_run:
             print("Got a task to schedule!!!")
-            wrapper.pong.run_task.CopyFrom(task_to_run)
+            wrapper.pong.run_task.task.CopyFrom(task_to_run)
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CONTENT.number
         # response.code = defines.Codes.CHANGED.number
