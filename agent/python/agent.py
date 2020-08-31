@@ -67,6 +67,7 @@ def main(host, port):  # pragma: no cover
 
     print("Registering with master...")
     print("My Agent ID is " + agent_id)
+    print("My Agent name is " + agent_name)
 
     # loop ping/pong
     try:
