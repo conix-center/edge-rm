@@ -14,6 +14,10 @@ agentsDict = {}
 tasks = {}
 tasksDict = {}
 
+#same for frameworks
+frameworks = {}
+frameworksDict = {}
+
 def get_offer_id():
     return str(uuid.uuid4())
 
@@ -36,6 +40,10 @@ def add_task(runtaskmsg):
         tasksDict[task_id]['state'] = 'unissued'
     else:
         tasksDict[task_id]['state'] = 'unissued'
+
+    # At the same time add the frameworks
+    framework_id = runtaskmsg.task.framework.framework_id
+    frameworks[framework_id] = runtaskmsg.task.framework
 
     return task_id
 
@@ -74,6 +82,16 @@ def get_all_agents_as_dict():
         agents_as_dict[agent_id].update(agentsDict[agent_id])
 
     return agents_as_dict.values()
+
+def get_all_frameworks():
+    return frameworks.values()
+
+def get_all_frameworks_as_dict():
+    frameworks_as_dict = {}
+    for framework_id, framework in frameworks.items():
+        frameworks_as_dict[framework_id] = MessageToDict(framework)
+
+    return frameworks_as_dict.values()
 
 def clear_stale_agents():
     agents_to_remove = []
