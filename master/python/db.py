@@ -31,6 +31,16 @@ def refresh_agent(aid, slave):
 
     return aid
 
+def refresh_tasks(new_tasks):
+    #update teh tasks
+    for task in new_tasks:
+        #if the task already exists
+        if task.task_id in tasks and task.state:
+            tasks[task.task_id].state = task.state
+        else:
+            #if it doesn't
+            tasks[task.task_id] = task
+
 def add_task(runtaskmsg):
     task_id = runtaskmsg.task.task_id
 

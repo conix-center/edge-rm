@@ -142,7 +142,7 @@ class PingResource(Resource):
         db.refresh_agent(agent_id, wrapper.ping.slave)
 
         #update the state of any tasks it may have sent
-        #db.refresh_tasks(agent_id, wrapper.ping.tasks)
+        db.refresh_tasks(wrapper.ping.tasks)
 
         task_to_run = db.get_next_unissued_task_by_agent(agent_id)
 
