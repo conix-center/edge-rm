@@ -185,10 +185,10 @@ def get_agents():
 #@app.route('/frameworks', methods=['GET'])
 #def get_frameworks():
 #    return "<h1>Distant Reading Archive</h1><p>This site is a prototype API for distant reading of science fiction novels.</p>"
-#
-#@app.route('/tasks', methods=['GET'])
-#def get_tasks():
-#    return "<h1>Distant Reading Archive</h1><p>This site is a prototype API for distant reading of science fiction novels.</p>"
+
+@app.route('/tasks', methods=['GET'])
+def get_tasks():
+    return flask.jsonify(list(db.get_all_tasks_as_dict()))
 
 def start_api_server(host, port):
     app.run(host=host,port=port)

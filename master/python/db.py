@@ -53,6 +53,17 @@ def get_next_unissued_task_by_agent(agent_id):
             tasksDict[task_id]['state'] = 'issued'
             return task
 
+def get_all_tasks():
+    return tasks.values()
+
+def get_all_tasks_as_dict():
+    tasks_as_dict = {}
+    for task_id, task in tasks.items():
+        tasks_as_dict[task_id] = MessageToDict(task)
+        tasks_as_dict[task_id].update(tasksDict[task_id])
+
+    return tasks_as_dict.values()
+
 def get_all_agents():
     return agents.values()
 
