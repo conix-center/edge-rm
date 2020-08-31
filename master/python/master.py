@@ -137,7 +137,13 @@ class PingResource(Resource):
         if not agent_id:
             return self
         print("Ping! Agent (" + str(agent_id) + ")")
+
+        #refresh the agent timing
         db.refresh_agent(agent_id, wrapper.ping.slave)
+
+        #update the state of any tasks it may have sent
+        #db.refresh_tasks(agent_id, wrapper.ping.tasks)
+
         task_to_run = db.get_next_unissued_task_by_agent(agent_id)
 
         # construct response
@@ -182,9 +188,9 @@ def start_coap_server(ip, port):  # pragma: no cover
 def get_agents():
     return flask.jsonify(list(db.get_all_agents_as_dict()))
 
-#@app.route('/frameworks', methods=['GET'])
-#def get_frameworks():
-#    return "<h1>Distant Reading Archive</h1><p>This site is a prototype API for distant reading of science fiction novels.</p>"
+@app.route('/frameworks', methods=['GET'])
+def get_frameworks():
+    return flask.jsonify(list(db.get_all_frameworks_as_dict()))
 
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
@@ -204,7 +210,7 @@ if __name__ == "__main__":  # pragma: no cover
     args = parser.parse_args()
 
     #start API server in a thread
-    api_server_thread = threading.Thread(target=start_api_server,args=(args.host,args.api_port,))
+    api_server_thread = threading.Thread(target=start_api_server,args=(args.host,args.api_port,), daemon = True)
     api_server_thread.start()
 
     #start coap server
