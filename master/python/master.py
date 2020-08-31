@@ -191,8 +191,8 @@ def get_agents():
 #def get_tasks():
 #    return "<h1>Distant Reading Archive</h1><p>This site is a prototype API for distant reading of science fiction novels.</p>"
 
-def start_api_server():
-    app.run(port=8080)
+def start_api_server(host, port):
+    app.run(host=host,port=port)
 
 
 if __name__ == "__main__":  # pragma: no cover
@@ -201,10 +201,11 @@ if __name__ == "__main__":  # pragma: no cover
     parser = argparse.ArgumentParser(description='Launch the CoAP Resource Manager Master')
     parser.add_argument('--host', required=True, help='the LAN IP to bind to.')
     parser.add_argument('--port', required=False, default=5683, help='the local machine port to bind to.')
+    parser.add_argument('--api-port', required=False, default=8080, help='the local machine port to bind to.')
     args = parser.parse_args()
 
     #start API server in a thread
-    api_server_thread = threading.Thread(target=start_api_server)
+    api_server_thread = threading.Thread(target=start_api_server,args=(args.host,args.api_port,))
     api_server_thread.start()
 
     #start coap server
