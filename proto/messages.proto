@@ -30,7 +30,7 @@ message PingSlaveMessage {
  */
 message PongSlaveMessage {
   required string slave_id = 1;
-  repeated RunTaskMessage tasks = 2;
+  optional RunTaskMessage run_task = 2;
 }
 
 
@@ -233,6 +233,7 @@ message TaskInfo {
   required string task_id = 2;
   required string slave_id = 3;
   repeated Resource resources = 4;
+  required FrameworkInfo framework = 5;
 
   // In Mesos there is an idea of an executor that manages multiple tasks
   // For now I propose that we don't worry about the performance benefits that would allow
@@ -247,16 +248,16 @@ message TaskInfo {
     ERRORED = 1;
     RUNNING = 2;
     ISSUED = 3;
+    UNISSUED = 4;
   }
 
-  optional TaskState state = 5;
-  optional string error_message = 6;
+  optional TaskState state = 6;
+  optional string error_message = 7;
 }
 
 // Run task message is sent from scheduler to master to agent to launch a task as requested by a framework
 // Mostly copied from mesos
 message RunTaskMessage {
-  required FrameworkInfo framework = 2;
   required TaskInfo task = 4;
   //required bool launch_executor = 6;
 }

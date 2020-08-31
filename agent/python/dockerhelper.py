@@ -44,25 +44,25 @@ def runImage(image, cpu_shares, mem_limit, network, ports, frameworkName,taskID)
     time.sleep(5)
     print(container.logs())
 
-def runImageFromWrapper(wrapper):
-    imageName = wrapper.run_task.task.container.docker.image
-    frameworkName = wrapper.run_task.framework.name
-    taskID = wrapper.run_task.task.task_id
+def runImageFromRunTask(run_task):
+    imageName = run_task.task.container.docker.image
+    frameworkName = run_task.task.framework.name
+    taskID = run_task.task.task_id
     cpu_shares = None
     mem_limit = None
     network_setting = "host"
-    if wrapper.run_task.task.container.docker.network == messages_pb2.ContainerInfo.DockerInfo.Network.BRIDGE:
+    if run_task.task.container.docker.network == messages_pb2.ContainerInfo.DockerInfo.Network.BRIDGE:
         network_setting = "bridge"
-    if wrapper.run_task.task.container.docker.network == messages_pb2.ContainerInfo.DockerInfo.Network.NONE:
+    if run_task.task.container.docker.network == messages_pb2.ContainerInfo.DockerInfo.Network.NONE:
         network_setting = "none"
     ports = {}
-    for port in wrapper.run_task.task.container.docker.port_mappings:
+    for port in run_task.task.container.docker.port_mappings:
         host = str(port.host_port)
         container = str(port.container_port)
         if port.protocol:
             container += "/" + port.protocol
         ports[container] = host
-    for limit in wrapper.run_task.task.resources:
+    for limit in run_task.task.resources:
         if limit.name == "cpus":
             cpu_shares = limit.scalar.value*100000
         if limit.name == "mem":

@@ -41,8 +41,8 @@ def submitDummyTask(offers):
 
     # construct message
     wrapper = messages_pb2.WrapperMessage()
-    wrapper.run_task.framework.name = framework_name
-    wrapper.run_task.framework.framework_id = framework_id
+    wrapper.run_task.task.framework.name = framework_name
+    wrapper.run_task.task.framework.framework_id = framework_id
     wrapper.run_task.task.name = "test task"
     wrapper.run_task.task.task_id = str(uuid.uuid1())
     wrapper.run_task.task.slave_id = slave_to_use

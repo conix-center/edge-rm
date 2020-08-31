@@ -98,8 +98,8 @@ class RunTaskResource(Resource):
         wrapper.ParseFromString(request.payload)
 
         # print request (do nothing right now)
-        print("    Framework Name: " + wrapper.run_task.framework.name)
-        print("    Framework ID:   " + wrapper.run_task.framework.framework_id)
+        print("    Framework Name: " + wrapper.run_task.task.framework.name)
+        print("    Framework ID:   " + wrapper.run_task.task.framework.framework_id)
         print("    Task Name:      " + wrapper.run_task.task.name)
         print("    Task ID:        " + wrapper.run_task.task.task_id)
         print("    Selected Slave: " + wrapper.run_task.task.slave_id)
@@ -142,11 +142,10 @@ class PingResource(Resource):
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
+        wrapper.pong.slave_id = str(agent_id)
         if task_to_run:
             print("Got a task to schedule!!!")
-            wrapper.run_task.CopyFrom(task_to_run)
-        else:
-            wrapper.pong.slave_id = str(agent_id)
+            wrapper.pong.run_task.CopyFrom(task_to_run)
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CONTENT.number
         # response.code = defines.Codes.CHANGED.number
