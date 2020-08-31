@@ -2,6 +2,7 @@ import messages_pb2
 import threading
 import time
 import uuid
+from google.protobuf.json_format import MessageToDict
 
 agents = {}
 tasks_to_issue = {}
@@ -15,7 +16,8 @@ def refresh_agent(aid, slave):
     if aid not in tasks_to_issue:
         tasks_to_issue[aid] = []
     slave.id = aid
-    agents[aid] = slave
+    agents[aid] = MessageToDict(slave)
+    agents[aid]['lastPing'] = time.time()*1000
     return aid
 
 def schedule_task(runtaskmsg):

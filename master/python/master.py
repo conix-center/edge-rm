@@ -4,6 +4,11 @@ import argparse
 import getopt
 import time
 import sys
+import threading
+
+import flask
+app = flask.Flask(__name__)
+
 sys.path.insert(1, '../../CoAPthon3')
 from coapthon.server.coap import CoAP
 from coapthon import defines
@@ -160,7 +165,7 @@ class CoAPServer(CoAP):
         print ("CoAP Server start on " + host + ":" + str(port))
         print (self.root.dump())
 
-def main(ip, port):  # pragma: no cover
+def start_coap_server(ip, port):  # pragma: no cover
     multicast = False
     server = CoAPServer(ip, int(port), multicast)
     try:
@@ -171,6 +176,25 @@ def main(ip, port):  # pragma: no cover
         print("Exiting...")
 
 
+### This section is responsible for the api server
+@app.route('/agents', methods=['GET'])
+@app.route('/', methods=['GET'])
+def get_agents():
+    print(db.get_all_agents())
+    return flask.jsonify(list(db.get_all_agents()))
+
+#@app.route('/frameworks', methods=['GET'])
+#def get_frameworks():
+#    return "<h1>Distant Reading Archive</h1><p>This site is a prototype API for distant reading of science fiction novels.</p>"
+#
+#@app.route('/tasks', methods=['GET'])
+#def get_tasks():
+#    return "<h1>Distant Reading Archive</h1><p>This site is a prototype API for distant reading of science fiction novels.</p>"
+
+def start_api_server():
+    app.run(port=8080)
+
+
 if __name__ == "__main__":  # pragma: no cover
     # if sys.version_info[0] >= 3:
     #     raise Exception("Must be using Python 2 (yeah...)")
@@ -178,4 +202,10 @@ if __name__ == "__main__":  # pragma: no cover
     parser.add_argument('--host', required=True, help='the LAN IP to bind to.')
     parser.add_argument('--port', required=False, default=5683, help='the local machine port to bind to.')
     args = parser.parse_args()
-    main(args.host, args.port)
+
+    #start API server in a thread
+    api_server_thread = threading.Thread(target=start_api_server)
+    api_server_thread.start()
+
+    #start coap server
+    start_coap_server(args.host, args.port)
