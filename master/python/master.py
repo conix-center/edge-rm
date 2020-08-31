@@ -108,7 +108,7 @@ class RunTaskResource(Resource):
             print("        Resource: (" + resource.name + ") type: " + str(resource.type) + " amt: " + str(resource.scalar).strip())
 
         # TODO: Forward the request onto the particular device through a ping/pong
-        db.schedule_task(wrapper.run_task)
+        db.add_task(wrapper.run_task)
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
@@ -138,7 +138,7 @@ class PingResource(Resource):
             return self
         print("Ping! Agent (" + str(agent_id) + ")")
         db.refresh_agent(agent_id, wrapper.ping.slave)
-        task_to_run = db.pop_task(agent_id)
+        task_to_run = db.get_next_unissued_task_by_agent(agent_id)
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
@@ -180,8 +180,7 @@ def start_coap_server(ip, port):  # pragma: no cover
 @app.route('/agents', methods=['GET'])
 @app.route('/', methods=['GET'])
 def get_agents():
-    print(db.get_all_agents())
-    return flask.jsonify(list(db.get_all_agents()))
+    return flask.jsonify(list(db.get_all_agents_as_dict()))
 
 #@app.route('/frameworks', methods=['GET'])
 #def get_frameworks():
