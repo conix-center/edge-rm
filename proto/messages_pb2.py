@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=b'\n\x0emessages.proto\"\xd9\x01\n\x0eWrapperMessage\x12!\n\x04ping\x18\x02 \x01(\x0b\x32\x11.PingSlaveMessageH\x00\x12!\n\x04pong\x18\x03 \x01(\x0b\x32\x11.PongSlaveMessageH\x00\x12#\n\x08run_task\x18\x04 \x01(\x0b\x32\x0f.RunTaskMessageH\x00\x12)\n\x08offermsg\x18\x05 \x01(\x0b\x32\x15.ResourceOfferMessageH\x00\x12*\n\x07request\x18\x06 \x01(\x0b\x32\x17.ResourceRequestMessageH\x00\x42\x05\n\x03msg\"G\n\x10PingSlaveMessage\x12\x19\n\x05slave\x18\x01 \x02(\x0b\x32\n.SlaveInfo\x12\x18\n\x05tasks\x18\x02 \x03(\x0b\x32\t.TaskInfo\"G\n\x10PongSlaveMessage\x12\x10\n\x08slave_id\x18\x01 \x02(\t\x12!\n\x08run_task\x18\x02 \x01(\x0b\x32\x0f.RunTaskMessage\"v\n\tSlaveInfo\x12\x1c\n\tresources\x18\x01 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x02 \x03(\x0b\x32\n.Attribute\x12\n\n\x02id\x18\x03 \x01(\t\x12\x0c\n\x04name\x18\x04 \x01(\t\x12\x11\n\tping_rate\x18\x05 \x01(\x05\"\xb5\x01\n\x08Resource\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x05 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x07 \x01(\x0b\x32\x0b.Value.Text\x12\x0e\n\x06shared\x18\x06 \x01(\x08\"\xa6\x01\n\tAttribute\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x06 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\"\xd8\x02\n\x05Value\x12\x19\n\x04type\x18\x01 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x02 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x03 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x04 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\x1a\x17\n\x06Scalar\x12\r\n\x05value\x18\x01 \x02(\x01\x1a#\n\x05Range\x12\r\n\x05\x62\x65gin\x18\x01 \x02(\x04\x12\x0b\n\x03\x65nd\x18\x02 \x02(\x04\x1a%\n\x06Ranges\x12\x1b\n\x05range\x18\x01 \x03(\x0b\x32\x0c.Value.Range\x1a\x13\n\x03Set\x12\x0c\n\x04item\x18\x01 \x03(\t\x1a\x15\n\x04Text\x12\r\n\x05value\x18\x01 \x02(\t\"1\n\x04Type\x12\n\n\x06SCALAR\x10\x00\x12\n\n\x06RANGES\x10\x01\x12\x07\n\x03SET\x10\x02\x12\x08\n\x04TEXT\x10\x03\"\x89\x04\n\rContainerInfo\x12!\n\x04type\x18\x01 \x02(\x0e\x32\x13.ContainerInfo.Type\x12)\n\x06\x64ocker\x18\x03 \x01(\x0b\x32\x19.ContainerInfo.DockerInfo\x12%\n\x04wasm\x18\x05 \x01(\x0b\x32\x17.ContainerInfo.WASMInfo\x1a\xc9\x02\n\nDockerInfo\x12\r\n\x05image\x18\x01 \x02(\t\x12\x38\n\x07network\x18\x02 \x01(\x0e\x32!.ContainerInfo.DockerInfo.Network:\x04HOST\x12<\n\rport_mappings\x18\x03 \x03(\x0b\x32%.ContainerInfo.DockerInfo.PortMapping\x12\x18\n\x10\x66orce_pull_image\x18\x06 \x01(\x08\x12\x19\n\rvolume_driver\x18\x07 \x01(\tB\x02\x18\x01\x1aJ\n\x0bPortMapping\x12\x11\n\thost_port\x18\x01 \x02(\r\x12\x16\n\x0e\x63ontainer_port\x18\x02 \x02(\r\x12\x10\n\x08protocol\x18\x03 \x01(\t\"3\n\x07Network\x12\x08\n\x04HOST\x10\x01\x12\n\n\x06\x42RIDGE\x10\x02\x12\x08\n\x04NONE\x10\x03\x12\x08\n\x04USER\x10\x04\x1a\x19\n\x08WASMInfo\x12\r\n\x05\x65mpty\x18\x01 \x02(\t\"\x1c\n\x04Type\x12\n\n\x06\x44OCKER\x10\x01\x12\x08\n\x04WASM\x10\x02\"3\n\rFrameworkInfo\x12\x0c\n\x04name\x18\x02 \x02(\t\x12\x14\n\x0c\x66ramework_id\x18\x03 \x01(\t\"\xc4\x02\n\x08TaskInfo\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0f\n\x07task_id\x18\x02 \x02(\t\x12\x10\n\x08slave_id\x18\x03 \x02(\t\x12\x1c\n\tresources\x18\x04 \x03(\x0b\x32\t.Resource\x12!\n\tframework\x18\x05 \x02(\x0b\x32\x0e.FrameworkInfo\x12!\n\tcontainer\x18\t \x02(\x0b\x32\x0e.ContainerInfo\x12\"\n\x05state\x18\x06 \x01(\x0e\x32\x13.TaskInfo.TaskState\x12\x15\n\rerror_message\x18\x07 \x01(\t\"h\n\tTaskState\x12\r\n\tCOMPLETED\x10\x00\x12\x0b\n\x07\x45RRORED\x10\x01\x12\x0b\n\x07RUNNING\x10\x02\x12\n\n\x06ISSUED\x10\x03\x12\x0c\n\x08UNISSUED\x10\x04\x12\x0c\n\x08STARTING\x10\x05\x12\n\n\x06KILLED\x10\x06\")\n\x0eRunTaskMessage\x12\x17\n\x04task\x18\x04 \x02(\x0b\x32\t.TaskInfo\".\n\x16ResourceRequestMessage\x12\x14\n\x0c\x66ramework_id\x18\x01 \x02(\t\"D\n\x14ResourceOfferMessage\x12\x14\n\x0c\x66ramework_id\x18\x01 \x02(\t\x12\x16\n\x06offers\x18\x02 \x03(\x0b\x32\x06.Offer\"y\n\x05Offer\x12\n\n\x02id\x18\x01 \x02(\t\x12\x14\n\x0c\x66ramework_id\x18\x02 \x02(\t\x12\x10\n\x08slave_id\x18\x03 \x02(\t\x12\x1c\n\tresources\x18\x05 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x07 \x03(\x0b\x32\n.Attribute\"\x18\n\x07OfferID\x12\r\n\x05value\x18\x01 \x02(\t'
+  serialized_pb=b'\n\x0emessages.proto\"\xd9\x01\n\x0eWrapperMessage\x12!\n\x04ping\x18\x02 \x01(\x0b\x32\x11.PingSlaveMessageH\x00\x12!\n\x04pong\x18\x03 \x01(\x0b\x32\x11.PongSlaveMessageH\x00\x12#\n\x08run_task\x18\x04 \x01(\x0b\x32\x0f.RunTaskMessageH\x00\x12)\n\x08offermsg\x18\x05 \x01(\x0b\x32\x15.ResourceOfferMessageH\x00\x12*\n\x07request\x18\x06 \x01(\x0b\x32\x17.ResourceRequestMessageH\x00\x42\x05\n\x03msg\"G\n\x10PingSlaveMessage\x12\x19\n\x05slave\x18\x01 \x02(\x0b\x32\n.SlaveInfo\x12\x18\n\x05tasks\x18\x02 \x03(\x0b\x32\t.TaskInfo\"G\n\x10PongSlaveMessage\x12\x10\n\x08slave_id\x18\x01 \x02(\t\x12!\n\x08run_task\x18\x02 \x01(\x0b\x32\x0f.RunTaskMessage\"v\n\tSlaveInfo\x12\x1c\n\tresources\x18\x01 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x02 \x03(\x0b\x32\n.Attribute\x12\n\n\x02id\x18\x03 \x01(\t\x12\x0c\n\x04name\x18\x04 \x01(\t\x12\x11\n\tping_rate\x18\x05 \x01(\x05\"\xb5\x01\n\x08Resource\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x05 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x07 \x01(\x0b\x32\x0b.Value.Text\x12\x0e\n\x06shared\x18\x06 \x01(\x08\"\xa6\x01\n\tAttribute\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x06 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\"\xd8\x02\n\x05Value\x12\x19\n\x04type\x18\x01 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x02 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x03 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x04 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\x1a\x17\n\x06Scalar\x12\r\n\x05value\x18\x01 \x02(\x01\x1a#\n\x05Range\x12\r\n\x05\x62\x65gin\x18\x01 \x02(\x04\x12\x0b\n\x03\x65nd\x18\x02 \x02(\x04\x1a%\n\x06Ranges\x12\x1b\n\x05range\x18\x01 \x03(\x0b\x32\x0c.Value.Range\x1a\x13\n\x03Set\x12\x0c\n\x04item\x18\x01 \x03(\t\x1a\x15\n\x04Text\x12\r\n\x05value\x18\x01 \x02(\t\"1\n\x04Type\x12\n\n\x06SCALAR\x10\x00\x12\n\n\x06RANGES\x10\x01\x12\x07\n\x03SET\x10\x02\x12\x08\n\x04TEXT\x10\x03\"\xbb\x06\n\rContainerInfo\x12!\n\x04type\x18\x01 \x02(\x0e\x32\x13.ContainerInfo.Type\x12)\n\x06\x64ocker\x18\x03 \x01(\x0b\x32\x19.ContainerInfo.DockerInfo\x12%\n\x04wasm\x18\x05 \x01(\x0b\x32\x17.ContainerInfo.WASMInfo\x1a\xfb\x04\n\nDockerInfo\x12\r\n\x05image\x18\x01 \x02(\t\x12\x38\n\x07network\x18\x02 \x01(\x0e\x32!.ContainerInfo.DockerInfo.Network:\x04HOST\x12<\n\rport_mappings\x18\x03 \x03(\x0b\x32%.ContainerInfo.DockerInfo.PortMapping\x12\x18\n\x10\x66orce_pull_image\x18\x06 \x01(\x08\x12\x1d\n\x15\x65nvironment_variables\x18\x07 \x03(\t\x12\x35\n\x07\x64\x65vices\x18\x08 \x03(\x0b\x32$.ContainerInfo.DockerInfo.DockerPath\x12\x35\n\x07volumes\x18\t \x03(\x0b\x32$.ContainerInfo.DockerInfo.DockerPath\x1aJ\n\x0bPortMapping\x12\x11\n\thost_port\x18\x01 \x02(\r\x12\x16\n\x0e\x63ontainer_port\x18\x02 \x02(\r\x12\x10\n\x08protocol\x18\x03 \x01(\t\x1a\xbd\x01\n\nDockerPath\x12\x11\n\thost_path\x18\x01 \x02(\t\x12\x16\n\x0e\x63ontainer_path\x18\x02 \x02(\t\x12S\n\npermission\x18\x03 \x01(\x0e\x32\x39.ContainerInfo.DockerInfo.DockerPath.DockerPathPermission:\x04READ\"/\n\x14\x44ockerPathPermission\x12\x08\n\x04READ\x10\x01\x12\r\n\tREADWRITE\x10\x02\"3\n\x07Network\x12\x08\n\x04HOST\x10\x01\x12\n\n\x06\x42RIDGE\x10\x02\x12\x08\n\x04NONE\x10\x03\x12\x08\n\x04USER\x10\x04\x1a\x19\n\x08WASMInfo\x12\r\n\x05\x65mpty\x18\x01 \x02(\t\"\x1c\n\x04Type\x12\n\n\x06\x44OCKER\x10\x01\x12\x08\n\x04WASM\x10\x02\"3\n\rFrameworkInfo\x12\x0c\n\x04name\x18\x02 \x02(\t\x12\x14\n\x0c\x66ramework_id\x18\x03 \x01(\t\"\xc4\x02\n\x08TaskInfo\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0f\n\x07task_id\x18\x02 \x02(\t\x12\x10\n\x08slave_id\x18\x03 \x02(\t\x12\x1c\n\tresources\x18\x04 \x03(\x0b\x32\t.Resource\x12!\n\tframework\x18\x05 \x02(\x0b\x32\x0e.FrameworkInfo\x12!\n\tcontainer\x18\t \x02(\x0b\x32\x0e.ContainerInfo\x12\"\n\x05state\x18\x06 \x01(\x0e\x32\x13.TaskInfo.TaskState\x12\x15\n\rerror_message\x18\x07 \x01(\t\"h\n\tTaskState\x12\r\n\tCOMPLETED\x10\x00\x12\x0b\n\x07\x45RRORED\x10\x01\x12\x0b\n\x07RUNNING\x10\x02\x12\n\n\x06ISSUED\x10\x03\x12\x0c\n\x08UNISSUED\x10\x04\x12\x0c\n\x08STARTING\x10\x05\x12\n\n\x06KILLED\x10\x06\")\n\x0eRunTaskMessage\x12\x17\n\x04task\x18\x04 \x02(\x0b\x32\t.TaskInfo\".\n\x16ResourceRequestMessage\x12\x14\n\x0c\x66ramework_id\x18\x01 \x02(\t\"D\n\x14ResourceOfferMessage\x12\x14\n\x0c\x66ramework_id\x18\x01 \x02(\t\x12\x16\n\x06offers\x18\x02 \x03(\x0b\x32\x06.Offer\"y\n\x05Offer\x12\n\n\x02id\x18\x01 \x02(\t\x12\x14\n\x0c\x66ramework_id\x18\x02 \x02(\t\x12\x10\n\x08slave_id\x18\x03 \x02(\t\x12\x1c\n\tresources\x18\x05 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x07 \x03(\x0b\x32\n.Attribute\"\x18\n\x07OfferID\x12\r\n\x05value\x18\x01 \x02(\t'
 )
 
 
@@ -53,6 +53,28 @@ _VALUE_TYPE = _descriptor.EnumDescriptor(
 )
 _sym_db.RegisterEnumDescriptor(_VALUE_TYPE)
 
+_CONTAINERINFO_DOCKERINFO_DOCKERPATH_DOCKERPATHPERMISSION = _descriptor.EnumDescriptor(
+  name='DockerPathPermission',
+  full_name='ContainerInfo.DockerInfo.DockerPath.DockerPathPermission',
+  filename=None,
+  file=DESCRIPTOR,
+  values=[
+    _descriptor.EnumValueDescriptor(
+      name='READ', index=0, number=1,
+      serialized_options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='READWRITE', index=1, number=2,
+      serialized_options=None,
+      type=None),
+  ],
+  containing_type=None,
+  serialized_options=None,
+  serialized_start=1875,
+  serialized_end=1922,
+)
+_sym_db.RegisterEnumDescriptor(_CONTAINERINFO_DOCKERINFO_DOCKERPATH_DOCKERPATHPERMISSION)
+
 _CONTAINERINFO_DOCKERINFO_NETWORK = _descriptor.EnumDescriptor(
   name='Network',
   full_name='ContainerInfo.DockerInfo.Network',
@@ -78,8 +100,8 @@ _CONTAINERINFO_DOCKERINFO_NETWORK = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1618,
-  serialized_end=1669,
+  serialized_start=1924,
+  serialized_end=1975,
 )
 _sym_db.RegisterEnumDescriptor(_CONTAINERINFO_DOCKERINFO_NETWORK)
 
@@ -100,8 +122,8 @@ _CONTAINERINFO_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1698,
-  serialized_end=1726,
+  serialized_start=2004,
+  serialized_end=2032,
 )
 _sym_db.RegisterEnumDescriptor(_CONTAINERINFO_TYPE)
 
@@ -142,8 +164,8 @@ _TASKINFO_TASKSTATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2002,
-  serialized_end=2106,
+  serialized_start=2308,
+  serialized_end=2412,
 )
 _sym_db.RegisterEnumDescriptor(_TASKINFO_TASKSTATE)
 
@@ -741,8 +763,53 @@ _CONTAINERINFO_DOCKERINFO_PORTMAPPING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1542,
-  serialized_end=1616,
+  serialized_start=1656,
+  serialized_end=1730,
+)
+
+_CONTAINERINFO_DOCKERINFO_DOCKERPATH = _descriptor.Descriptor(
+  name='DockerPath',
+  full_name='ContainerInfo.DockerInfo.DockerPath',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='host_path', full_name='ContainerInfo.DockerInfo.DockerPath.host_path', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='container_path', full_name='ContainerInfo.DockerInfo.DockerPath.container_path', index=1,
+      number=2, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='permission', full_name='ContainerInfo.DockerInfo.DockerPath.permission', index=2,
+      number=3, type=14, cpp_type=8, label=1,
+      has_default_value=True, default_value=1,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+    _CONTAINERINFO_DOCKERINFO_DOCKERPATH_DOCKERPATHPERMISSION,
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=1733,
+  serialized_end=1922,
 )
 
 _CONTAINERINFO_DOCKERINFO = _descriptor.Descriptor(
@@ -781,16 +848,30 @@ _CONTAINERINFO_DOCKERINFO = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='volume_driver', full_name='ContainerInfo.DockerInfo.volume_driver', index=4,
-      number=7, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"".decode('utf-8'),
+      name='environment_variables', full_name='ContainerInfo.DockerInfo.environment_variables', index=4,
+      number=7, type=9, cpp_type=9, label=3,
+      has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
-      serialized_options=b'\030\001', file=DESCRIPTOR),
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='devices', full_name='ContainerInfo.DockerInfo.devices', index=5,
+      number=8, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='volumes', full_name='ContainerInfo.DockerInfo.volumes', index=6,
+      number=9, type=11, cpp_type=10, label=3,
+      has_default_value=False, default_value=[],
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
-  nested_types=[_CONTAINERINFO_DOCKERINFO_PORTMAPPING, ],
+  nested_types=[_CONTAINERINFO_DOCKERINFO_PORTMAPPING, _CONTAINERINFO_DOCKERINFO_DOCKERPATH, ],
   enum_types=[
     _CONTAINERINFO_DOCKERINFO_NETWORK,
   ],
@@ -801,7 +882,7 @@ _CONTAINERINFO_DOCKERINFO = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1340,
-  serialized_end=1669,
+  serialized_end=1975,
 )
 
 _CONTAINERINFO_WASMINFO = _descriptor.Descriptor(
@@ -830,8 +911,8 @@ _CONTAINERINFO_WASMINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1671,
-  serialized_end=1696,
+  serialized_start=1977,
+  serialized_end=2002,
 )
 
 _CONTAINERINFO = _descriptor.Descriptor(
@@ -876,7 +957,7 @@ _CONTAINERINFO = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1205,
-  serialized_end=1726,
+  serialized_end=2032,
 )
 
 
@@ -913,8 +994,8 @@ _FRAMEWORKINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1728,
-  serialized_end=1779,
+  serialized_start=2034,
+  serialized_end=2085,
 )
 
 
@@ -994,8 +1075,8 @@ _TASKINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1782,
-  serialized_end=2106,
+  serialized_start=2088,
+  serialized_end=2412,
 )
 
 
@@ -1025,8 +1106,8 @@ _RUNTASKMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2108,
-  serialized_end=2149,
+  serialized_start=2414,
+  serialized_end=2455,
 )
 
 
@@ -1056,8 +1137,8 @@ _RESOURCEREQUESTMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2151,
-  serialized_end=2197,
+  serialized_start=2457,
+  serialized_end=2503,
 )
 
 
@@ -1094,8 +1175,8 @@ _RESOURCEOFFERMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2199,
-  serialized_end=2267,
+  serialized_start=2505,
+  serialized_end=2573,
 )
 
 
@@ -1153,8 +1234,8 @@ _OFFER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2269,
-  serialized_end=2390,
+  serialized_start=2575,
+  serialized_end=2696,
 )
 
 
@@ -1184,8 +1265,8 @@ _OFFERID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2392,
-  serialized_end=2416,
+  serialized_start=2698,
+  serialized_end=2722,
 )
 
 _WRAPPERMESSAGE.fields_by_name['ping'].message_type = _PINGSLAVEMESSAGE
@@ -1236,8 +1317,13 @@ _VALUE.fields_by_name['set'].message_type = _VALUE_SET
 _VALUE.fields_by_name['text'].message_type = _VALUE_TEXT
 _VALUE_TYPE.containing_type = _VALUE
 _CONTAINERINFO_DOCKERINFO_PORTMAPPING.containing_type = _CONTAINERINFO_DOCKERINFO
+_CONTAINERINFO_DOCKERINFO_DOCKERPATH.fields_by_name['permission'].enum_type = _CONTAINERINFO_DOCKERINFO_DOCKERPATH_DOCKERPATHPERMISSION
+_CONTAINERINFO_DOCKERINFO_DOCKERPATH.containing_type = _CONTAINERINFO_DOCKERINFO
+_CONTAINERINFO_DOCKERINFO_DOCKERPATH_DOCKERPATHPERMISSION.containing_type = _CONTAINERINFO_DOCKERINFO_DOCKERPATH
 _CONTAINERINFO_DOCKERINFO.fields_by_name['network'].enum_type = _CONTAINERINFO_DOCKERINFO_NETWORK
 _CONTAINERINFO_DOCKERINFO.fields_by_name['port_mappings'].message_type = _CONTAINERINFO_DOCKERINFO_PORTMAPPING
+_CONTAINERINFO_DOCKERINFO.fields_by_name['devices'].message_type = _CONTAINERINFO_DOCKERINFO_DOCKERPATH
+_CONTAINERINFO_DOCKERINFO.fields_by_name['volumes'].message_type = _CONTAINERINFO_DOCKERINFO_DOCKERPATH
 _CONTAINERINFO_DOCKERINFO.containing_type = _CONTAINERINFO
 _CONTAINERINFO_DOCKERINFO_NETWORK.containing_type = _CONTAINERINFO_DOCKERINFO
 _CONTAINERINFO_WASMINFO.containing_type = _CONTAINERINFO
@@ -1370,6 +1456,13 @@ ContainerInfo = _reflection.GeneratedProtocolMessageType('ContainerInfo', (_mess
       # @@protoc_insertion_point(class_scope:ContainerInfo.DockerInfo.PortMapping)
       })
     ,
+
+    'DockerPath' : _reflection.GeneratedProtocolMessageType('DockerPath', (_message.Message,), {
+      'DESCRIPTOR' : _CONTAINERINFO_DOCKERINFO_DOCKERPATH,
+      '__module__' : 'messages_pb2'
+      # @@protoc_insertion_point(class_scope:ContainerInfo.DockerInfo.DockerPath)
+      })
+    ,
     'DESCRIPTOR' : _CONTAINERINFO_DOCKERINFO,
     '__module__' : 'messages_pb2'
     # @@protoc_insertion_point(class_scope:ContainerInfo.DockerInfo)
@@ -1389,6 +1482,7 @@ ContainerInfo = _reflection.GeneratedProtocolMessageType('ContainerInfo', (_mess
 _sym_db.RegisterMessage(ContainerInfo)
 _sym_db.RegisterMessage(ContainerInfo.DockerInfo)
 _sym_db.RegisterMessage(ContainerInfo.DockerInfo.PortMapping)
+_sym_db.RegisterMessage(ContainerInfo.DockerInfo.DockerPath)
 _sym_db.RegisterMessage(ContainerInfo.WASMInfo)
 
 FrameworkInfo = _reflection.GeneratedProtocolMessageType('FrameworkInfo', (_message.Message,), {
@@ -1441,5 +1535,4 @@ OfferID = _reflection.GeneratedProtocolMessageType('OfferID', (_message.Message,
 _sym_db.RegisterMessage(OfferID)
 
 
-_CONTAINERINFO_DOCKERINFO.fields_by_name['volume_driver']._options = None
 # @@protoc_insertion_point(module_scope)

@@ -181,21 +181,34 @@ message ContainerInfo {
 
     repeated PortMapping port_mappings = 3;
 
-    //optional bool privileged = 4 [default = false];
-
-    // Allowing arbitrary parameters to be passed to docker CLI.
-    // Note that anything passed to this field is not guaranteed
-    // to be supported moving forward, as we might move away from
-    // the docker CLI.
-    //repeated Parameter parameters = 5;
-
     // With this flag set to true, the docker containerizer will
     // pull the docker image from the registry even if the image
     // is already downloaded on the slave.
     optional bool force_pull_image = 6;
+   
+    // Environment variables to set in docker
+    // Each string of the form "ENV=xxx"
+    repeated string environment_variables = 7;
 
-    // The name of volume driver plugin.
-    optional string volume_driver = 7 [deprecated = true]; // Since 1.0
+    message DockerPath {
+
+      enum DockerPathPermission {
+        READ = 1;
+        READWRITE = 2;
+      }
+
+      required string host_path = 1;
+      required string container_path = 2;
+      optional DockerPathPermission permission = 3 [default = READ];
+    }
+
+    // Devices to set in docker
+    // Fill out DockerPath message above
+    repeated DockerPath devices = 8;
+
+    // Volumes to map into docker container. Useful for shared libs or preinstalled device APIs
+    // Fill out DockerPath options above
+    repeated DockerPath volumes = 9;
   }
 
   message WASMInfo {
