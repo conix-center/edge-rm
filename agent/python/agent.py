@@ -23,6 +23,8 @@ agent_id = str(uuid.getnode())
 agent_name = socket.gethostname()
 ping_rate = 1000 #ping every 1000ms
 
+tasks = {}
+
 def constructPing(wrapper):
     wrapper.ping.slave.ping_rate = ping_rate
     wrapper.ping.slave.id = agent_id
@@ -47,6 +49,18 @@ def constructPing(wrapper):
     mem_resource.scalar.value = psutil.virtual_memory().available
     print("Memory Available:")
     print(mem_resource)
+
+    # iterate through the containers and update the state
+    for task_id, task in tasks.items():
+        if task.container.type == messages_pb2.ContainerInfo.Type.DOCKER:
+            task.state = dockerhelper.getContainerStatus(task_id)
+            if task.state == messages_pb2.TaskInfo.ERRORED:
+                task.error_message = dockerhelper.getContainerLogs(task_id)
+
+    # add the state of tasks to the ping
+    wrapper.ping.tasks.extend(tasks.values())
+    print(wrapper.ping.tasks)
+
 
 def main(host, port):  # pragma: no cover
     global client
@@ -86,7 +100,16 @@ def main(host, port):  # pragma: no cover
                 if wrapper.pong.run_task.task.name:
                     if wrapper.pong.run_task.task.container.type == messages_pb2.ContainerInfo.Type.DOCKER:
                         print("Received Docker Task!!")
-                        dockerhelper.runImageFromRunTask(wrapper.pong.run_task)
+
+                        print("Storing task")
+                        tasks[wrapper.pong.run_task.task.task_id] = wrapper.pong.run_task.task
+
+                        print("Launching task")
+                        #for now just grab the container info. Let ping check the state on the next run
+                        containerInfo = dockerhelper.runImageFromRunTask(wrapper.pong.run_task)
+                    else:
+                        print("Agent cannot run this type of task")
+
     except KeyboardInterrupt:
         print("Client Shutdown")
         # TODO: Deregister

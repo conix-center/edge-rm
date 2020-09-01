@@ -37,6 +37,8 @@ def refresh_tasks(new_tasks):
         #if the task already exists
         if task.task_id in tasks and task.state:
             tasks[task.task_id].state = task.state
+            if task.error_message:
+                tasks[task.task_id].error_message = task.error_message
         else:
             #if it doesn't
             tasks[task.task_id] = task
