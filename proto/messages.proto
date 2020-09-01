@@ -249,6 +249,8 @@ message TaskInfo {
     RUNNING = 2;
     ISSUED = 3;
     UNISSUED = 4;
+    STARTING = 5;
+    KILLED = 6;
   }
 
   optional TaskState state = 6;
