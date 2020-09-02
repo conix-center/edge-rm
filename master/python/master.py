@@ -134,9 +134,10 @@ class PingResource(Resource):
         wrapper.ParseFromString(request.payload)
 
         agent_id = wrapper.ping.slave.id
+        agent_name = wrapper.ping.slave.name
         if not agent_id:
             return self
-        print("Ping! Agent (" + str(agent_id) + ")")
+        print("Ping! Agent ID:(" + str(agent_id) + ") Name:(" + str(agent_name) + ")")
 
         #refresh the agent timing
         db.refresh_agent(agent_id, wrapper.ping.slave)
