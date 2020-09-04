@@ -189,26 +189,6 @@ message ContainerInfo {
     // Environment variables to set in docker
     // Each string of the form "ENV=xxx"
     repeated string environment_variables = 7;
-
-    message DockerPath {
-
-      enum DockerPathPermission {
-        READ = 1;
-        READWRITE = 2;
-      }
-
-      required string host_path = 1;
-      required string container_path = 2;
-      optional DockerPathPermission permission = 3 [default = READ];
-    }
-
-    // Devices to set in docker
-    // Fill out DockerPath message above
-    repeated DockerPath devices = 8;
-
-    // Volumes to map into docker container. Useful for shared libs or preinstalled device APIs
-    // Fill out DockerPath options above
-    repeated DockerPath volumes = 9;
   }
 
   message WASMInfo {
