@@ -77,6 +77,7 @@ message Resource {
   optional Value.Ranges ranges = 4;
   optional Value.Set set = 5;
   optional Value.Text text = 7;
+  optional Value.Device device = 8;
 
   // If this is set, resource can be shared, i.e. multiple tasks
   // can be launched using this resource and all of them shall refer
@@ -109,6 +110,7 @@ message Value {
     RANGES = 1;
     SET = 2;
     TEXT = 3;
+    DEVICE = 4;
   }
 
   message Scalar {
@@ -140,11 +142,16 @@ message Value {
     required string value = 1;
   }
 
+  message Device {
+    required string device = 1;
+  }
+
   required Type type = 1;
   optional Scalar scalar = 2;
   optional Ranges ranges = 3;
   optional Set set = 4;
   optional Text text = 5;
+  optional Device device = 6;
 }
 
 /**
