@@ -6,8 +6,8 @@ syntax = "proto2";
 message WrapperMessage {
   // required string type = 1;
   oneof msg {
-    PingSlaveMessage ping = 2;
-    PongSlaveMessage pong = 3;
+    PingAgentMessage ping = 2;
+    PongAgentMessage pong = 3;
     RunTaskMessage run_task = 4;
     ResourceOfferMessage offermsg = 5;
     ResourceRequestMessage request = 6;
@@ -19,28 +19,28 @@ message WrapperMessage {
  *
  * This message is periodically sent by the agent to the master.
  */
-message PingSlaveMessage {
-  required SlaveInfo slave = 1;
+message PingAgentMessage {
+  required AgentInfo agent = 1;
   repeated TaskInfo tasks = 2;
 }
 
 /**
  * This message is sent by the master to the agent in response to the
- * `PingSlaveMessage`.
+ * `PingAgentMessage`.
  */
-message PongSlaveMessage {
-  required string slave_id = 1;
+message PongAgentMessage {
+  required string agent_id = 1;
   optional RunTaskMessage run_task = 2;
 }
 
 
 
 /**
- * Describes a slave. Note that the 'id' field is only available after
- * a slave is registered with the master, and is made available here
+ * Describes a agent. Note that the 'id' field is only available after
+ * a agent is registered with the master, and is made available here
  * to facilitate re-registration.
  */
-message SlaveInfo {
+message AgentInfo {
   // The configured resources at the agent.
   repeated Resource resources = 1;
 
@@ -183,7 +183,7 @@ message ContainerInfo {
 
     // With this flag set to true, the docker containerizer will
     // pull the docker image from the registry even if the image
-    // is already downloaded on the slave.
+    // is already downloaded on the agent.
     optional bool force_pull_image = 6;
    
     // Environment variables to set in docker
@@ -224,7 +224,7 @@ message FrameworkInfo {
 message TaskInfo {
   required string name = 1;
   required string task_id = 2;
-  required string slave_id = 3;
+  required string agent_id = 3;
   repeated Resource resources = 4;
   required FrameworkInfo framework = 5;
 
@@ -264,8 +264,8 @@ message RunTaskMessage {
 //=====================================
 
 /**
- * Describes some resources available on a slave. An offer only
- * contains resources from a single slave.
+ * Describes some resources available on a agent. An offer only
+ * contains resources from a single agent.
  */
 message ResourceRequestMessage {
   required string framework_id = 1;
@@ -277,7 +277,7 @@ message ResourceOfferMessage {
 message Offer {
   required string id = 1;
   required string framework_id = 2;
-  required string slave_id = 3;
+  required string agent_id = 3;
 
   repeated Resource resources = 5;
   repeated Attribute attributes = 7;

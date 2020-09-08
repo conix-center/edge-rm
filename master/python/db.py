@@ -20,9 +20,9 @@ frameworksDict = {}
 def get_offer_id():
     return str(uuid.uuid4())
 
-def refresh_agent(aid, slave):
-    slave.id = aid
-    agents[aid] = slave
+def refresh_agent(aid, agent):
+    agent.id = aid
+    agents[aid] = agent
     if aid not in agentsDict:
         agentsDict[aid] = {}
         agentsDict[aid]['lastPing'] = time.time()*1000
@@ -59,14 +59,14 @@ def add_task(runtaskmsg):
 def get_tasks_by_agent(agent_id):
     tasks_by_agent = []
     for task_id, task in tasks.items():
-        if task.slave_id == agent_id:
+        if task.agent_id == agent_id:
             tasks_by_agent.append(task)
 
     return tasks_by_agent
     
 def get_next_unissued_task_by_agent(agent_id):
     for task_id, task in tasks.items():
-        if task.slave_id == agent_id and task.state == messages_pb2.TaskInfo.TaskState.UNISSUED:
+        if task.agent_id == agent_id and task.state == messages_pb2.TaskInfo.TaskState.UNISSUED:
             task.state = messages_pb2.TaskInfo.TaskState.ISSUED
             return task
 

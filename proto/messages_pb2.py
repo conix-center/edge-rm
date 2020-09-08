@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=b'\n\x0emessages.proto\"\xd9\x01\n\x0eWrapperMessage\x12!\n\x04ping\x18\x02 \x01(\x0b\x32\x11.PingSlaveMessageH\x00\x12!\n\x04pong\x18\x03 \x01(\x0b\x32\x11.PongSlaveMessageH\x00\x12#\n\x08run_task\x18\x04 \x01(\x0b\x32\x0f.RunTaskMessageH\x00\x12)\n\x08offermsg\x18\x05 \x01(\x0b\x32\x15.ResourceOfferMessageH\x00\x12*\n\x07request\x18\x06 \x01(\x0b\x32\x17.ResourceRequestMessageH\x00\x42\x05\n\x03msg\"G\n\x10PingSlaveMessage\x12\x19\n\x05slave\x18\x01 \x02(\x0b\x32\n.SlaveInfo\x12\x18\n\x05tasks\x18\x02 \x03(\x0b\x32\t.TaskInfo\"G\n\x10PongSlaveMessage\x12\x10\n\x08slave_id\x18\x01 \x02(\t\x12!\n\x08run_task\x18\x02 \x01(\x0b\x32\x0f.RunTaskMessage\"v\n\tSlaveInfo\x12\x1c\n\tresources\x18\x01 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x02 \x03(\x0b\x32\n.Attribute\x12\n\n\x02id\x18\x03 \x01(\t\x12\x0c\n\x04name\x18\x04 \x01(\t\x12\x11\n\tping_rate\x18\x05 \x01(\x05\"\xb5\x01\n\x08Resource\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x05 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x07 \x01(\x0b\x32\x0b.Value.Text\x12\x0e\n\x06shared\x18\x06 \x01(\x08\"\xa6\x01\n\tAttribute\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x06 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\"\xd8\x02\n\x05Value\x12\x19\n\x04type\x18\x01 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x02 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x03 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x04 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\x1a\x17\n\x06Scalar\x12\r\n\x05value\x18\x01 \x02(\x01\x1a#\n\x05Range\x12\r\n\x05\x62\x65gin\x18\x01 \x02(\x04\x12\x0b\n\x03\x65nd\x18\x02 \x02(\x04\x1a%\n\x06Ranges\x12\x1b\n\x05range\x18\x01 \x03(\x0b\x32\x0c.Value.Range\x1a\x13\n\x03Set\x12\x0c\n\x04item\x18\x01 \x03(\t\x1a\x15\n\x04Text\x12\r\n\x05value\x18\x01 \x02(\t\"1\n\x04Type\x12\n\n\x06SCALAR\x10\x00\x12\n\n\x06RANGES\x10\x01\x12\x07\n\x03SET\x10\x02\x12\x08\n\x04TEXT\x10\x03\"\x8d\x04\n\rContainerInfo\x12!\n\x04type\x18\x01 \x02(\x0e\x32\x13.ContainerInfo.Type\x12)\n\x06\x64ocker\x18\x03 \x01(\x0b\x32\x19.ContainerInfo.DockerInfo\x12%\n\x04wasm\x18\x05 \x01(\x0b\x32\x17.ContainerInfo.WASMInfo\x1a\xcd\x02\n\nDockerInfo\x12\r\n\x05image\x18\x01 \x02(\t\x12\x38\n\x07network\x18\x02 \x01(\x0e\x32!.ContainerInfo.DockerInfo.Network:\x04HOST\x12<\n\rport_mappings\x18\x03 \x03(\x0b\x32%.ContainerInfo.DockerInfo.PortMapping\x12\x18\n\x10\x66orce_pull_image\x18\x06 \x01(\x08\x12\x1d\n\x15\x65nvironment_variables\x18\x07 \x03(\t\x1aJ\n\x0bPortMapping\x12\x11\n\thost_port\x18\x01 \x02(\r\x12\x16\n\x0e\x63ontainer_port\x18\x02 \x02(\r\x12\x10\n\x08protocol\x18\x03 \x01(\t\"3\n\x07Network\x12\x08\n\x04HOST\x10\x01\x12\n\n\x06\x42RIDGE\x10\x02\x12\x08\n\x04NONE\x10\x03\x12\x08\n\x04USER\x10\x04\x1a\x19\n\x08WASMInfo\x12\r\n\x05\x65mpty\x18\x01 \x02(\t\"\x1c\n\x04Type\x12\n\n\x06\x44OCKER\x10\x01\x12\x08\n\x04WASM\x10\x02\"3\n\rFrameworkInfo\x12\x0c\n\x04name\x18\x02 \x02(\t\x12\x14\n\x0c\x66ramework_id\x18\x03 \x01(\t\"\xc4\x02\n\x08TaskInfo\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0f\n\x07task_id\x18\x02 \x02(\t\x12\x10\n\x08slave_id\x18\x03 \x02(\t\x12\x1c\n\tresources\x18\x04 \x03(\x0b\x32\t.Resource\x12!\n\tframework\x18\x05 \x02(\x0b\x32\x0e.FrameworkInfo\x12!\n\tcontainer\x18\t \x02(\x0b\x32\x0e.ContainerInfo\x12\"\n\x05state\x18\x06 \x01(\x0e\x32\x13.TaskInfo.TaskState\x12\x15\n\rerror_message\x18\x07 \x01(\t\"h\n\tTaskState\x12\r\n\tCOMPLETED\x10\x00\x12\x0b\n\x07\x45RRORED\x10\x01\x12\x0b\n\x07RUNNING\x10\x02\x12\n\n\x06ISSUED\x10\x03\x12\x0c\n\x08UNISSUED\x10\x04\x12\x0c\n\x08STARTING\x10\x05\x12\n\n\x06KILLED\x10\x06\")\n\x0eRunTaskMessage\x12\x17\n\x04task\x18\x04 \x02(\x0b\x32\t.TaskInfo\".\n\x16ResourceRequestMessage\x12\x14\n\x0c\x66ramework_id\x18\x01 \x02(\t\"D\n\x14ResourceOfferMessage\x12\x14\n\x0c\x66ramework_id\x18\x01 \x02(\t\x12\x16\n\x06offers\x18\x02 \x03(\x0b\x32\x06.Offer\"y\n\x05Offer\x12\n\n\x02id\x18\x01 \x02(\t\x12\x14\n\x0c\x66ramework_id\x18\x02 \x02(\t\x12\x10\n\x08slave_id\x18\x03 \x02(\t\x12\x1c\n\tresources\x18\x05 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x07 \x03(\x0b\x32\n.Attribute\"\x18\n\x07OfferID\x12\r\n\x05value\x18\x01 \x02(\t'
+  serialized_pb=b'\n\x0emessages.proto\"\xd9\x01\n\x0eWrapperMessage\x12!\n\x04ping\x18\x02 \x01(\x0b\x32\x11.PingAgentMessageH\x00\x12!\n\x04pong\x18\x03 \x01(\x0b\x32\x11.PongAgentMessageH\x00\x12#\n\x08run_task\x18\x04 \x01(\x0b\x32\x0f.RunTaskMessageH\x00\x12)\n\x08offermsg\x18\x05 \x01(\x0b\x32\x15.ResourceOfferMessageH\x00\x12*\n\x07request\x18\x06 \x01(\x0b\x32\x17.ResourceRequestMessageH\x00\x42\x05\n\x03msg\"G\n\x10PingAgentMessage\x12\x19\n\x05\x61gent\x18\x01 \x02(\x0b\x32\n.AgentInfo\x12\x18\n\x05tasks\x18\x02 \x03(\x0b\x32\t.TaskInfo\"G\n\x10PongAgentMessage\x12\x10\n\x08\x61gent_id\x18\x01 \x02(\t\x12!\n\x08run_task\x18\x02 \x01(\x0b\x32\x0f.RunTaskMessage\"v\n\tAgentInfo\x12\x1c\n\tresources\x18\x01 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x02 \x03(\x0b\x32\n.Attribute\x12\n\n\x02id\x18\x03 \x01(\t\x12\x0c\n\x04name\x18\x04 \x01(\t\x12\x11\n\tping_rate\x18\x05 \x01(\x05\"\xb5\x01\n\x08Resource\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x05 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x07 \x01(\x0b\x32\x0b.Value.Text\x12\x0e\n\x06shared\x18\x06 \x01(\x08\"\xa6\x01\n\tAttribute\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x06 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\"\xd8\x02\n\x05Value\x12\x19\n\x04type\x18\x01 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x02 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x03 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x04 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\x1a\x17\n\x06Scalar\x12\r\n\x05value\x18\x01 \x02(\x01\x1a#\n\x05Range\x12\r\n\x05\x62\x65gin\x18\x01 \x02(\x04\x12\x0b\n\x03\x65nd\x18\x02 \x02(\x04\x1a%\n\x06Ranges\x12\x1b\n\x05range\x18\x01 \x03(\x0b\x32\x0c.Value.Range\x1a\x13\n\x03Set\x12\x0c\n\x04item\x18\x01 \x03(\t\x1a\x15\n\x04Text\x12\r\n\x05value\x18\x01 \x02(\t\"1\n\x04Type\x12\n\n\x06SCALAR\x10\x00\x12\n\n\x06RANGES\x10\x01\x12\x07\n\x03SET\x10\x02\x12\x08\n\x04TEXT\x10\x03\"\x8d\x04\n\rContainerInfo\x12!\n\x04type\x18\x01 \x02(\x0e\x32\x13.ContainerInfo.Type\x12)\n\x06\x64ocker\x18\x03 \x01(\x0b\x32\x19.ContainerInfo.DockerInfo\x12%\n\x04wasm\x18\x05 \x01(\x0b\x32\x17.ContainerInfo.WASMInfo\x1a\xcd\x02\n\nDockerInfo\x12\r\n\x05image\x18\x01 \x02(\t\x12\x38\n\x07network\x18\x02 \x01(\x0e\x32!.ContainerInfo.DockerInfo.Network:\x04HOST\x12<\n\rport_mappings\x18\x03 \x03(\x0b\x32%.ContainerInfo.DockerInfo.PortMapping\x12\x18\n\x10\x66orce_pull_image\x18\x06 \x01(\x08\x12\x1d\n\x15\x65nvironment_variables\x18\x07 \x03(\t\x1aJ\n\x0bPortMapping\x12\x11\n\thost_port\x18\x01 \x02(\r\x12\x16\n\x0e\x63ontainer_port\x18\x02 \x02(\r\x12\x10\n\x08protocol\x18\x03 \x01(\t\"3\n\x07Network\x12\x08\n\x04HOST\x10\x01\x12\n\n\x06\x42RIDGE\x10\x02\x12\x08\n\x04NONE\x10\x03\x12\x08\n\x04USER\x10\x04\x1a\x19\n\x08WASMInfo\x12\r\n\x05\x65mpty\x18\x01 \x02(\t\"\x1c\n\x04Type\x12\n\n\x06\x44OCKER\x10\x01\x12\x08\n\x04WASM\x10\x02\"3\n\rFrameworkInfo\x12\x0c\n\x04name\x18\x02 \x02(\t\x12\x14\n\x0c\x66ramework_id\x18\x03 \x01(\t\"\xc4\x02\n\x08TaskInfo\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0f\n\x07task_id\x18\x02 \x02(\t\x12\x10\n\x08\x61gent_id\x18\x03 \x02(\t\x12\x1c\n\tresources\x18\x04 \x03(\x0b\x32\t.Resource\x12!\n\tframework\x18\x05 \x02(\x0b\x32\x0e.FrameworkInfo\x12!\n\tcontainer\x18\t \x02(\x0b\x32\x0e.ContainerInfo\x12\"\n\x05state\x18\x06 \x01(\x0e\x32\x13.TaskInfo.TaskState\x12\x15\n\rerror_message\x18\x07 \x01(\t\"h\n\tTaskState\x12\r\n\tCOMPLETED\x10\x00\x12\x0b\n\x07\x45RRORED\x10\x01\x12\x0b\n\x07RUNNING\x10\x02\x12\n\n\x06ISSUED\x10\x03\x12\x0c\n\x08UNISSUED\x10\x04\x12\x0c\n\x08STARTING\x10\x05\x12\n\n\x06KILLED\x10\x06\")\n\x0eRunTaskMessage\x12\x17\n\x04task\x18\x04 \x02(\x0b\x32\t.TaskInfo\".\n\x16ResourceRequestMessage\x12\x14\n\x0c\x66ramework_id\x18\x01 \x02(\t\"D\n\x14ResourceOfferMessage\x12\x14\n\x0c\x66ramework_id\x18\x01 \x02(\t\x12\x16\n\x06offers\x18\x02 \x03(\x0b\x32\x06.Offer\"y\n\x05Offer\x12\n\n\x02id\x18\x01 \x02(\t\x12\x14\n\x0c\x66ramework_id\x18\x02 \x02(\t\x12\x10\n\x08\x61gent_id\x18\x03 \x02(\t\x12\x1c\n\tresources\x18\x05 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x07 \x03(\x0b\x32\n.Attribute\"\x18\n\x07OfferID\x12\r\n\x05value\x18\x01 \x02(\t'
 )
 
 
@@ -210,22 +210,22 @@ _WRAPPERMESSAGE = _descriptor.Descriptor(
 )
 
 
-_PINGSLAVEMESSAGE = _descriptor.Descriptor(
-  name='PingSlaveMessage',
-  full_name='PingSlaveMessage',
+_PINGAGENTMESSAGE = _descriptor.Descriptor(
+  name='PingAgentMessage',
+  full_name='PingAgentMessage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='slave', full_name='PingSlaveMessage.slave', index=0,
+      name='agent', full_name='PingAgentMessage.agent', index=0,
       number=1, type=11, cpp_type=10, label=2,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='tasks', full_name='PingSlaveMessage.tasks', index=1,
+      name='tasks', full_name='PingAgentMessage.tasks', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -248,22 +248,22 @@ _PINGSLAVEMESSAGE = _descriptor.Descriptor(
 )
 
 
-_PONGSLAVEMESSAGE = _descriptor.Descriptor(
-  name='PongSlaveMessage',
-  full_name='PongSlaveMessage',
+_PONGAGENTMESSAGE = _descriptor.Descriptor(
+  name='PongAgentMessage',
+  full_name='PongAgentMessage',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='slave_id', full_name='PongSlaveMessage.slave_id', index=0,
+      name='agent_id', full_name='PongAgentMessage.agent_id', index=0,
       number=1, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='run_task', full_name='PongSlaveMessage.run_task', index=1,
+      name='run_task', full_name='PongAgentMessage.run_task', index=1,
       number=2, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
@@ -286,43 +286,43 @@ _PONGSLAVEMESSAGE = _descriptor.Descriptor(
 )
 
 
-_SLAVEINFO = _descriptor.Descriptor(
-  name='SlaveInfo',
-  full_name='SlaveInfo',
+_AGENTINFO = _descriptor.Descriptor(
+  name='AgentInfo',
+  full_name='AgentInfo',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='resources', full_name='SlaveInfo.resources', index=0,
+      name='resources', full_name='AgentInfo.resources', index=0,
       number=1, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='attributes', full_name='SlaveInfo.attributes', index=1,
+      name='attributes', full_name='AgentInfo.attributes', index=1,
       number=2, type=11, cpp_type=10, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='id', full_name='SlaveInfo.id', index=2,
+      name='id', full_name='AgentInfo.id', index=2,
       number=3, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='name', full_name='SlaveInfo.name', index=3,
+      name='name', full_name='AgentInfo.name', index=3,
       number=4, type=9, cpp_type=9, label=1,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='ping_rate', full_name='SlaveInfo.ping_rate', index=4,
+      name='ping_rate', full_name='AgentInfo.ping_rate', index=4,
       number=5, type=5, cpp_type=1, label=1,
       has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
@@ -940,7 +940,7 @@ _TASKINFO = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='slave_id', full_name='TaskInfo.slave_id', index=2,
+      name='agent_id', full_name='TaskInfo.agent_id', index=2,
       number=3, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -1121,7 +1121,7 @@ _OFFER = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='slave_id', full_name='Offer.slave_id', index=2,
+      name='agent_id', full_name='Offer.agent_id', index=2,
       number=3, type=9, cpp_type=9, label=2,
       has_default_value=False, default_value=b"".decode('utf-8'),
       message_type=None, enum_type=None, containing_type=None,
@@ -1188,8 +1188,8 @@ _OFFERID = _descriptor.Descriptor(
   serialized_end=2420,
 )
 
-_WRAPPERMESSAGE.fields_by_name['ping'].message_type = _PINGSLAVEMESSAGE
-_WRAPPERMESSAGE.fields_by_name['pong'].message_type = _PONGSLAVEMESSAGE
+_WRAPPERMESSAGE.fields_by_name['ping'].message_type = _PINGAGENTMESSAGE
+_WRAPPERMESSAGE.fields_by_name['pong'].message_type = _PONGAGENTMESSAGE
 _WRAPPERMESSAGE.fields_by_name['run_task'].message_type = _RUNTASKMESSAGE
 _WRAPPERMESSAGE.fields_by_name['offermsg'].message_type = _RESOURCEOFFERMESSAGE
 _WRAPPERMESSAGE.fields_by_name['request'].message_type = _RESOURCEREQUESTMESSAGE
@@ -1208,11 +1208,11 @@ _WRAPPERMESSAGE.fields_by_name['offermsg'].containing_oneof = _WRAPPERMESSAGE.on
 _WRAPPERMESSAGE.oneofs_by_name['msg'].fields.append(
   _WRAPPERMESSAGE.fields_by_name['request'])
 _WRAPPERMESSAGE.fields_by_name['request'].containing_oneof = _WRAPPERMESSAGE.oneofs_by_name['msg']
-_PINGSLAVEMESSAGE.fields_by_name['slave'].message_type = _SLAVEINFO
-_PINGSLAVEMESSAGE.fields_by_name['tasks'].message_type = _TASKINFO
-_PONGSLAVEMESSAGE.fields_by_name['run_task'].message_type = _RUNTASKMESSAGE
-_SLAVEINFO.fields_by_name['resources'].message_type = _RESOURCE
-_SLAVEINFO.fields_by_name['attributes'].message_type = _ATTRIBUTE
+_PINGAGENTMESSAGE.fields_by_name['agent'].message_type = _AGENTINFO
+_PINGAGENTMESSAGE.fields_by_name['tasks'].message_type = _TASKINFO
+_PONGAGENTMESSAGE.fields_by_name['run_task'].message_type = _RUNTASKMESSAGE
+_AGENTINFO.fields_by_name['resources'].message_type = _RESOURCE
+_AGENTINFO.fields_by_name['attributes'].message_type = _ATTRIBUTE
 _RESOURCE.fields_by_name['type'].enum_type = _VALUE_TYPE
 _RESOURCE.fields_by_name['scalar'].message_type = _VALUE_SCALAR
 _RESOURCE.fields_by_name['ranges'].message_type = _VALUE_RANGES
@@ -1255,9 +1255,9 @@ _RESOURCEOFFERMESSAGE.fields_by_name['offers'].message_type = _OFFER
 _OFFER.fields_by_name['resources'].message_type = _RESOURCE
 _OFFER.fields_by_name['attributes'].message_type = _ATTRIBUTE
 DESCRIPTOR.message_types_by_name['WrapperMessage'] = _WRAPPERMESSAGE
-DESCRIPTOR.message_types_by_name['PingSlaveMessage'] = _PINGSLAVEMESSAGE
-DESCRIPTOR.message_types_by_name['PongSlaveMessage'] = _PONGSLAVEMESSAGE
-DESCRIPTOR.message_types_by_name['SlaveInfo'] = _SLAVEINFO
+DESCRIPTOR.message_types_by_name['PingAgentMessage'] = _PINGAGENTMESSAGE
+DESCRIPTOR.message_types_by_name['PongAgentMessage'] = _PONGAGENTMESSAGE
+DESCRIPTOR.message_types_by_name['AgentInfo'] = _AGENTINFO
 DESCRIPTOR.message_types_by_name['Resource'] = _RESOURCE
 DESCRIPTOR.message_types_by_name['Attribute'] = _ATTRIBUTE
 DESCRIPTOR.message_types_by_name['Value'] = _VALUE
@@ -1278,26 +1278,26 @@ WrapperMessage = _reflection.GeneratedProtocolMessageType('WrapperMessage', (_me
   })
 _sym_db.RegisterMessage(WrapperMessage)
 
-PingSlaveMessage = _reflection.GeneratedProtocolMessageType('PingSlaveMessage', (_message.Message,), {
-  'DESCRIPTOR' : _PINGSLAVEMESSAGE,
+PingAgentMessage = _reflection.GeneratedProtocolMessageType('PingAgentMessage', (_message.Message,), {
+  'DESCRIPTOR' : _PINGAGENTMESSAGE,
   '__module__' : 'messages_pb2'
-  # @@protoc_insertion_point(class_scope:PingSlaveMessage)
+  # @@protoc_insertion_point(class_scope:PingAgentMessage)
   })
-_sym_db.RegisterMessage(PingSlaveMessage)
+_sym_db.RegisterMessage(PingAgentMessage)
 
-PongSlaveMessage = _reflection.GeneratedProtocolMessageType('PongSlaveMessage', (_message.Message,), {
-  'DESCRIPTOR' : _PONGSLAVEMESSAGE,
+PongAgentMessage = _reflection.GeneratedProtocolMessageType('PongAgentMessage', (_message.Message,), {
+  'DESCRIPTOR' : _PONGAGENTMESSAGE,
   '__module__' : 'messages_pb2'
-  # @@protoc_insertion_point(class_scope:PongSlaveMessage)
+  # @@protoc_insertion_point(class_scope:PongAgentMessage)
   })
-_sym_db.RegisterMessage(PongSlaveMessage)
+_sym_db.RegisterMessage(PongAgentMessage)
 
-SlaveInfo = _reflection.GeneratedProtocolMessageType('SlaveInfo', (_message.Message,), {
-  'DESCRIPTOR' : _SLAVEINFO,
+AgentInfo = _reflection.GeneratedProtocolMessageType('AgentInfo', (_message.Message,), {
+  'DESCRIPTOR' : _AGENTINFO,
   '__module__' : 'messages_pb2'
-  # @@protoc_insertion_point(class_scope:SlaveInfo)
+  # @@protoc_insertion_point(class_scope:AgentInfo)
   })
-_sym_db.RegisterMessage(SlaveInfo)
+_sym_db.RegisterMessage(AgentInfo)
 
 Resource = _reflection.GeneratedProtocolMessageType('Resource', (_message.Message,), {
   'DESCRIPTOR' : _RESOURCE,
