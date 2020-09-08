@@ -58,3 +58,8 @@ Current attributes expected by the system:
 - executors:Set (the set of possible executors, currently DOCKER or WASM)
 - OS:Text (OS of agent)
 - domain:Text (globally accessible domain name of agent)
+
+## Project Roadmap
+ - Get embedded agent ported to run WASM
+ - Generate basic WASM to sample and send ()
+ - Write a basic framework/schedule which deploys WASM + server/gateway to receive data from WASM
