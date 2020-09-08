@@ -45,3 +45,16 @@ We are using permamotes as edge devices: github.com/lab11/permamote
 Other edge devices could be used, but they should be able to act as COAP clients.
 
 We hope to run WASM on these devices using the WASM Micro Runtime (WAMR): https://github.com/bytecodealliance/wasm-micro-runtime
+
+### Resources & Attributes
+
+Current resources expected by the system:
+- cpus:Scalar
+- mem:Scalar
+- ports:Ranges
+- disk:Scalar
+
+Current attributes expected by the system:
+- executors:Set (the set of possible executors, currently DOCKER or WASM)
+- OS:Text (OS of agent)
+- domain:Text (globally accessible domain name of agent)
