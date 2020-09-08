@@ -19,8 +19,8 @@ import messages_pb2
 import db
 
 # TODO + NOTES:
-# Issue: What if the slave never pings to receive their task?
-# Issue: How do we ensure that the slave successfully started the task we assigned them?
+# Issue: What if the agent never pings to receive their task?
+# Issue: How do we ensure that the agent successfully started the task we assigned them?
 # Todo: De-register agent when they dont ping for a while
 # Todo: Keep track of available resources
 
@@ -73,7 +73,7 @@ class RequestOfferResource(Resource):
             offer = wrapper.offermsg.offers.add()
             offer.id = db.get_offer_id()
             offer.framework_id = framework_id
-            offer.slave_id = agent.id
+            offer.agent_id = agent.id
             offer.resources.extend(agent.resources)
             offer.attributes.extend(agent.attributes)
         response.payload = wrapper.SerializeToString()
@@ -102,7 +102,7 @@ class RunTaskResource(Resource):
         print("    Framework ID:   " + wrapper.run_task.task.framework.framework_id)
         print("    Task Name:      " + wrapper.run_task.task.name)
         print("    Task ID:        " + wrapper.run_task.task.task_id)
-        print("    Selected Slave: " + wrapper.run_task.task.slave_id)
+        print("    Selected Agent: " + wrapper.run_task.task.agent_id)
         for i in range(len(wrapper.run_task.task.resources)):
             resource = wrapper.run_task.task.resources[i]
             print("        Resource: (" + resource.name + ") type: " + str(resource.type) + " amt: " + str(resource.scalar).strip())
@@ -112,7 +112,7 @@ class RunTaskResource(Resource):
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
-        wrapper.pong.slave_id = "1234"
+        wrapper.pong.agent_id = "1234"
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
         response.content_type = defines.Content_types["application/octet-stream"]
@@ -133,14 +133,14 @@ class PingResource(Resource):
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(request.payload)
 
-        agent_id = wrapper.ping.slave.id
-        agent_name = wrapper.ping.slave.name
+        agent_id = wrapper.ping.agent.id
+        agent_name = wrapper.ping.agent.name
         if not agent_id:
             return self
         print("Ping! Agent ID:(" + str(agent_id) + ") Name:(" + str(agent_name) + ")")
 
         #refresh the agent timing
-        db.refresh_agent(agent_id, wrapper.ping.slave)
+        db.refresh_agent(agent_id, wrapper.ping.agent)
 
         #update the state of any tasks it may have sent
         db.refresh_tasks(wrapper.ping.tasks)
@@ -149,7 +149,7 @@ class PingResource(Resource):
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
-        wrapper.pong.slave_id = str(agent_id)
+        wrapper.pong.agent_id = str(agent_id)
         if task_to_run:
             print("Got a task to schedule!!!")
             wrapper.pong.run_task.task.CopyFrom(task_to_run)

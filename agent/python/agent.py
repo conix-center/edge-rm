@@ -26,12 +26,12 @@ ping_rate = 1000 #ping every 1000ms
 tasks = {}
 
 def constructPing(wrapper):
-    wrapper.ping.slave.ping_rate = ping_rate
-    wrapper.ping.slave.id = agent_id
-    wrapper.ping.slave.name = agent_name
+    wrapper.ping.agent.ping_rate = ping_rate
+    wrapper.ping.agent.id = agent_id
+    wrapper.ping.agent.name = agent_name
 
     # add CPU
-    cpu_resource = wrapper.ping.slave.resources.add()
+    cpu_resource = wrapper.ping.agent.resources.add()
     cpu_resource.name = "cpus"
     cpu_resource.type = messages_pb2.Value.SCALAR
     cpu_list = psutil.cpu_percent(interval=1,percpu=True)
@@ -43,7 +43,7 @@ def constructPing(wrapper):
     print(cpu_resource)
 
     # add MEMORY
-    mem_resource = wrapper.ping.slave.resources.add()
+    mem_resource = wrapper.ping.agent.resources.add()
     mem_resource.name = "mem"
     mem_resource.type = messages_pb2.Value.SCALAR
     mem_resource.scalar.value = psutil.virtual_memory().available
