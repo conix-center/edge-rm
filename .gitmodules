@@ -1,3 +1,9 @@
 [submodule "agent/openthread"]
 	path = agent/openthread
 	url = https://github.com/oubotong/openthread
+[submodule "Zephyr-WAMR"]
+	path = Zephyr-WAMR
+	url = https://github.com/oubotong/Zephyr-WAMR.git
+[submodule "agent/Zephyr-WAMR"]
+	path = agent/Zephyr-WAMR
+	url = https://github.com/oubotong/Zephyr-WAMR.git
