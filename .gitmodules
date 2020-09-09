@@ -1,0 +1,3 @@
+[submodule "agent/openthread"]
+	path = agent/openthread
+	url = https://github.com/oubotong/openthread
