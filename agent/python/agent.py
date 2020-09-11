@@ -3,6 +3,8 @@ import getopt
 import socket
 import os
 import sys
+import sysconfig
+import platform
 import psutil
 import time
 import uuid
@@ -49,6 +51,25 @@ def constructPing(wrapper):
     mem_resource.scalar.value = psutil.virtual_memory().available
     print("Memory Available:")
     print(mem_resource)
+
+    #now add attributes
+    #first the OS attribute
+    os_attribute = wrapper.ping.agent.attributes.add()
+    os_attribute.name = "OS"
+    os_attribute.type = messages_pb2.Value.TEXT
+    #first see if we are on mac or linux then assign os in form
+    #osname-version-arch
+    os = None
+    if platform.system().lower() == 'darwin':
+        os = sysconfig.get_platform() 
+    elif platform.system().lower() == 'linux':
+        distro = platform.linux_distribution()[0]
+        version = platform.linux_distribution()[1]
+        arch = platform.machine()
+        os = distro + '-' + version + '-' + arch
+    os_attribute.text.value =  os
+    print("OS:")
+    print(os_attribute)
 
     # iterate through the containers and update the state
     for task_id, task in tasks.items():
