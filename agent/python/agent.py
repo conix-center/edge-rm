@@ -9,6 +9,7 @@ import psutil
 import time
 import uuid
 import argparse
+import yaml
 import dockerhelper
 import socket
 coapPath = os.path.abspath("../../CoAPthon3")
@@ -16,7 +17,6 @@ sys.path.insert(1, coapPath)
 
 from coapthon.client.helperclient import HelperClient
 from coapthon import defines
-#import docker as docker_client
 
 import messages_pb2
 
@@ -27,13 +27,14 @@ ping_rate = 1000 #ping every 1000ms
 
 tasks = {}
 
-def constructPing(wrapper):
-    wrapper.ping.agent.ping_rate = ping_rate
-    wrapper.ping.agent.id = agent_id
-    wrapper.ping.agent.name = agent_name
+def parseConfig(configPath):
+    with open(configPath) as file:
+        config = yaml.load(file, Loader=yaml.FullLoader)
+        return config
 
+def constructResources(resources, config):
     # add CPU
-    cpu_resource = wrapper.ping.agent.resources.add()
+    cpu_resource = resources.add()
     cpu_resource.name = "cpus"
     cpu_resource.type = messages_pb2.Value.SCALAR
     cpu_list = psutil.cpu_percent(interval=1,percpu=True)
@@ -41,20 +42,25 @@ def constructPing(wrapper):
     for cpu in cpu_list:
         cpu_value += (100 - cpu)/100
     cpu_resource.scalar.value = cpu_value
-    print("CPU Available:")
-    print(cpu_resource)
 
     # add MEMORY
-    mem_resource = wrapper.ping.agent.resources.add()
+    mem_resource = resources.add()
     mem_resource.name = "mem"
     mem_resource.type = messages_pb2.Value.SCALAR
     mem_resource.scalar.value = psutil.virtual_memory().available
-    print("Memory Available:")
-    print(mem_resource)
 
+    # add devices
+    if config and 'devices' in config:
+        for device in config['devices']:
+            device_resource = resources.add()
+            device_resource.name = device['name']
+            device_resource.type = messages_pb2.Value.DEVICE
+            device_resource.text.value =  device['id']
+
+def constructAttributes(attributes, config):
     #now add attributes
     #first the OS attribute
-    os_attribute = wrapper.ping.agent.attributes.add()
+    os_attribute = attributes.add()
     os_attribute.name = "OS"
     os_attribute.type = messages_pb2.Value.TEXT
     #first see if we are on mac or linux then assign os in form
@@ -68,9 +74,15 @@ def constructPing(wrapper):
         arch = platform.machine()
         os = distro + '-' + version + '-' + arch
     os_attribute.text.value =  os
-    print("OS:")
-    print(os_attribute)
 
+    #if there is a domain attribute add it
+    if config and 'domain' in config:
+        domain_attribute = attributes.add()
+        domain_attribute.name = "domain"
+        domain_attribute.type = messages_pb2.Value.TEXT
+        domain_attribute.text.value =  config['domain']
+
+def updateTasks():
     # iterate through the containers and update the state
     for task_id, task in tasks.items():
         if task.container.type == messages_pb2.ContainerInfo.Type.DOCKER:
@@ -78,12 +90,27 @@ def constructPing(wrapper):
             if task.state == messages_pb2.TaskInfo.ERRORED:
                 task.error_message = dockerhelper.getContainerLogs(task_id)
 
+def constructPing(wrapper, config):
+    wrapper.ping.agent.ping_rate = ping_rate
+    wrapper.ping.agent.id = agent_id
+    wrapper.ping.agent.name = agent_name
+
+    constructResources(wrapper.ping.agent.resources, config)
+    print("Resources")
+    print(wrapper.ping.agent.resources)
+
+    #print all attributes
+    constructAttributes(wrapper.ping.agent.attributes, config)
+    print("Attributes")
+    print(wrapper.ping.agent.attributes)
+
     # add the state of tasks to the ping
+    updateTasks()
     wrapper.ping.tasks.extend(tasks.values())
+    print("Tasks")
     print(wrapper.ping.tasks)
 
-
-def main(host, port):  # pragma: no cover
+def main(host, port, configPath):  # pragma: no cover
     global client
 
     try:
@@ -93,11 +120,16 @@ def main(host, port):  # pragma: no cover
         pass
     
     client = HelperClient(server=(host, int(port)))
-    
+
+    #get the devices configuration
+    config = None
+    if configPath:
+        config = parseConfig(configPath)
+        print(config)
 
     # construct message
     wrapper = messages_pb2.WrapperMessage()
-    constructPing(wrapper)
+    constructPing(wrapper, config)
     register_payload = wrapper.SerializeToString()
 
     print("Registering with master...")
@@ -109,7 +141,7 @@ def main(host, port):  # pragma: no cover
         while True:
             time.sleep(ping_rate / 1000)
             wrapper = messages_pb2.WrapperMessage()
-            constructPing(wrapper)
+            constructPing(wrapper, config)
             print("")
             print("Ping!")
             ct = {'content_type': defines.Content_types["application/octet-stream"]}
@@ -136,12 +168,10 @@ def main(host, port):  # pragma: no cover
         # TODO: Deregister
         client.stop()
 
-
-
 if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(description='Launch the CoAP Resource Manager Agent')
     parser.add_argument('--host', required=True, help='the Master IP to register with.')
     parser.add_argument('--port', required=False, default=5683, help='the Master port to register on.')
+    parser.add_argument('--config', required=False, help='The path of the configuration file.')
     args = parser.parse_args()
-    main(args.host, args.port)
-    main()
+    main(args.host, args.port, args.config)

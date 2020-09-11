@@ -1,0 +1,16 @@
+## If domain is set this is a global accessible domain or IP
+#domain: test.com
+#
+## A list of devices for the docker container
+#devices: 
+# - name: picam
+#   #the device ID should be something unique about it - it's unique name in the system
+#   id: /dev/vchiq
+#   dockerDevices:
+#    - hostPath: /dev/vchiq
+#      containerPath: /dev/vchiq
+#   dockerVolumes:
+#    - hostPath: /opt/vc
+#      containerPath: /opt/vc
+#   environmentVariables: 
+#    - "LD_LIBRARY_PATH=/opt/vc/lib"
