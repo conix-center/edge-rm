@@ -2,3 +2,4 @@ psutil
 protobuf
 docker
 setuptools==49.3.0
+humanfriendly

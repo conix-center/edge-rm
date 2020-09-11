@@ -4,6 +4,7 @@ import socket
 import os
 import sys
 import sysconfig
+import humanfriendly
 import platform
 import psutil
 import time
@@ -41,13 +42,34 @@ def constructResources(resources, config):
     cpu_value = 0
     for cpu in cpu_list:
         cpu_value += (100 - cpu)/100
+
+    if config and 'maxCPUs' in config:
+        if config['maxCPUs'] < cpu_value:
+            cpu_value = config['maxCPUs']
+
     cpu_resource.scalar.value = cpu_value
 
     # add MEMORY
     mem_resource = resources.add()
     mem_resource.name = "mem"
     mem_resource.type = messages_pb2.Value.SCALAR
-    mem_resource.scalar.value = psutil.virtual_memory().available
+    mem = psutil.virtual_memory().available
+    if config and 'maxMem' in config:
+        maxmem = humanfriendly.parse_size(config['maxMem'])
+        if maxmem < mem:
+            mem = maxmem
+    mem_resource.scalar.value = mem
+
+    # add DISK
+    disk_resource = resources.add()
+    disk_resource.name = "disk"
+    disk_resource.type = messages_pb2.Value.SCALAR
+    disk = os.statvfs('./').f_frsize * os.statvfs('./').f_bavail
+    if config and 'maxDisk' in config:
+        maxdisk = humanfriendly.parse_size(config['maxDisk'])
+        if maxdisk < disk:
+            disk = maxdisk
+    disk_resource.scalar.value = disk
 
     # add devices
     if config and 'devices' in config:

@@ -1,3 +1,12 @@
+#max memory to allow the agent to use
+maxMem: 4GB
+
+#max CPU to allow the agent to use. Currently unitless
+maxCPUs: 2.5
+
+#max Disk to allow the agent to use
+maxDisk: 50GB
+
 ## If domain is set this is a global accessible domain or IP
 #domain: test.com
 #
