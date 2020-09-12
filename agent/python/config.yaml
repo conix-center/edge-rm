@@ -15,11 +15,14 @@ maxDisk: 50GB
 # - name: picam
 #   #the device ID should be something unique about it - it's unique name in the system
 #   id: /dev/vchiq
+#   shared: True
 #   dockerDevices:
 #    - hostPath: /dev/vchiq
 #      containerPath: /dev/vchiq
+#      permission: rwm
 #   dockerVolumes:
 #    - hostPath: /opt/vc
 #      containerPath: /opt/vc
+#      permission: ro
 #   environmentVariables: 
 #    - "LD_LIBRARY_PATH=/opt/vc/lib"

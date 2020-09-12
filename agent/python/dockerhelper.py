@@ -38,9 +38,21 @@ def fetchImage(imageURL, forcepull=False):
 
     return image
 
-def runImage(image, cpu_shares, mem_limit, network, ports, frameworkName, taskID):
+def runImage(image, cpu_shares, mem_limit, disk_limit, network, ports, environment, devices, volumes, frameworkName, taskID,):
     containerName = str(frameworkName + '-' + taskID).replace(" ","-")
-    container = client.containers.run(image, cpu_quota=int(cpu_shares), cpu_period=100000, mem_limit=int(mem_limit), network_mode=network, ports=ports, detach=True, name=containerName)
+    container = client.containers.run(image, 
+                                      cpu_quota=int(cpu_shares), 
+                                      cpu_period=100000, 
+                                      mem_limit=int(mem_limit),
+                                      storage_opt=disk_limit,
+                                      detach=True, 
+                                      name=containerName, 
+                                      network_mode=network, 
+                                      ports=ports,
+                                      environment=environment,
+                                      devices=devices,
+                                      volumes=volumes)
+
     containers[taskID] = container
 
 def getContainerStatus(taskID):
@@ -69,17 +81,34 @@ def getContainerLogs(taskID):
     container = containers[taskID]
     return container.logs(tail=100)
 
-def runImageFromRunTask(run_task):
+def runImageFromRunTask(run_task, devices):
     imageName = run_task.task.container.docker.image
     frameworkName = run_task.task.framework.name
     taskID = run_task.task.task_id
+
+    #setup cpu shared and memory limit
     cpu_shares = None
     mem_limit = None
+    disk_limit = None
+    offered_devices = list()
+    for limit in run_task.task.resources:
+        if limit.name == "cpus":
+            cpu_shares = limit.scalar.value*100000
+        if limit.name == "mem":
+            mem_limit = limit.scalar.value
+        if limit.name == "disk":
+            disk_limit = {'size':limit.scalar.value}
+        if limit.type == messages_pb2.Value.DEVICE:
+            offered_devices.append(limit.name)
+
+    #setup the networking
     network_setting = "host"
     if run_task.task.container.docker.network == messages_pb2.ContainerInfo.DockerInfo.Network.BRIDGE:
         network_setting = "bridge"
     if run_task.task.container.docker.network == messages_pb2.ContainerInfo.DockerInfo.Network.NONE:
         network_setting = "none"
+
+    #map the ports
     ports = {}
     for port in run_task.task.container.docker.port_mappings:
         host = str(port.host_port)
@@ -87,10 +116,27 @@ def runImageFromRunTask(run_task):
         if port.protocol:
             container += "/" + port.protocol
         ports[container] = host
-    for limit in run_task.task.resources:
-        if limit.name == "cpus":
-            cpu_shares = limit.scalar.value*100000
-        if limit.name == "mem":
-            mem_limit = limit.scalar.value
-    print(imageName, network_setting, ports)
-    runImage(imageName, cpu_shares, mem_limit, network_setting, ports,frameworkName,taskID)
+
+    #setup the environment variables from the run task message
+    environment = list(run_task.task.container.docker.environment_variables)
+
+    dockerDevices = list()
+    dockerVolumes = {}
+    for device in devices:
+        if device['name'] not in offered_devices:
+            continue
+        
+        if 'environmentVariables' in device:
+            for env in device['environmentVariables']:
+                environment.append(env)
+
+        if 'dockerDevices' in device:
+            for dev in device['dockerDevices']:
+                dockerDevices.append(dev['hostPath'] + ':' + dev['containerPath'] + ':' + dev['permission'])
+
+        if 'dockerVolumes' in device:
+            for dev in device['dockerVolumes']:
+                dockerVolumes[dev['hostPath']] = {'bind':dev['containerPath'], 'mode':dev['permission']}
+
+    print(imageName, network_setting, ports, environment, dockerDevices, dockerVolumes)
+    runImage(imageName, cpu_shares, mem_limit, disk_limit, network_setting, ports, environment, dockerDevices, dockerVolumes, frameworkName, taskID)

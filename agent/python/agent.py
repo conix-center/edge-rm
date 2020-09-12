@@ -43,7 +43,7 @@ def constructResources(resources, config):
     for cpu in cpu_list:
         cpu_value += (100 - cpu)/100
 
-    if config and 'maxCPUs' in config:
+    if 'maxCPUs' in config:
         if config['maxCPUs'] < cpu_value:
             cpu_value = config['maxCPUs']
 
@@ -54,7 +54,7 @@ def constructResources(resources, config):
     mem_resource.name = "mem"
     mem_resource.type = messages_pb2.Value.SCALAR
     mem = psutil.virtual_memory().available
-    if config and 'maxMem' in config:
+    if 'maxMem' in config:
         maxmem = humanfriendly.parse_size(config['maxMem'])
         if maxmem < mem:
             mem = maxmem
@@ -65,7 +65,7 @@ def constructResources(resources, config):
     disk_resource.name = "disk"
     disk_resource.type = messages_pb2.Value.SCALAR
     disk = os.statvfs('./').f_frsize * os.statvfs('./').f_bavail
-    if config and 'maxDisk' in config:
+    if 'maxDisk' in config:
         maxdisk = humanfriendly.parse_size(config['maxDisk'])
         if maxdisk < disk:
             disk = maxdisk
@@ -78,6 +78,10 @@ def constructResources(resources, config):
             device_resource.name = device['name']
             device_resource.type = messages_pb2.Value.DEVICE
             device_resource.text.value =  device['id']
+            if 'shared' in device:
+                device_resource.shared = device['shared']
+            else:
+                device_resource.shared = False
 
 def constructAttributes(attributes, config):
     #now add attributes
@@ -98,7 +102,7 @@ def constructAttributes(attributes, config):
     os_attribute.text.value =  os
 
     #if there is a domain attribute add it
-    if config and 'domain' in config:
+    if 'domain' in config:
         domain_attribute = attributes.add()
         domain_attribute.name = "domain"
         domain_attribute.type = messages_pb2.Value.TEXT
@@ -144,7 +148,7 @@ def main(host, port, configPath):  # pragma: no cover
     client = HelperClient(server=(host, int(port)))
 
     #get the devices configuration
-    config = None
+    config = dict()
     if configPath:
         config = parseConfig(configPath)
         print(config)
@@ -181,7 +185,7 @@ def main(host, port, configPath):  # pragma: no cover
 
                         print("Launching task")
                         #for now just grab the container info. Let ping check the state on the next run
-                        containerInfo = dockerhelper.runImageFromRunTask(wrapper.pong.run_task)
+                        containerInfo = dockerhelper.runImageFromRunTask(wrapper.pong.run_task, config['devices'])
                     else:
                         print("Agent cannot run this type of task")
 
