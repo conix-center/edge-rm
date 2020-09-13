@@ -7,7 +7,7 @@ const { parse } = require('querystring');
 const hostname = '0.0.0.0';
 // const port = 3000;
 //const hostname = '172.17.40.64';
-const port = 3002;
+const port = process.env.SERVER_PORT;
 //const port = 80;
 
 const server = http.createServer((req, res) => {
