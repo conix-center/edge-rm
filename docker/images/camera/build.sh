@@ -1,1 +1,1 @@
-docker build -t "jnoor/hellocamera:v1" .
+docker build -t "jnoor/cameraalpine:v1" .

@@ -1,1 +1,1 @@
-docker push jnoor/hellocamera:v1
+docker push jnoor/cameraalpine:v1

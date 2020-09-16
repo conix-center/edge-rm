@@ -1,4 +1,8 @@
-FROM arm32v5/python:buster
+FROM arm32v6/python:3.7-alpine
+
+RUN apk update
+RUN apk add raspberrypi
+RUN apk --no-cache add curl
 
 COPY hello.sh ./
 

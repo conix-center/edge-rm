@@ -1,1 +1,1 @@
-docker run --device /dev/vchiq -v /opt/vc:/opt/vc:ro -v /lib:/lib:ro -v /usr/lib:/usr/lib:ro -v /opt/vc/lib:/opt/vc/lib:ro --env LD_LIBRARY_PATH=/opt/vc/lib --env SERVER_HOST=http://172.17.40.64:3002/image jnoor/hellocamera:v1
+docker run --device /dev/vchiq --env SERVER_HOST=http://172.17.40.64:3002/image jnoor/cameraalpine:v1
