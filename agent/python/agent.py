@@ -13,7 +13,7 @@ import argparse
 import yaml
 import dockerhelper
 import socket
-coapPath = os.path.abspath("../../CoAPthon3")
+coapPath = os.path.abspath("../../support/CoAPthon3")
 sys.path.insert(1, coapPath)
 
 from coapthon.client.helperclient import HelperClient
