@@ -1,0 +1,7 @@
+zephyr
+.west
+bootloader
+paho
+modules
+tools
+build

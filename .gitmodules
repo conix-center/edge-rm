@@ -7,3 +7,6 @@
 [submodule "support/CoAPthon3"]
 	path = support/CoAPthon3
 	url = https://github.com/Tanganelli/CoAPthon3
+[submodule "agent/zephyr/app/wamr"]
+	path = agent/zephyr/app/wamr
+	url = https://github.com/bytecodealliance/wasm-micro-runtime
