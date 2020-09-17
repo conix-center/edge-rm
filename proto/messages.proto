@@ -9,8 +9,9 @@ message WrapperMessage {
     PingAgentMessage ping = 2;
     PongAgentMessage pong = 3;
     RunTaskMessage run_task = 4;
-    ResourceOfferMessage offermsg = 5;
-    ResourceRequestMessage request = 6;
+    KillTaskMessage kill_task = 5;
+    ResourceOfferMessage offermsg = 6;
+    ResourceRequestMessage request = 7;
   }
 }
 
@@ -31,6 +32,7 @@ message PingAgentMessage {
 message PongAgentMessage {
   required string agent_id = 1;
   optional RunTaskMessage run_task = 2;
+  optional KillTaskMessage kill_task = 3;
 }
 
 
@@ -258,10 +260,17 @@ message TaskInfo {
 }
 
 // Run task message is sent from scheduler to master to agent to launch a task as requested by a framework
-// Mostly copied from mesos
 message RunTaskMessage {
   required TaskInfo task = 4;
   //required bool launch_executor = 6;
+}
+
+// Message is sent from scheduler to master to agent to stop a task as requested by a framework
+message KillTaskMessage {
+  required string name = 1;
+  required string task_id = 2;
+  required string agent_id = 3;
+  required FrameworkInfo framework = 4;
 }
 
 //=====================================

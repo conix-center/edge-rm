@@ -112,7 +112,41 @@ class RunTaskResource(Resource):
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
-        wrapper.pong.agent_id = "1234"
+        wrapper.pong.agent_id = wrapper.run_task.task.agent_id
+        response.payload = wrapper.SerializeToString()
+        response.code = defines.Codes.CHANGED.number
+        response.content_type = defines.Content_types["application/octet-stream"]
+        return self, response
+
+class KillTaskResource(Resource):
+    def __init__(self, name="KillTaskResource", coap_server=None):
+        super(KillTaskResource, self).__init__(name, coap_server, visible=True,
+                                            observable=True, allow_children=True)
+        self.payload = "Test"
+        self.resource_type = "rt1"
+        self.content_type = "text/plain"
+        self.interface_type = "if1"
+
+    def render_POST_advanced(self, request, response):
+        print("Received Kill Task!")
+
+        # unpack request
+        wrapper = messages_pb2.WrapperMessage()
+        wrapper.ParseFromString(request.payload)
+
+        # print request (do nothing right now)
+        print("    Framework Name: " + wrapper.kill_task.framework.name)
+        print("    Framework ID:   " + wrapper.kill_task.framework.framework_id)
+        print("    Task Name:      " + wrapper.kill_task.name)
+        print("    Task ID:        " + wrapper.kill_task.task_id)
+        print("    Selected Agent: " + wrapper.kill_task.agent_id)
+
+        # TODO: Forward the request onto the particular device through a ping/pong
+        db.add_kill_task(wrapper.kill_task)
+
+        # construct response
+        wrapper = messages_pb2.WrapperMessage()
+        wrapper.pong.agent_id = wrapper.kill_task.agent_id
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
         response.content_type = defines.Content_types["application/octet-stream"]
@@ -146,6 +180,7 @@ class PingResource(Resource):
         db.refresh_tasks(wrapper.ping.tasks)
 
         task_to_run = db.get_next_unissued_task_by_agent(agent_id)
+        task_to_kill = db.get_next_unissued_kill_by_agent(agent_id)
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
@@ -153,6 +188,9 @@ class PingResource(Resource):
         if task_to_run:
             print("Got a task to schedule!!!")
             wrapper.pong.run_task.task.CopyFrom(task_to_run)
+        if task_to_kill:
+            print("Got a task to kill!")
+            wrapper.pong.kill_task.CopyFrom(task_to_kill)
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CONTENT.number
         # response.code = defines.Codes.CHANGED.number
@@ -166,6 +204,7 @@ class CoAPServer(CoAP):
         # self.add_resource('register/', RegisterResource())
         self.add_resource('request/', RequestOfferResource())
         self.add_resource('task/', RunTaskResource())
+        self.add_resource('kill/', KillTaskResource())
         self.add_resource('ping/', PingResource())
 
         print ("CoAP Server start on " + host + ":" + str(port))

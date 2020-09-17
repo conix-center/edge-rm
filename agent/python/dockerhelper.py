@@ -55,6 +55,10 @@ def runImage(image, cpu_shares, mem_limit, disk_limit, network, ports, environme
 
     containers[taskID] = container
 
+def killContainer(taskID):
+    container = containers[taskID]
+    container.kill()
+
 def getContainerStatus(taskID):
     container = containers[taskID]
     container.reload()

@@ -13,6 +13,9 @@ agentsDict = {}
 #same for tasks
 tasks = {}
 
+#same for killtasks
+killtasks = {}
+
 #same for frameworks
 frameworks = {}
 frameworksDict = {}
@@ -56,6 +59,11 @@ def add_task(runtaskmsg):
 
     return task_id
 
+def add_kill_task(killtaskmsg):
+    task_id = killtaskmsg.task_id
+    agent_id = killtaskmsg.agent_id
+    killtasks[task_id] = killtaskmsg
+
 def get_tasks_by_agent(agent_id):
     tasks_by_agent = []
     for task_id, task in tasks.items():
@@ -69,6 +77,12 @@ def get_next_unissued_task_by_agent(agent_id):
         if task.agent_id == agent_id and task.state == messages_pb2.TaskInfo.TaskState.UNISSUED:
             task.state = messages_pb2.TaskInfo.TaskState.ISSUED
             return task
+
+def get_next_unissued_kill_by_agent(agent_id):
+    for task_id, killtaskmsg in killtasks.items():
+        task = tasks[task_id]
+        if task.agent_id == agent_id and task.state != messages_pb2.TaskInfo.TaskState.KILLED:
+            return killtaskmsg
 
 def get_all_tasks():
     return tasks.values()

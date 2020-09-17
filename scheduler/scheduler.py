@@ -6,6 +6,7 @@ import psutil
 import time
 import argparse
 import uuid
+import json
 sys.path.insert(1, '../CoAPthon3')
 
 from coapthon.client.helperclient import HelperClient
@@ -19,11 +20,11 @@ framework_id = "TEST ID"
 
 def submitDummyTask(offers):
     print("Searching for a good offer...")
-    slave_to_use = None
+    agent_to_use = None
     resources_to_use = {}
     for i in reversed(range(len(offers))):
         offer = offers[i]
-        if offer.slave_id:
+        if offer.agent_id:
             resources_to_use = {}
             for resource in offer.resources:
                 if resource.name == "cpus" and resource.scalar.value >= 1:
@@ -31,21 +32,22 @@ def submitDummyTask(offers):
                 if resource.name == "mem" and resource.scalar.value > 100000000:
                     resources_to_use["mem"] = 100000000
             if len(resources_to_use) == 2:
-                slave_to_use = offer.slave_id
+                agent_to_use = offer.agent_id
             break
-    if not slave_to_use:
+    if not agent_to_use:
         print("No available agents...")
         return
 
-    print("Submitting task to agent " + slave_to_use + "...")
+    print("Submitting task to agent " + agent_to_use + "...")
 
     # construct message
     wrapper = messages_pb2.WrapperMessage()
     wrapper.run_task.task.framework.name = framework_name
     wrapper.run_task.task.framework.framework_id = framework_id
     wrapper.run_task.task.name = "test task"
-    wrapper.run_task.task.task_id = str(uuid.uuid1())
-    wrapper.run_task.task.slave_id = slave_to_use
+    task_id = str(uuid.uuid1())
+    wrapper.run_task.task.task_id = task_id
+    wrapper.run_task.task.agent_id = agent_to_use
     for resource in resources_to_use:
         r = wrapper.run_task.task.resources.add()
         r.name = resource
@@ -53,7 +55,7 @@ def submitDummyTask(offers):
         r.scalar.value = resources_to_use[resource]
     # wrapper.run_task.task.resources.extend(resources_to_use)
     wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.DOCKER
-    wrapper.run_task.task.container.docker.image = "hello-world"
+    wrapper.run_task.task.container.docker.image = "eclipse-mosquitto"
     wrapper.run_task.task.container.docker.network = messages_pb2.ContainerInfo.DockerInfo.Network.HOST
     port_mapping = wrapper.run_task.task.container.docker.port_mappings.add()
     port_mapping.host_port = 3000
@@ -65,6 +67,22 @@ def submitDummyTask(offers):
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.payload)
         print("Task Running!")
+        with open('task.json', 'w') as file:
+            file.write(json.dumps({
+                'framework': {
+                    'id': framework_id,
+                    'name': framework_name
+                },
+                'tasks': [
+                {
+                    'name': 'test task',
+                    'task_id': task_id,
+                    'agent_id': agent_to_use,
+                    'framework_name': framework_name,
+                    'framework_id': framework_id
+                }
+                ]
+            }))
         #TODO: Generate confirmation protobuf message
         
     else:
@@ -115,7 +133,7 @@ def main(host, port):  # pragma: no cover
     #     while True:
     #         time.sleep(5)
     #         wrapper = messages_pb2.WrapperMessage()
-    #         wrapper.ping.slave.id = agent_id
+    #         wrapper.ping.agent.id = agent_id
     #         print("")
     #         print("Ping!")
     #         response = client.post('ping', wrapper.SerializeToString(), timeout=2)

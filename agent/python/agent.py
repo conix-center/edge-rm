@@ -181,6 +181,9 @@ def main(host, port, configPath):  # pragma: no cover
                 print("Pong!")
                 wrapper = messages_pb2.WrapperMessage()
                 wrapper.ParseFromString(response.payload)
+                if wrapper.pong.kill_task.task_id:
+                    print("Received kill task request!")
+                    dockerhelper.killContainer(wrapper.pong.kill_task.task_id)
                 if wrapper.pong.run_task.task.name:
                     if wrapper.pong.run_task.task.container.type == messages_pb2.ContainerInfo.Type.DOCKER:
                         print("Received Docker Task!!")
@@ -190,7 +193,7 @@ def main(host, port, configPath):  # pragma: no cover
 
                         print("Launching task")
                         #for now just grab the container info. Let ping check the state on the next run
-                        containerInfo = dockerhelper.runImageFromRunTask(wrapper.pong.run_task, config['devices'])
+                        containerInfo = dockerhelper.runImageFromRunTask(wrapper.pong.run_task, config.get('devices', []))
                     else:
                         print("Agent cannot run this type of task")
 
@@ -203,6 +206,6 @@ if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(description='Launch the CoAP Resource Manager Agent')
     parser.add_argument('--host', required=True, help='the Master IP to register with.')
     parser.add_argument('--port', required=False, default=5683, help='the Master port to register on.')
-    parser.add_argument('--config', required=False, help='The path of the configuration file.')
+    parser.add_argument('--config', required=True, help='The path of the configuration file.')
     args = parser.parse_args()
     main(args.host, args.port, args.config)
