@@ -138,6 +138,7 @@ def constructPing(wrapper, config):
 
 def main(host, port, configPath):  # pragma: no cover
     global client
+    global agent_name
 
     try:
         tmp = socket.gethostbyname(host)
@@ -160,6 +161,10 @@ def main(host, port, configPath):  # pragma: no cover
 
     print("Registering with master...")
     print("My Agent ID is " + agent_id)
+
+    if 'name' in config:
+        agent_name = config['name']
+
     print("My Agent name is " + agent_name)
 
     # loop ping/pong
