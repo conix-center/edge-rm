@@ -1,6 +1,6 @@
 #If the name field is filled out this will be the common device name. Otherwise
 #the agent will use the hostname of the device
-name: test-agent
+#name: test-agent
 
 #max memory to allow the agent to use
 maxMem: 4GB
