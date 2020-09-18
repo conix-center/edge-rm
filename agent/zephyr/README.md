@@ -1,6 +1,8 @@
 The Zephyr agent allows one to run an agent on an embedded device. 
 This means two things:
 
+This is not working yet!!
+
 1) The agent uses low power embedded networking protocols (currently openthread)
 2) The agent uses a low memory container executor (WASM/WAMR)
 
