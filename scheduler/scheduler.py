@@ -18,33 +18,40 @@ client = None
 framework_name = "Test Framework Name"
 framework_id = "TEST ID"
 
-def submitDummyTask(offers):
-    print("Searching for a good offer...")
-    agent_to_use = None
-    resources_to_use = {}
-    for i in reversed(range(len(offers))):
-        offer = offers[i]
-        if offer.agent_id:
-            resources_to_use = {}
-            for resource in offer.resources:
-                if resource.name == "cpus" and resource.scalar.value >= 1:
-                    resources_to_use["cpus"] = 1
-                if resource.name == "mem" and resource.scalar.value > 100000000:
-                    resources_to_use["mem"] = 100000000
-            if len(resources_to_use) == 2:
-                agent_to_use = offer.agent_id
-            break
-    if not agent_to_use:
-        print("No available agents...")
-        return
+tasks = []
+tasksfile = 'tasks.json'
+framework_id = None
+framework_name = None
 
-    print("Submitting task to agent " + agent_to_use + "...")
+def loadTasks():
+    global tasks
+    global framework_id
+    global framework_name
+    with open(tasksfile, 'r') as file:
+        data = json.load(file)
+        if 'framework' in data and 'id' in data['framework']:
+            framework_id = data['framework']['id']
+        if 'framework' in data and 'name' in data['framework']:
+            framework_name = data['framework']['name']
+        if 'tasks' in data:
+            tasks = data['tasks']
 
+def dumpTasks():
+    with open(tasksfile, 'w') as file:
+        file.write(json.dumps({
+            'framework': {
+                'id': framework_id,
+                'name': framework_name
+            },
+            'tasks': tasks
+        }))
+
+def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings):
     # construct message
     wrapper = messages_pb2.WrapperMessage()
     wrapper.run_task.task.framework.name = framework_name
     wrapper.run_task.task.framework.framework_id = framework_id
-    wrapper.run_task.task.name = "test task"
+    wrapper.run_task.task.name = name
     task_id = str(uuid.uuid1())
     wrapper.run_task.task.task_id = task_id
     wrapper.run_task.task.agent_id = agent_to_use
@@ -55,11 +62,12 @@ def submitDummyTask(offers):
         r.scalar.value = resources_to_use[resource]
     # wrapper.run_task.task.resources.extend(resources_to_use)
     wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.DOCKER
-    wrapper.run_task.task.container.docker.image = "eclipse-mosquitto"
+    wrapper.run_task.task.container.docker.image = dockerimg
     wrapper.run_task.task.container.docker.network = messages_pb2.ContainerInfo.DockerInfo.Network.HOST
-    port_mapping = wrapper.run_task.task.container.docker.port_mappings.add()
-    port_mapping.host_port = 3000
-    port_mapping.container_port = 3000
+    for host_port, container_port in port_mappings.items():
+        port_mapping = wrapper.run_task.task.container.docker.port_mappings.add()
+        port_mapping.host_port = host_port
+        port_mapping.container_port = container_port
     runtask_payload = wrapper.SerializeToString()
     ct = {'content_type': defines.Content_types["application/octet-stream"]}
     response = client.post('task', runtask_payload, timeout=2, **ct)
@@ -67,28 +75,97 @@ def submitDummyTask(offers):
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.payload)
         print("Task Running!")
-        with open('task.json', 'w') as file:
-            file.write(json.dumps({
-                'framework': {
-                    'id': framework_id,
-                    'name': framework_name
-                },
-                'tasks': [
-                {
-                    'name': 'test task',
-                    'task_id': task_id,
-                    'agent_id': agent_to_use,
-                    'framework_name': framework_name,
-                    'framework_id': framework_id
-                }
-                ]
-            }))
+        tasks.append({
+            'name': 'test task',
+            'task_id': task_id,
+            'agent_id': agent_to_use
+        })
+        dumpTasks()
         #TODO: Generate confirmation protobuf message
         
     else:
         print("Failed to submit task...")
         client.stop()
         sys.exit(1)
+
+def getCamTask(offers):
+    print("Searching for a good camera...")
+    agent_to_use = None
+    resources_to_use = {
+        "cpus":0.5,
+        "mem":100000000,
+        "picam":True
+    }
+    for i in reversed(range(len(offers))):
+        offer = offers[i]
+        if offer.agent_id:
+            good_cpu = False
+            good_mem = False
+            got_cam = False
+            for resource in offer.resources:
+                if resource.name == "cpus" and resource.scalar.value >= 0.5:
+                    good_cpu = True
+                if resource.name == "mem" and resource.scalar.value >= 100000000:
+                    good_mem = True
+                if resource.name == "picam":
+                    got_cam = True
+            if good_cpu and good_mem and got_cam:
+                return (agent_id, resources_to_use)
+
+def getServerTask(offers):
+    print("Searching for a good server...")
+    agent_to_use = None
+    resources_to_use = {
+        "cpus":1,
+        "mem":500000000
+    }
+    for i in reversed(range(len(offers))):
+        offer = offers[i]
+        if offer.agent_id:
+            good_cpu = False
+            good_mem = False
+            got_cam = False
+            for resource in offer.resources:
+                if resource.name == "cpus" and resource.scalar.value >= 0.5:
+                    good_cpu = True
+                if resource.name == "mem" and resource.scalar.value >= 100000000:
+                    good_mem = True
+                if resource.name == "picam":
+                    got_cam = True
+            if good_cpu and good_mem and got_cam:
+                return (agent_id, resources_to_use)
+
+
+def submitTwoTasks(offers):
+    print("Searching for a good server offer...")
+    agent_to_use = None
+    resources_to_use = {}
+    for i in reversed(range(len(offers))):
+        offer = offers[i]
+        if offer.agent_id:
+            print("\n\nAGENT " + str(offer.agent_id))
+            resources_to_use = {}
+            print("Resources:")
+            for resource in offer.resources:
+                print("\t",resource.name, resource.type, resource.scalar.value, resource.device.device)
+                if resource.name == "cpus" and resource.scalar.value >= 1:
+                    resources_to_use["cpus"] = 1
+                if resource.name == "mem" and resource.scalar.value > 100000000:
+                    resources_to_use["mem"] = 100000000
+            print("Attributes:")
+            for attribute in offer.attributes:
+                print("\t",attribute.name, attribute.type, attribute.scalar.value, attribute.text.value)
+            if len(resources_to_use) == 2:
+                agent_to_use = offer.agent_id
+    if not agent_to_use:
+        print("No available agents...")
+        return
+
+    return
+    print("Submitting task to agent " + agent_to_use + "...")
+    submitRunTask("webserver endpoint", agent_to_use, resources_to_use, "eclipse-mosquitto", {3000:3000})
+    submitRunTask("test task", agent_to_use, resources_to_use, "eclipse-mosquitto", {3000:3000})
+    
 
 def getOffer():
     # get offers
@@ -110,8 +187,11 @@ def getOffer():
         sys.exit(1)
 
 
-def main(host, port):  # pragma: no cover
+def main(host, port, tasks):  # pragma: no cover
     global client
+    global tasksfile
+
+    tasksfile = tasks
 
     try:
         tmp = socket.gethostbyname(host)
@@ -120,11 +200,11 @@ def main(host, port):  # pragma: no cover
         pass
     
     client = HelperClient(server=(host, int(port)))
-    
+    loadTasks()
     # TODO: Should we register the framework first?
 
     offers = getOffer()
-    submitDummyTask(offers)
+    submitTwoTasks(offers)
 
     client.stop()
 
@@ -149,5 +229,6 @@ if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(description='Launch a CoAP Resource Manager Framework')
     parser.add_argument('--host', required=True, help='the Edge RM Master IP to register with.')
     parser.add_argument('--port', required=False, default=5683, help='the Edge RM Master port to register on.')
+    parser.add_argument('--tasks', required=True, help='the file containing the scheduler tasks.')
     args = parser.parse_args()
-    main(args.host, args.port)
+    main(args.host, args.port, args.tasks)

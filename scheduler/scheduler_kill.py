@@ -12,21 +12,38 @@ import messages_pb2
 
 client = None
 tasks = []
+tasksfile = 'tasks.json'
 framework_id = None
 framework_name = None
 
-def loadTasks(tasksfile):
+def loadTasks():
     global tasks
     global framework_id
     global framework_name
     with open(tasksfile, 'r') as file:
         data = json.load(file)
-        framework_id = data['framework']['id']
-        framework_name = data['framework']['name']
-        tasks = data['tasks']
+        if 'framework' in data and 'id' in data['framework']:
+            framework_id = data['framework']['id']
+        if 'framework' in data and 'name' in data['framework']:
+            framework_name = data['framework']['name']
+        if 'tasks' in data:
+            tasks = data['tasks']
+
+def dumpTasks():
+    with open(tasksfile, 'w') as file:
+        file.write(json.dumps({
+            'framework': {
+                'id': framework_id,
+                'name': framework_name
+            },
+            'tasks': tasks
+        }))
 
 def killTasks():
+    killed = []
+    index = -1
     for task in tasks:
+        index += 1
         print("Killing task...")
         wrapper = messages_pb2.WrapperMessage()
         wrapper.kill_task.name = task['name']
@@ -41,14 +58,19 @@ def killTasks():
             wrapper = messages_pb2.WrapperMessage()
             wrapper.ParseFromString(response.payload)
             print("Kill task issued!")
+            killed.insert(0,index)
         else:
             print("Couldn't issue kill task... ?")
-            client.stop()
-            sys.exit(1)
+    for idx in killed:
+        del tasks[idx]
+    dumpTasks()
 
 
 def main(host, port, tasks):  # pragma: no cover
     global client
+    global tasksfile
+
+    tasksfile = tasks
 
     try:
         tmp = socket.gethostbyname(host)
@@ -60,7 +82,7 @@ def main(host, port, tasks):  # pragma: no cover
     
     # TODO: Should we register the framework first?
 
-    loadTasks(tasks)
+    loadTasks()
     killTasks()
 
     client.stop()
