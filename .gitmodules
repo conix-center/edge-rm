@@ -1,9 +1,6 @@
 [submodule "agent/openthread"]
 	path = agent/support/openthread
 	url = https://github.com/oubotong/openthread
-[submodule "agent/Zephyr-WAMR"]
-	path = agent/Zephyr-WAMR
-	url = https://github.com/oubotong/Zephyr-WAMR.git
 [submodule "support/CoAPthon3"]
 	path = support/CoAPthon3
 	url = https://github.com/Tanganelli/CoAPthon3

@@ -112,11 +112,12 @@ manifest:
       path: modules/lib/loramac-node
     - name: openthread
       url: https://github.com/oubotong/openthread
-      revision: 1446709296968d23ab30470384c626303012bac3
+      revision: c884afd4fac395df6d0b9b285826c836fcdeeba1
       path: modules/lib/openthread
     - name: paho
       url: https://github.com/eclipse/paho.mqtt-sn.embedded-c
       revision: e64e817f80
+      path: modules/lib/openthread/third_party/paho/paho
     - name: segger
       revision: 874d9e9696b00c09f9eeefe839028dc25fe44983
       path: modules/debug/segger
