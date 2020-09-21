@@ -57,6 +57,7 @@ static void on_thread_state_changed(uint32_t flags, void *context)
                      break;
 		case OT_DEVICE_ROLE_ROUTER:
                      NET_INFO("ID: 3\n");
+		     run_wasm_module();
                      break;
 		case OT_DEVICE_ROLE_LEADER:
 		     NET_INFO("ID: 4\n");
