@@ -1,6 +1,7 @@
 #include "wasm_runtime_api.h"
 
 #include <zephyr.h>
+#include <stdio.h>
 
 #include <net/openthread.h>
 #include <openthread/cli.h>
@@ -26,30 +27,116 @@
 #define CLIENT_ID "NRF52840"
 #define CLIENT_PORT 10000
 
-void mqttsnConnect(wasm_exec_env_t exec_env)
+otInstance *instance = NULL;
+bool connected=false;
+bool registered=false;
+bool published=false;
+bool subscribed=false;
+int topicID=0;
+
+void HandlePublished(otMqttsnReturnCode aCode, void* aContext)
 {
-    otInstance *instance=openthread_get_default_instance();
-    printf("Entered\n");
+    OT_UNUSED_VARIABLE(aCode);
+    OT_UNUSED_VARIABLE(aContext);
+    published=true;
+}
+void HandleSubscribed(otMqttsnReturnCode aCode, const otMqttsnTopic* aTopic, otMqttsnQos aQos, void* aContext)
+{
+    OT_UNUSED_VARIABLE(aCode);
+    OT_UNUSED_VARIABLE(aTopic);
+    OT_UNUSED_VARIABLE(aQos);
+    OT_UNUSED_VARIABLE(aContext);
+    subscribed=true;
+}
+
+void HandleRegistered(otMqttsnReturnCode aCode, const otMqttsnTopic* aTopic, void* aContext)
+{
+    printf("register topic\n");
+    registered=true;
+    topicID=aTopic->mData.mTopicId;
+}
+
+void HandleConnected(otMqttsnReturnCode aCode, void* aContext)
+{
+    printf("Gateway Connected\n");
+    connected=true;
+
+}
+
+void HandleDisconnected(otMqttsnDisconnectType aType, void* aContext)
+{
+    OT_UNUSED_VARIABLE(aType);
+    OT_UNUSED_VARIABLE(aContext);
+    printf("Gateway Disconnected\n");
+}
+
+void waMQTTSNConnect(wasm_exec_env_t exec_env, char* clientID, int keepAlive, char* gatewayAddr, int gatewayPort)
+{
     otIp6Address address;
-    otIp6AddressFromString(GATEWAY_ADDRESS, &address);
+    otIp6AddressFromString(gatewayAddr, &address);
     otMqttsnConfig config;
-    config.mClientId = CLIENT_ID;
-    config.mKeepAlive = 30;
+    config.mClientId = clientID;
+    config.mKeepAlive = keepAlive;
     config.mCleanSession = true;
-    config.mPort = GATEWAY_PORT;
+    config.mPort = gatewayPort;
     config.mAddress = &address;
     config.mRetransmissionCount = 3;
     config.mRetransmissionTimeout = 10;
-    otMqttsnConnect(instance, &config);
-    //otMqttsnDisconnect(instance);
+    otMqttsnSetConnectedHandler(instance, HandleConnected, (void *)instance);
+    otMqttsnSetDisconnectedHandler(instance, HandleDisconnected, (void *)instance);
+    otMqttsnConnect(instance, &config); 
 }
 
-int get_time(){
+int waMQTTSNReg(wasm_exec_env_t exec_env, char *topicName)
+{
+   while(!connected){
+    }
+   otMqttsnRegister(instance, topicName, HandleRegistered, (void *)instance);
+   while(!registered){
+   }
+   return topicID; 
+}
+
+void waMQTTSNPub(wasm_exec_env_t exec_env, char *data, int qos, char *topicName)
+{
+   while(!registered){
+   }
+   int32_t length = strlen(data);
+   otMqttsnTopic topic = otMqttsnCreateTopicName(topicName);
+   otMqttsnPublish(instance, (const uint8_t*)data, length, qos, false, &topic,
+            HandlePublished, NULL);
+}
+
+void waMQTTSNSub(wasm_exec_env_t exec_env, int qos, char *topicName)
+{
+   while(!connected){
+   }
+   otMqttsnTopic topic = otMqttsnCreateTopicName(topicName);
+   otMqttsnSubscribe(instance, &topic, qos, HandleSubscribed, NULL);
+}
+
+void waMQTTSNStart(wasm_exec_env_t exec_env, int port)
+{
+   instance=openthread_get_default_instance();
+   otMqttsnStop(instance);
+   otMqttsnStart(instance, port);
+}
+
+void waMQTTSNStop(wasm_exec_env_t exec_env)
+{
+   otMqttsnStop(instance);
+}
+
+void waMQTTSNDisconnect(wasm_exec_env_t exec_env)
+{
+    while(!connected){
+    }
+    otMqttsnDisconnect(instance);
+}
+
+int waGetCPUCycles(wasm_exec_env_t exec_env){
     return k_cycle_get_32();
 }
-
-int convert(int cycles) {
+int waConvertCyclesToMilis(wasm_exec_env_t exec_env, int cycles){
     return SYS_CLOCK_HW_CYCLES_TO_NS(cycles);
 }
-
-
