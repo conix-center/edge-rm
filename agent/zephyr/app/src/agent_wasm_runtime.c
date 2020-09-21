@@ -64,21 +64,57 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
     {
 
 	{
-            "get_time", 		// the name of WASM function name
-            get_time, 			// the native function pointer
+            "waGetCPUCycles", 		// the name of WASM function name
+            waGetCPUCycles, 			// the native function pointer
             "()i",			// the function prototype signature, avoid to use i32
             NULL                // attachment is NULL
         },
 	{
-            "convert", 		// the name of WASM function name
-            convert, 			// the native function pointer
+            "waConvertCyclesToMilis", 		// the name of WASM function name
+            waConvertCyclesToMilis, 			// the native function pointer
             "(i)i",			// the function prototype signature, avoid to use i32
             NULL                // attachment is NULL
         },
-        {
-            "mqttsnConnect", 		// the name of WASM function name
-            mqttsnConnect, 			// the native function pointer
+	{
+            "waMQTTSNStart", 		// the name of WASM function name
+            waMQTTSNStart, 			// the native function pointer
+            "(i)",			// the function prototype signature, avoid to use i32
+            NULL                // attachment is NULL
+        },
+	{
+            "waMQTTSNStop", 		// the name of WASM function name
+            waMQTTSNStop, 			// the native function pointer
             "()",			// the function prototype signature, avoid to use i32
+            NULL                // attachment is NULL
+        },
+        {
+            "waMQTTSNConnect", 		// the name of WASM function name
+            waMQTTSNConnect, 			// the native function pointer
+            "($i$i)",			// the function prototype signature, avoid to use i32
+            NULL                // attachment is NULL
+        },
+	{
+            "waMQTTSNDisconnect", 		// the name of WASM function name
+            waMQTTSNDisconnect, 			// the native function pointer
+            "()",			// the function prototype signature, avoid to use i32
+            NULL                // attachment is NULL
+        },
+	{
+            "waMQTTSNReg", 		// the name of WASM function name
+            waMQTTSNReg, 			// the native function pointer
+            "($)i",			// the function prototype signature, avoid to use i32
+            NULL                // attachment is NULL
+        },
+	{
+            "waMQTTSNPub", 		// the name of WASM function name
+            waMQTTSNPub, 			// the native function pointer
+            "($i$)",			// the function prototype signature, avoid to use i32
+            NULL                // attachment is NULL
+        },
+	{
+            "waMQTTSNSub", 		// the name of WASM function name
+            waMQTTSNSub, 			// the native function pointer
+            "(i$)",			// the function prototype signature, avoid to use i32
             NULL                // attachment is NULL
         }
 	
