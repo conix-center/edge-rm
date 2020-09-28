@@ -20,21 +20,26 @@ framework_id = "TEST ID"
 
 tasks = []
 tasksfile = 'tasks.json'
-framework_id = None
-framework_name = None
 
 def loadTasks():
     global tasks
     global framework_id
     global framework_name
-    with open(tasksfile, 'r') as file:
-        data = json.load(file)
-        if 'framework' in data and 'id' in data['framework']:
-            framework_id = data['framework']['id']
-        if 'framework' in data and 'name' in data['framework']:
-            framework_name = data['framework']['name']
-        if 'tasks' in data:
-            tasks = data['tasks']
+    try:
+        with open(tasksfile, 'r') as file:
+            data = json.load(file)
+            if 'framework' in data and 'id' in data['framework']:
+                framework_id = data['framework']['id']
+            if 'framework' in data and 'name' in data['framework']:
+                framework_name = data['framework']['name']
+            if 'tasks' in data:
+                tasks = data['tasks']
+    except:
+        pass
+    if len(tasks) > 0:
+        print("Kill your tasks first!!!")
+        client.stop()
+        sys.exit(1)
 
 def dumpTasks():
     with open(tasksfile, 'w') as file:
@@ -46,7 +51,8 @@ def dumpTasks():
             'tasks': tasks
         }))
 
-def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings):
+def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings, env_variables):
+    print("Submitting task to agent " + agent_to_use + "...")
     # construct message
     wrapper = messages_pb2.WrapperMessage()
     wrapper.run_task.task.framework.name = framework_name
@@ -58,8 +64,11 @@ def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings
     for resource in resources_to_use:
         r = wrapper.run_task.task.resources.add()
         r.name = resource
-        r.type = messages_pb2.Value.SCALAR
-        r.scalar.value = resources_to_use[resource]
+        if r.name == 'picam':
+            r.type = messages_pb2.Value.DEVICE
+        else:
+            r.type = messages_pb2.Value.SCALAR
+            r.scalar.value = resources_to_use[resource]
     # wrapper.run_task.task.resources.extend(resources_to_use)
     wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.DOCKER
     wrapper.run_task.task.container.docker.image = dockerimg
@@ -68,6 +77,7 @@ def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings
         port_mapping = wrapper.run_task.task.container.docker.port_mappings.add()
         port_mapping.host_port = host_port
         port_mapping.container_port = container_port
+    wrapper.run_task.task.container.docker.environment_variables.extend(env_variables)
     runtask_payload = wrapper.SerializeToString()
     ct = {'content_type': defines.Content_types["application/octet-stream"]}
     response = client.post('task', runtask_payload, timeout=2, **ct)
@@ -109,8 +119,12 @@ def getCamTask(offers):
                     good_mem = True
                 if resource.name == "picam":
                     got_cam = True
-            if good_cpu and good_mem and got_cam:
-                return (agent_id, resources_to_use)
+            for attribute in offer.attributes:
+                if good_cpu and good_mem and got_cam and attribute.name == "OS" and attribute.text.value == "debian-10.1-armv6l":
+                    return (offer.agent_id, resources_to_use)
+    print("Failed to find a good camera...")
+    client.stop()
+    sys.exit(1)
 
 def getServerTask(offers):
     print("Searching for a good server...")
@@ -124,20 +138,19 @@ def getServerTask(offers):
         if offer.agent_id:
             good_cpu = False
             good_mem = False
-            got_cam = False
             for resource in offer.resources:
                 if resource.name == "cpus" and resource.scalar.value >= 0.5:
                     good_cpu = True
                 if resource.name == "mem" and resource.scalar.value >= 100000000:
                     good_mem = True
-                if resource.name == "picam":
-                    got_cam = True
-            if good_cpu and good_mem and got_cam:
-                return (agent_id, resources_to_use)
+            for attribute in offer.attributes:
+                if good_cpu and good_mem and attribute.name == "domain":
+                    return (offer.agent_id, resources_to_use, attribute.text.value)
+    print("Failed to find a server...")
+    client.stop()
+    sys.exit(1)
 
-
-def submitTwoTasks(offers):
-    print("Searching for a good server offer...")
+def printOffer(offers):
     agent_to_use = None
     resources_to_use = {}
     for i in reversed(range(len(offers))):
@@ -161,10 +174,19 @@ def submitTwoTasks(offers):
         print("No available agents...")
         return
 
-    return
-    print("Submitting task to agent " + agent_to_use + "...")
-    submitRunTask("webserver endpoint", agent_to_use, resources_to_use, "eclipse-mosquitto", {3000:3000})
-    submitRunTask("test task", agent_to_use, resources_to_use, "eclipse-mosquitto", {3000:3000})
+def submitTwoTasks(offers):
+    print("Searching for a good server offer...")
+    printOffer(offers)
+
+    (camera_agent, camera_resources) = getCamTask(offers)
+    print("Got a camera!")
+    (server_agent, server_resources, server_domain) = getServerTask(offers)
+    print("Got a server!")
+
+    # return
+    # print("Submitting task to agent " + agent_to_use + "...")
+    submitRunTask("webserver endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'])
+    submitRunTask("camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/image"])
     
 
 def getOffer():
