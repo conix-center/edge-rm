@@ -9,6 +9,20 @@ cmake_minimum_required(VERSION 3.8.2)
 include($ENV{ZEPHYR_BASE}/cmake/app/boilerplate.cmake NO_POLICY_SCOPE)
 project(NONE)
 
+#include the agent libraries and source files
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../c_lib)
+FILE(GLOB agent_sources ../../c_lib/*.c)
+
+#include nanopb
+set(NANOPB_SRC_ROOT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR}/../../support/nanopb)
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${NANOPB_SRC_ROOT_FOLDER}/extra)
+find_package( Nanopb REQUIRED )
+include_directories(${NANOPB_INCLUDE_DIRS})
+
+NANOPB_GENERATE_CPP(PROTO_SRCS PROTO_HDRS RELPATH ../../../proto ../../../proto/messages.proto)
+
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
 enable_language (ASM)
 
 set (WAMR_BUILD_PLATFORM "zephyr")
@@ -47,6 +61,8 @@ include (${WAMR_ROOT_DIR}/build-scripts/runtime_lib.cmake)
 FILE(GLOB app_sources src/*.c)
 target_sources(app PRIVATE
                ${WAMR_RUNTIME_LIB_SOURCE}
-               ${app_sources})
+               ${app_sources}
+               ${agent_sources}
+               ${PROTO_SRCS}
+               ${PROTO_HDRS})
 target_include_directories(app PRIVATE ${ZEPHYR_BASE}/subsys/net/ip)
-
