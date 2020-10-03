@@ -3,7 +3,7 @@ import socket
 import sys
 import argparse
 import json
-sys.path.insert(1, '../CoAPthon3')
+sys.path.insert(1, '../support/CoAPthon3')
 
 from coapthon.client.helperclient import HelperClient
 from coapthon import defines
@@ -28,6 +28,10 @@ def loadTasks():
             framework_name = data['framework']['name']
         if 'tasks' in data:
             tasks = data['tasks']
+        if len(tasks) == 0:
+            print("No tasks to kill!")
+            client.stop()
+            sys.exit(1)
 
 def dumpTasks():
     with open(tasksfile, 'w') as file:
