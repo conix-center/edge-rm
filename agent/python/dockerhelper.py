@@ -58,7 +58,7 @@ def runImage(image, cpu_shares, mem_limit, disk_limit, network, ports, environme
 def killContainer(taskID):
     if taskID in containers:
         container = containers[taskID]
-        if container.status == "running"
+        if container.status == "running":
             container.kill()
 
 def getContainerStatus(taskID):
