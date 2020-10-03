@@ -28,6 +28,10 @@ def loadTasks():
             framework_name = data['framework']['name']
         if 'tasks' in data:
             tasks = data['tasks']
+        if len(tasks) == 0:
+            print("No tasks to kill!")
+            client.stop()
+            sys.exit(1)
 
 def dumpTasks():
     with open(tasksfile, 'w') as file:

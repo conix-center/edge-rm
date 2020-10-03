@@ -1,0 +1,149 @@
+{"message":"Listening on port 3000","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":2,"level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":2,"level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":2,"level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":2,"level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"usage: scheduler_kill.py [-h] --host HOST [--port PORT] --tasks TASKS\nscheduler_kill.py: error: the following arguments are required: --host, --tasks\n","level":"info"}
+{"message":2,"level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"Traceback (most recent call last):\n  File \"../scheduler/scheduler_kill.py\", line 97, in <module>\n    main(args.host, args.port, args.tasks)\n  File \"../scheduler/scheduler_kill.py\", line 85, in main\n    loadTasks()\n  File \"../scheduler/scheduler_kill.py\", line 23, in loadTasks\n    with open(tasksfile, 'r') as file:\nFileNotFoundError: [Errno 2] No such file or directory: 'tasks.json'\n","level":"info"}
+{"message":1,"level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":1,"level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":1,"level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":1,"level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"Traceback (most recent call last):\n  File \"../scheduler/scheduler_kill.py\", line 97, in <module>\n    main(args.host, args.port, args.tasks)\n  File \"../scheduler/scheduler_kill.py\", line 85, in main\n    loadTasks()\n  File \"../scheduler/scheduler_kill.py\", line 23, in loadTasks\n    with open(tasksfile, 'r') as file:\nFileNotFoundError: [Errno 2] No such file or directory: 'tasks.json'\n","level":"info"}
+{"message":1,"level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":1,"level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"Killing task...\nKill task issued!\nKilling task...\nKill task issued!\n","level":"info"}
+{"message":0,"level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":1,"level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":0,"level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":1,"level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"Killing task...\nKill task issued!\nKilling task...\nKill task issued!\n","level":"info"}
+{"message":0,"level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"Killing task...\nKill task issued!\nKilling task...\nKill task issued!\n","level":"info"}
+{"message":0,"level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":1,"level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"Killing task...\nKill task issued!\nKilling task...\nKill task issued!\n","level":"info"}
+{"message":0,"level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"No tasks to kill!\n","level":"info"}
+{"message":1,"level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"Killing task...\nKill task issued!\nKilling task...\nKill task issued!\n","level":"info"}
+{"message":0,"level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"Killing task...\nKill task issued!\nKilling task...\nKill task issued!\n","level":"info"}
+{"message":0,"level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"No tasks to kill!\n","level":"info"}
+{"message":1,"level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"No tasks to kill!\n","level":"info"}
+{"message":1,"level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"Killing task...\nKill task issued!\nKilling task...\nKill task issued!\n","level":"info"}
+{"message":0,"level":"info"}
+{"message":"GET /tasks","level":"info"}

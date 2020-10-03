@@ -15,7 +15,7 @@ from coapthon import defines
 import messages_pb2
 
 client = None
-framework_name = "Test Framework Name"
+framework_name = "Test Framework"
 framework_id = "TEST ID"
 
 tasks = []
