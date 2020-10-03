@@ -7,7 +7,7 @@ import time
 import argparse
 import uuid
 import json
-sys.path.insert(1, '../CoAPthon3')
+sys.path.insert(1, '../support/CoAPthon3')
 
 from coapthon.client.helperclient import HelperClient
 from coapthon import defines

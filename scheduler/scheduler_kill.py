@@ -3,7 +3,7 @@ import socket
 import sys
 import argparse
 import json
-sys.path.insert(1, '../CoAPthon3')
+sys.path.insert(1, '../support/CoAPthon3')
 
 from coapthon.client.helperclient import HelperClient
 from coapthon import defines
