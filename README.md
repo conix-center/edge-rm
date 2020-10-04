@@ -60,6 +60,11 @@ Current attributes expected by the system:
 - domain:Text (globally accessible domain name of agent)
 
 ## Project Roadmap
- - Get embedded agent ported to run WASM
- - Generate basic WASM to sample and send ()
- - Write a basic framework/schedule which deploys WASM + server/gateway to receive data from WASM
+ - Poster/Lightning Talk/Lightning talk video - September 25th - Joseph
+ - Wireframe mockup that shows user experience in demo - September 25th - Josh
+ - Edge Zephyr Agent connecting and executing WASM Tasks - September 28th - Josh
+ - Write a WASM task that collect sensor data and send to MQTT-SN Broker - September 28th - Josh
+ - Make framework for sensor data store and forward - October 2nd - Joseph
+ - Make framework for image classification and filtering - September 28th - Joseph
+ - Write the demo frontend/backend - October 6th - Josh
+ - Write the framework API interface to accept programs from the website - October 6th - Joseph

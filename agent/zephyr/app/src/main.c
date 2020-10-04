@@ -46,6 +46,8 @@ LOG_MODULE_REGISTER(net_echo_client_sample, LOG_LEVEL_DBG);
 #include "bh_log.h"
 #include "test_wasm.h"
 
+#include "agent_library.h"
+
 static void on_thread_state_changed(uint32_t flags, void *context)
 {
 	struct openthread_context *ot_context =(struct openthread_context*) context;
@@ -54,10 +56,12 @@ static void on_thread_state_changed(uint32_t flags, void *context)
 		switch (otThreadGetDeviceRole(ot_context->instance)) {
 		case OT_DEVICE_ROLE_CHILD:
                      NET_INFO("ID: 2\n");
+		     // Start the agent code
+		     agent_start(60);
                      break;
 		case OT_DEVICE_ROLE_ROUTER:
                      NET_INFO("ID: 3\n");
-		     run_wasm_module();
+		     //run_wasm_module();
                      break;
 		case OT_DEVICE_ROLE_LEADER:
 		     NET_INFO("ID: 4\n");
@@ -76,9 +80,12 @@ static void on_thread_state_changed(uint32_t flags, void *context)
 void main(void)
 {
     // Setup the openthread state change callback to log changes in the network info
-    openthread_set_state_changed_cb(on_thread_state_changed);
+    //openthread_set_state_changed_cb(on_thread_state_changed);
 
     // Start openthread
-    openthread_start(openthread_get_default_context());
+    //openthread_start(openthread_get_default_context());
 
+    // Initialize the  agent code
+    agent_init("test.com");
+    agent_start(60);
 }
