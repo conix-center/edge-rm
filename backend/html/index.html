@@ -37,6 +37,10 @@ tr:nth-child(even) {
 
 <p id='tasks'></p>
 
+<h3 id='numagents'></h3>
+
+<p id='agents'></p>
+
 <script>
 function loadTasks(){
   var xmlHttp = new XMLHttpRequest();
@@ -62,6 +66,30 @@ function loadTasks(){
   xmlHttp.send(null);
 }
 loadTasks();
+
+function loadAgents() {
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function () {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      var resp = JSON.parse(xmlHttp.responseText);
+      if(resp.error) {
+        document.getElementById('agents').innerHTML = resp.error.toString();
+      } else {
+        var tableHTML = "<table><tr><th>ID</th><th>Name</th><th>Last Ping</th></tr>"
+        for(var i =0; i<resp.length;i++) {
+          var agent = resp[i];
+          tableHTML += `<tr><td>${agent.id}</td><td>${agent.name}</td><td>${agent.lastPing}</td></tr>`
+        }
+        tableHTML += "</table>"
+        document.getElementById('agents').innerHTML = tableHTML
+        document.getElementById('numagents').innerHTML = `${resp.length} Agents`
+      }
+    } 
+  }
+  xmlHttp.open("GET", '/agents', true);
+  xmlHttp.send(null);
+}
+loadAgents();
 </script>
 
 </body>

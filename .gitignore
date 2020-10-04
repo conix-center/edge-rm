@@ -1,2 +1,4 @@
 __pycache__
 *.swp
+node_modules
+.DS_Store
