@@ -4,6 +4,7 @@
 #include "coap_help.h"
 
 agent_port_timer_cb local_cb;
+agent_port_coap_receive_cb recv_cb;
 
 void agent_work_handler(struct k_work *work)
 {
@@ -29,15 +30,34 @@ void agent_port_stop_timer_repeated() {
 }
 
 void agent_port_register_coap_receive_cb(agent_port_coap_receive_cb cb) {
-
+   recv_cb = cb;
 }
 
 void agent_port_coap_send(const char* destination, uint8_t* payload, uint32_t len) {
-   start_coap_client();
-
+   //Send the packet
    send_coap_request(payload, len);
+
+   //Allocate date for the response
+   uint8_t ret_code;
+   uint32_t ret_len;
+   uint8_t* recv_payload = (uint8_t *)k_malloc(MAX_COAP_MSG_LEN);
+   if (!recv_payload) {
+       return -ENOMEM;
+   }
+
+   //Wait for the response
+   process_coap_reply(&ret_code, recv_payload, &ret_len);
+
+   //Call the return callback
+   recv_cb(ret_code, recv_payload, ret_len);
+
+   //free and exit
+   k_free(recv_payload);
 }
 
-void agent_port_print(const char * str) {
-   printk(str);
+void agent_port_print(const char * fmt, ...) {
+   va_list args;
+   va_start(args, fmt);
+   vprintk(fmt, args);
+   va_end(args);
 }

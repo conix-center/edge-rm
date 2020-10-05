@@ -17,7 +17,7 @@
 #include <openthread/joiner.h>
 #include <openthread-system.h>
 #include <openthread-config-generic.h>
-#include "openthread/mqttsn.h"
+//#include "openthread/mqttsn.h"
 
 #include <drivers/sensor.h>
 
@@ -42,10 +42,10 @@ bool registered=false;
 bool published=false;
 bool subscribed=false;
 int topicID=0;
-otMqttsnTopic* topic;
+//otMqttsnTopic* topic;
 
 
-void HandlePublished(otMqttsnReturnCode aCode, void* aContext)
+/*void HandlePublished(otMqttsnReturnCode aCode, void* aContext)
 {
     OT_UNUSED_VARIABLE(aCode);
     OT_UNUSED_VARIABLE(aContext);
@@ -203,7 +203,7 @@ void waMQTTSNDisconnect(wasm_exec_env_t exec_env)
         //printk("State: Lost\n");
         break;
     }
-}
+}*/
 
 
 int waGetCPUCycles(wasm_exec_env_t exec_env){

@@ -41,6 +41,7 @@ class BasicResource(Resource):
         return self
 
     def render_POST(self, request):
+        print(request);
         res = self.init_resource(request, BasicResource())
         return res
 
@@ -58,7 +59,13 @@ class RequestOfferResource(Resource):
 
     def render_POST_advanced(self, request, response):
         wrapper = messages_pb2.WrapperMessage()
-        wrapper.ParseFromString(request.payload)
+        try:
+            wrapper.ParseFromString(request.payload)
+        except:
+            print("Error parsing protobuf - not responding.")
+            response.code = defines.Codes.BAD_REQUEST.number
+            return self, response
+
         framework_id = wrapper.request.framework_id
 
         #first, clear any agents that have dropped off
@@ -95,7 +102,12 @@ class RunTaskResource(Resource):
 
         # unpack request
         wrapper = messages_pb2.WrapperMessage()
-        wrapper.ParseFromString(request.payload)
+        try:
+            wrapper.ParseFromString(request.payload)
+        except:
+            print("Error parsing protobuf - not responding.")
+            response.code = defines.Codes.BAD_REQUEST.number
+            return self, response
 
         # print request (do nothing right now)
         print("    Framework Name: " + wrapper.run_task.task.framework.name)
@@ -132,7 +144,12 @@ class KillTaskResource(Resource):
 
         # unpack request
         wrapper = messages_pb2.WrapperMessage()
-        wrapper.ParseFromString(request.payload)
+        try:
+            wrapper.ParseFromString(request.payload)
+        except:
+            print("Error parsing protobuf - not responding.")
+            response.code = defines.Codes.BAD_REQUEST.number
+            return self, response
 
         # print request (do nothing right now)
         print("    Framework Name: " + wrapper.kill_task.framework.name)
@@ -164,8 +181,17 @@ class PingResource(Resource):
 
     def render_POST_advanced(self, request, response):
         #unpack request
+        
+        print("Recevied ping request: " + str(request))
+
         wrapper = messages_pb2.WrapperMessage()
-        wrapper.ParseFromString(request.payload)
+
+        try:
+            wrapper.ParseFromString(request.payload)
+        except:
+            print("Error parsing protobuf - not responding.")
+            response.code = defines.Codes.BAD_REQUEST.number
+            return self, response
 
         agent_id = wrapper.ping.agent.id
         agent_name = wrapper.ping.agent.name
