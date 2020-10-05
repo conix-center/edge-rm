@@ -1,4 +1,4 @@
-import json
+import pickle
 
 __tasks = {}
 
@@ -13,13 +13,13 @@ def tasks():
 	return __tasks
 
 def save():
-	with open('tasks.json', 'w') as file:
-		file.write(json.dumps(__tasks))
+	with open('tasks.pickle', 'wb') as file:
+		pickle.dump(__tasks, file, protocol=pickle.HIGHEST_PROTOCOL)
 	return
 
 def load():
 	try:
-		with open('tasks.json', 'r') as file:
-			__tasks = json.loads(file)
+		with open('tasks.pickle', 'rb') as file:
+			__tasks = pickle.load(file)
 	except:
 		pass
