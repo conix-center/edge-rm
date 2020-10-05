@@ -13,6 +13,7 @@ import argparse
 import yaml
 import dockerhelper
 import socket
+import db
 coapPath = os.path.abspath("../../support/CoAPthon3")
 sys.path.insert(1, coapPath)
 
@@ -25,8 +26,6 @@ client = None
 agent_id = str(uuid.getnode())
 agent_name = socket.gethostname()
 ping_rate = 1000 #ping every 1000ms
-
-tasks = {}
 
 def parseConfig(configPath):
     with open(configPath) as file:
@@ -110,11 +109,12 @@ def constructAttributes(attributes, config):
 
 def updateTasks():
     # iterate through the containers and update the state
-    for task_id, task in tasks.items():
+    for task_id, task in db.tasks().items():
         if task.container.type == messages_pb2.ContainerInfo.Type.DOCKER:
             task.state = dockerhelper.getContainerStatus(task_id)
             if task.state == messages_pb2.TaskInfo.ERRORED:
                 task.error_message = dockerhelper.getContainerLogs(task_id)
+    db.save()
 
 def constructPing(wrapper, config):
     wrapper.ping.agent.ping_rate = ping_rate
@@ -132,7 +132,7 @@ def constructPing(wrapper, config):
 
     # add the state of tasks to the ping
     updateTasks()
-    wrapper.ping.tasks.extend(tasks.values())
+    wrapper.ping.tasks.extend(db.tasks().values())
     print("Tasks")
     print(wrapper.ping.tasks)
 
@@ -147,6 +147,8 @@ def main(host, port, configPath):  # pragma: no cover
         pass
     
     client = HelperClient(server=(host, int(port)))
+
+    db.load()
 
     #get the devices configuration
     config = dict()
@@ -189,7 +191,7 @@ def main(host, port, configPath):  # pragma: no cover
                         print("Received Docker Task!!")
 
                         print("Storing task")
-                        tasks[wrapper.pong.run_task.task.task_id] = wrapper.pong.run_task.task
+                        db.set_task(wrapper.pong.run_task.task.task_id, wrapper.pong.run_task.task)
 
                         print("Launching task")
                         #for now just grab the container info. Let ping check the state on the next run
