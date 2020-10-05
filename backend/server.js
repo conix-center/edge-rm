@@ -62,10 +62,17 @@ app.get('/stop', jsonParser, function(req, res) {
 
 app.get('/tasks', function(req, res) {
 	log.info("GET /tasks")
+	request('http://128.97.92.77/tasks').pipe(res);
+	// res.status(200).sendFile(path.join(__dirname + '/tasks.json'));
+})
+
+app.get('/framework', function(req, res) {
+	log.info("GET /framework")
 	res.status(200).sendFile(path.join(__dirname + '/tasks.json'));
 })
 
 app.get('/agents', function(req, res) {
+	log.info("GET /agents")
 	request('http://128.97.92.77/').pipe(res);
 })
 

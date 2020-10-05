@@ -50,19 +50,35 @@ function loadTasks(){
       if(resp.error) {
         document.getElementById('tasks').innerHTML = resp.error.toString();
       } else {
-        document.getElementById('framework').innerHTML = `Framework: ${resp.framework.name}`
-        var tableHTML = "<table><tr><th>ID</th><th>Name</th><th>Agent Assigned</th></tr>"
-        for(var i =0; i<resp.tasks.length;i++) {
-          var task = resp.tasks[i];
-          tableHTML += `<tr><td>${task.task_id}</td><td>${task.name}</td><td>${task.agent_id}</td></tr>`
+        var tableHTML = "<table><tr><th>ID</th><th>Name</th><th>Agent Assigned</th><th>Framework</th><th>State</th></tr>"
+        for(var i =0; i<resp.length;i++) {
+          var task = resp[i];
+          tableHTML += `<tr><td>${task.taskId}</td><td>${task.name}</td><td>${task.agentId}</td><td>${task.framework.name}</td><td>${task.state}</td></tr>`
         }
         tableHTML += "</table>"
         document.getElementById('tasks').innerHTML = tableHTML
-        document.getElementById('numtasks').innerHTML = `${resp.tasks.length} Tasks`
+        document.getElementById('numtasks').innerHTML = `${resp.length} Tasks`
       }
     } 
   }
   xmlHttp.open("GET", '/tasks', true);
+  xmlHttp.send(null);
+}
+loadTasks();
+
+function loadFramework(){
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function () {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      var resp = JSON.parse(xmlHttp.responseText);
+      if(resp.error) {
+        document.getElementById('framework').innerHTML = resp.error.toString();
+      } else {
+        document.getElementById('framework').innerHTML = `Framework: ${resp.framework.name}`
+      }
+    } 
+  }
+  xmlHttp.open("GET", '/framework', true);
   xmlHttp.send(null);
 }
 loadTasks();
