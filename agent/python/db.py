@@ -18,7 +18,7 @@ def save():
 	for task_id, task in __tasks.items():
 		tasks_to_write[task_id] = task.SerializeToString()
 	with open('tasks.json', 'w') as file:
-		json.dump(__tasks, file)
+		json.dump(tasks_to_write, file)
 
 def load():
 	try:
