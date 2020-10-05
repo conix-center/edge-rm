@@ -39,7 +39,7 @@ LOG_MODULE_REGISTER(net_echo_client_sample, LOG_LEVEL_DBG);
 #include <openthread/joiner.h>
 #include <openthread-system.h>
 #include <openthread-config-generic.h>
-#include "openthread/mqttsn.h"
+//#include "openthread/mqttsn.h"
 
 #include "bh_platform.h"
 #include "bh_assert.h"
