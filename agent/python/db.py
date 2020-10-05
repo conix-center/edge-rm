@@ -17,14 +17,14 @@ def save():
 	tasks_to_write = {}
 	for task_id, task in __tasks.items():
 		tasks_to_write[task_id] = task.SerializeToString()
-	with open('tasks.json', 'wb') as file:
-		file.write(json.dumps(__tasks))
+	with open('tasks.json', 'w') as file:
+		json.dump(__tasks, file)
 
 def load():
 	try:
 		tasks_to_read = {}
-		with open('tasks.json', 'rb') as file:
-			tasks_to_read = json.loads(file)
+		with open('tasks.json', 'r') as file:
+			tasks_to_read = json.load(file)
 			for task_id, task in tasks_to_read.items():
 				__tasks[task_id] = messages_pb2.TaskInfo()
 				__tasks[task_id].ParseFromString(task)
