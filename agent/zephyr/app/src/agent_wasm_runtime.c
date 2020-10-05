@@ -108,13 +108,31 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
 	{
             "waMQTTSNPub", 		// the name of WASM function name
             waMQTTSNPub, 			// the native function pointer
-            "($i$)",			// the function prototype signature, avoid to use i32
+            "($ii)",			// the function prototype signature, avoid to use i32
             NULL                // attachment is NULL
         },
 	{
             "waMQTTSNSub", 		// the name of WASM function name
             waMQTTSNSub, 			// the native function pointer
             "(i$)",			// the function prototype signature, avoid to use i32
+            NULL                // attachment is NULL
+        },
+	{
+            "waRead", 		// the name of WASM function name
+            waRead, 			// the native function pointer
+            "($$)f",			// the function prototype signature, avoid to use i32
+            NULL                // attachment is NULL
+        },
+	{
+            "waOpen", 		// the name of WASM function name
+            waOpen, 			// the native function pointer
+            "($)",			// the function prototype signature, avoid to use i32
+            NULL                // attachment is NULL
+        },
+	{
+            "printConsole", 		// the name of WASM function name
+            printConsole, 			// the native function pointer
+            "(i)",			// the function prototype signature, avoid to use i32
             NULL                // attachment is NULL
         }
 	
