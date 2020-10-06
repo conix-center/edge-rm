@@ -9,29 +9,145 @@
 const char* master_domain;
 static uint32_t ping_rate;
 
-//nanopb encoding callbacks
-bool AgentInfo_callback(pb_ostream_t *ostream, const pb_field_iter_t *field, void * const* args) {
+bool generic_string_encode_callback(pb_ostream_t *ostream, const pb_field_iter_t *field, void * const* args) {
     //In this let's just set an ID and a name
-    if (ostream != NULL && field->tag == AgentInfo_id_tag) {
-        // Fill out the agent ID
-        if(!pb_encode_tag_for_field(ostream, field)) {
+    if (ostream != NULL) {
+        if(!pb_encode_tag_for_field(ostream, field))
             return false;
-        }
 
-        return pb_encode_string(ostream, "00116688", strlen("00116688"));
-
-    } else if (ostream != NULL && field->tag == AgentInfo_name_tag) {
-        // Fill out the agent name
-        if(!pb_encode_tag_for_field(ostream, field)) {
-            return false;
-        }
-
-        return pb_encode_string(ostream, "EmbeddedAgent", strlen("EmbeddedAgent"));
+        return pb_encode_string(ostream, (char*)*args, strlen((char*)*args));
     }
 
     return true;
 }
 
+
+
+void construct_resource(pb_ostream_t* ostream, const char* name, Value_Type type, void* value, bool shared) {
+    //For each resource 1) Initiate a resource message, 2) encode a submessage to initiate the resource callback
+    Resource r  = Resource_init_zero;
+
+    //Name
+    r.name.funcs.encode = &generic_string_encode_callback;
+    r.name.arg = name;
+
+    //Type
+    r.type = type;
+
+    //Value
+    switch(type) {
+    case Value_Type_SCALAR:
+        r.has_scalar = true;
+        r.scalar.value = *(float*)value; 
+        break;
+    case Value_Type_TEXT:
+        r.has_text = true;
+        r.text.value.funcs.encode = &generic_string_encode_callback;
+        r.text.value.arg = (char*)value;
+        break;
+    case Value_Type_DEVICE:
+        r.has_device = true;
+        r.device.device.funcs.encode = &generic_string_encode_callback;
+        r.device.device.arg = (char*)value;
+        break;
+    case Value_Type_RANGES:
+        r.has_ranges = true;
+        break;
+    case Value_Type_SET:
+        r.has_set = true;
+        break;
+    }
+
+    //shared
+    r.shared = shared;
+
+    pb_encode_submessage(ostream, Resource_fields, &r);
+}
+
+void construct_attribute(pb_ostream_t* ostream, const char* name, Value_Type type, void* value) {
+    //For each resource 1) Initiate a resource message, 2) encode a submessage to initiate the resource callback
+    Attribute a  = Attribute_init_zero;
+
+    //Name
+    a.name.funcs.encode = &generic_string_encode_callback;
+    a.name.arg = name;
+
+    //Type
+    a.type = type;
+
+    //Value
+    switch(type) {
+    case Value_Type_SCALAR:
+        a.has_scalar = true;
+        a.scalar.value = *(float*)value; 
+        break;
+    case Value_Type_TEXT:
+        a.has_text = true;
+        a.text.value.funcs.encode = &generic_string_encode_callback;
+        a.text.value.arg = (char*)value;
+        break;
+    case Value_Type_RANGES:
+        a.has_ranges = true;
+        break;
+    case Value_Type_SET:
+        a.has_set = true;
+        a.set.item.funcs.encode = &generic_string_encode_callback;
+        a.set.item.arg = (char*)value;
+        break;
+    }
+
+    pb_encode_submessage(ostream, Attribute_fields, &a);
+}
+
+
+
+bool AgentInfo_attributes_callback(pb_ostream_t *ostream, const pb_field_iter_t *field, void * const* args) {
+    //In this let's just set an ID and a name
+    if (ostream != NULL) {
+
+        if(!pb_encode_tag_for_field(ostream, field))
+            return false;
+        construct_attribute(ostream, "OS", Value_Type_TEXT, agent_port_get_os());
+
+        if(!pb_encode_tag_for_field(ostream, field))
+            return false;
+        construct_attribute(ostream, "executors", Value_Type_SET, "WASM");
+
+        return true;
+    }
+}
+
+bool AgentInfo_resources_callback(pb_ostream_t *ostream, const pb_field_iter_t *field, void * const* args) {
+    //In this let's just set an ID and a name
+    if (ostream != NULL) {
+
+        if(!pb_encode_tag_for_field(ostream, field))
+            return false;
+        float m = agent_port_get_free_memory();
+        construct_resource(ostream, "mem", Value_Type_SCALAR, &m, false);
+
+        if(!pb_encode_tag_for_field(ostream, field))
+            return false;
+        float c = agent_port_get_free_cpu();
+        construct_resource(ostream, "cpu", Value_Type_SCALAR, &c, false);
+
+        for(uint8_t i = 0; true; i++) {
+           agent_device_t d;
+           bool valid = agent_port_get_device(i, &d);
+           if(!valid) {
+               break;
+           } else {
+                if(!pb_encode_tag_for_field(ostream, field))
+                    return false;
+                construct_resource(ostream, d.name, Value_Type_DEVICE, d.reference, true);
+           }
+        }
+
+        return true;
+    } 
+}
+
+//nanopb encoding callbacks
 bool PingAgentMessage_callback(pb_istream_t *istream, pb_ostream_t *ostream, const pb_field_iter_t *field) {
     // For now we aren't going to set any tasks so just leave this
 }
@@ -63,8 +179,14 @@ void agent_ping(void) {
     //fill out the fields that are not callbacks
     wrapper.msg.ping.agent.has_ping_rate = true;
     wrapper.msg.ping.agent.ping_rate = ping_rate;
-    wrapper.msg.ping.agent.id.funcs.encode = &AgentInfo_callback;
-    wrapper.msg.ping.agent.name.funcs.encode = &AgentInfo_callback;
+    wrapper.msg.ping.agent.id.funcs.encode = &generic_string_encode_callback;
+    wrapper.msg.ping.agent.id.arg = agent_port_get_agent_id();
+    wrapper.msg.ping.agent.name.funcs.encode = &generic_string_encode_callback;
+    wrapper.msg.ping.agent.name.arg = agent_port_get_agent_name();
+
+    wrapper.msg.ping.agent.resources.funcs.encode = &AgentInfo_resources_callback;
+    wrapper.msg.ping.agent.attributes.funcs.encode = &AgentInfo_attributes_callback;
+
     wrapper.which_msg = WrapperMessage_ping_tag;
 
     //Get the size of the payload

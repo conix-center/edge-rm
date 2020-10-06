@@ -4,6 +4,7 @@ LOG_MODULE_REGISTER(agent_port, LOG_LEVEL_DBG);
 #include <zephyr.h>
 #include "agent_port.h"
 #include "coap_help.h"
+#include "config.h"
 
 agent_port_timer_cb local_cb;
 agent_port_coap_receive_cb recv_cb;
@@ -76,3 +77,42 @@ void* agent_port_malloc(size_t size) {
 void agent_port_free(void* pt) {
    k_free(pt);
 }
+
+//Resources
+float agent_port_get_free_memory() {
+   return (float)CONFIG_HEAP_MEM_POOL_SIZE;
+}
+
+float agent_port_get_free_cpu() {
+   return 1.0;
+}
+
+const char* agent_port_get_agent_id() {
+   return AGENT_ID;
+}
+
+const char* agent_port_get_agent_name() {
+   return AGENT_NAME;
+}
+
+const char* agent_port_get_os() {
+   return "zephyr";
+}
+
+bool agent_port_get_device(uint8_t device_number, agent_device_t* device) {
+   switch(device_number) {
+   case 0:
+        device->name = "temperature_sensor";
+        device->reference = "temp";
+        return true;
+        break;
+   case 1:
+        device->name = "humidity_sensor";
+        device->reference = "hum";
+        return true;
+        break;
+   }
+
+   return false; 
+}
+
