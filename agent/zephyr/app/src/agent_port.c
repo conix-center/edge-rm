@@ -78,6 +78,10 @@ void agent_port_free(void* pt) {
    k_free(pt);
 }
 
+bool agent_port_can_run_task(void) {
+   return true;
+}
+
 //Resources
 float agent_port_get_free_memory() {
    return (float)CONFIG_HEAP_MEM_POOL_SIZE;

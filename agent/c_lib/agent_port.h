@@ -29,6 +29,7 @@ void agent_port_print(const char* fmt, ...);
 //memory
 void* agent_port_malloc(size_t size);
 void agent_port_free(void* pt);
+bool agent_port_can_run_task(void);
 
 //devices
 typedef struct _agent_device_t {

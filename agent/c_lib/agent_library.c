@@ -12,6 +12,35 @@ static uint32_t ping_rate;
 #define RESPONSE_CODE_CONTENT 69
 #define RESPONSE_CODE_VALID 67
 
+#define TASK_ID_LEN 40
+typedef struct _agent_task {
+    char task_id[TASK_ID_LEN];
+    char* error_message;
+    TaskInfo_TaskState state;
+    uint8_t* wasm;
+} agent_task_t;
+
+agent_task_t new_task;
+agent_task_t running_task;
+
+void set_running_task_to_new_task(void) {
+    //Does the current running task have some wasm allocated?
+    if(running_task.wasm != NULL) {
+        agent_port_free(running_task.wasm);
+    } 
+
+    //Overwrite the current running task with the new task
+    running_task.error_message = new_task.error_message;
+    running_task.wasm = new_task.wasm;
+    running_task.state = TaskInfo_TaskState_RUNNING;
+    memcpy(running_task.task_id, new_task.task_id, TASK_ID_LEN);
+
+    //Clear out the new_task info
+    new_task.error_message = "";
+    memset(new_task.task_id, 0, TASK_ID_LEN);
+    new_task.wasm = NULL;
+}
+
 bool generic_string_encode_callback(pb_ostream_t *ostream, const pb_field_iter_t *field, void * const* args) {
     //In this let's just set an ID and a name
     if (ostream != NULL) {
@@ -20,6 +49,54 @@ bool generic_string_encode_callback(pb_ostream_t *ostream, const pb_field_iter_t
 
         return pb_encode_string(ostream, (char*)*args, strlen((char*)*args));
     }
+
+    return true;
+}
+
+bool generic_string_alloc_decode_callback(pb_istream_t *istream, const pb_field_iter_t *field, void** arg) {
+    //get my destination pointer
+    char* dest = (char*)*arg;
+
+    //Make a substream
+    pb_istream_t* substream;
+    if(!pb_make_string_substream(istream, substream))
+        return false;
+
+    //Allocate memory for the substream
+    dest = agent_port_malloc(substream->bytes_left);
+    if(!dest) {
+        pb_close_string_substream(istream, substream);
+        agent_port_print("Error allocating memory for stream");
+        return false;
+    }    
+
+    //read the substream
+    if(!pb_read(substream, dest, substream->bytes_left))
+        return false;
+
+    //close the substream
+    if(!pb_close_string_substream(istream, substream))
+        return false;
+
+    return true;
+}
+
+bool generic_string_decode_callback(pb_istream_t *istream, const pb_field_iter_t *field, void** arg) {
+    //get my destination pointer
+    char* dest = (char*)*arg;
+
+    //Make a substream
+    pb_istream_t* substream;
+    if(!pb_make_string_substream(istream, substream))
+        return false;
+
+    //read the substream
+    if(!pb_read(substream, dest, substream->bytes_left))
+        return false;
+
+    //close the substream
+    if(!pb_close_string_substream(istream, substream))
+        return false;
 
     return true;
 }
@@ -163,6 +240,11 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
         WrapperMessage wrapper = WrapperMessage_init_zero;
 
         //setup wrapper decoding for run_task
+        wrapper.msg.pong.run_task.task.task_id.funcs.decode = &generic_string_decode_callback;
+        wrapper.msg.pong.run_task.task.task_id.arg = new_task.task_id;
+
+        wrapper.msg.pong.run_task.task.container.wasm.wasm_binary.funcs.decode = &generic_string_alloc_decode_callback;
+        wrapper.msg.pong.run_task.task.container.wasm.wasm_binary.arg = new_task.wasm;
 
         pb_istream_t stream = pb_istream_from_buffer(buf, len);
         int ret = pb_decode(&stream, WrapperMessage_fields, &wrapper);
@@ -170,6 +252,35 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
         if(wrapper.which_msg == WrapperMessage_pong_tag) {
             if(wrapper.msg.pong.has_run_task) {
                 agent_port_print("Got Pong Message with run task request\n");
+                
+                if(wrapper.msg.pong.run_task.task.container.type == ContainerInfo_Type_WASM &&
+                        wrapper.msg.pong.run_task.task.container.has_wasm == true) {
+                    // Is something already running
+                    if(agent_port_can_run_task()) {
+                        //Is the task valid?
+                        if(new_task.wasm != NULL && strlen(new_task.task_id) > 0) {
+                            // Run the task
+                            agent_port_print("Running WASM Task!");
+                            // Set the task state in the task struct
+                        } else {
+                            agent_port_print("WASM task invalid");
+                            new_task.state = TaskInfo_TaskState_ERRORED;
+                            new_task.error_message = "Invalid WASM task";
+                        }
+                    } else {
+                        // Set the task state and error message in the task struct
+                        agent_port_print("Can't run task - task already running");
+                        new_task.state = TaskInfo_TaskState_ERRORED;
+                        new_task.error_message = "Insufficient Resources";
+                    }
+                } else {
+                    // Set the task state and error message in the task struct
+                    agent_port_print("Got docker task");
+                    new_task.state = TaskInfo_TaskState_ERRORED;
+                    new_task.error_message = "Only WASM Executor";
+                }
+
+
             } else if (wrapper.msg.pong.has_kill_task) {
                 agent_port_print("Got Pong Message with kill task request\n");
             } else {
