@@ -13,7 +13,9 @@ static uint32_t ping_rate;
 #define RESPONSE_CODE_VALID 67
 
 #define TASK_ID_LEN 40
+#define TASK_NAME_LEN 40
 typedef struct _agent_task {
+    char task_name[TASK_NAME_LEN];
     char task_id[TASK_ID_LEN];
     char* error_message;
     TaskInfo_TaskState state;
@@ -34,10 +36,12 @@ void set_running_task_to_new_task(void) {
     running_task.wasm = new_task.wasm;
     running_task.state = TaskInfo_TaskState_RUNNING;
     memcpy(running_task.task_id, new_task.task_id, TASK_ID_LEN);
+    memcpy(running_task.task_name, new_task.task_name, TASK_NAME_LEN);
 
     //Clear out the new_task info
     new_task.error_message = "";
     memset(new_task.task_id, 0, TASK_ID_LEN);
+    memset(new_task.task_name, 0, TASK_NAME_LEN);
     new_task.wasm = NULL;
 }
 
@@ -195,6 +199,61 @@ bool AgentInfo_attributes_callback(pb_ostream_t *ostream, const pb_field_iter_t 
     }
 }
 
+TaskInfo construct_TaskInfo(agent_task_t* task) {
+    TaskInfo t  = TaskInfo_init_zero;
+
+    //Name
+    t.name.funcs.encode = &generic_string_encode_callback;
+    t.name.arg = running_task.task_name;
+
+    //ID
+    t.task_id.funcs.encode = &generic_string_encode_callback;
+    t.task_id.arg = running_task.task_id;
+
+    //ID
+    t.agent_id.funcs.encode = &generic_string_encode_callback;
+    t.agent_id.arg = agent_port_get_agent_id();
+
+    //State
+    t.has_state = true;
+    t.state = running_task.state;
+
+    //Error message
+    t.error_message.funcs.encode = &generic_string_encode_callback;
+    t.error_message.arg = running_task.error_message;
+
+    //Container
+    t.container.type = ContainerInfo_Type_WASM;
+
+    return t;
+
+}
+
+bool TaskInfo_callback(pb_ostream_t *ostream, const pb_field_iter_t *field, void * const* args) {
+    //In this let's just set an ID and a name
+    if (ostream != NULL) {
+        //First encode the running task
+        if(strlen(running_task.task_id) > 0) {
+            if(!pb_encode_tag_for_field(ostream, field))
+                return false;
+            
+            TaskInfo t = construct_TaskInfo(&running_task);
+            if(!pb_encode_submessage(ostream, TaskInfo_fields, &t))
+                return false;
+        }
+
+        //First encode the running task
+        if(strlen(new_task.task_id) > 0) {
+            if(!pb_encode_tag_for_field(ostream, field))
+                return false;
+            
+            TaskInfo t = construct_TaskInfo(&new_task);
+            if(!pb_encode_submessage(ostream, TaskInfo_fields, &t))
+                return false;
+        }
+    } 
+}
+
 bool AgentInfo_resources_callback(pb_ostream_t *ostream, const pb_field_iter_t *field, void * const* args) {
     //In this let's just set an ID and a name
     if (ostream != NULL) {
@@ -242,6 +301,8 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
         //setup wrapper decoding for run_task
         wrapper.msg.pong.run_task.task.task_id.funcs.decode = &generic_string_decode_callback;
         wrapper.msg.pong.run_task.task.task_id.arg = new_task.task_id;
+        wrapper.msg.pong.run_task.task.name.funcs.decode = &generic_string_decode_callback;
+        wrapper.msg.pong.run_task.task.name.arg = new_task.task_name;
 
         wrapper.msg.pong.run_task.task.container.wasm.wasm_binary.funcs.decode = &generic_string_alloc_decode_callback;
         wrapper.msg.pong.run_task.task.container.wasm.wasm_binary.arg = new_task.wasm;
@@ -320,15 +381,19 @@ void agent_ping(void) {
     WrapperMessage wrapper  = WrapperMessage_init_zero;
 
     //fill out the fields that are not callbacks
+
+    // AgentInfo
     wrapper.msg.ping.agent.has_ping_rate = true;
     wrapper.msg.ping.agent.ping_rate = ping_rate;
     wrapper.msg.ping.agent.id.funcs.encode = &generic_string_encode_callback;
     wrapper.msg.ping.agent.id.arg = agent_port_get_agent_id();
     wrapper.msg.ping.agent.name.funcs.encode = &generic_string_encode_callback;
     wrapper.msg.ping.agent.name.arg = agent_port_get_agent_name();
-
     wrapper.msg.ping.agent.resources.funcs.encode = &AgentInfo_resources_callback;
     wrapper.msg.ping.agent.attributes.funcs.encode = &AgentInfo_attributes_callback;
+
+    // TaskInfo
+    wrapper.msg.ping.tasks.funcs.encode = &TaskInfo_callback;
 
     wrapper.which_msg = WrapperMessage_ping_tag;
 
