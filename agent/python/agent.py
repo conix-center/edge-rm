@@ -169,7 +169,7 @@ def main(host, port, configPath):  # pragma: no cover
     if 'name' in config:
         agent_name = config['name']
     if 'pingRate' in config:
-            ping_rate = config.pingRate
+            ping_rate = config['pingRate']
 
     print("My Agent name is " + agent_name)
 

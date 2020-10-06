@@ -50,10 +50,10 @@ function loadTasks(){
       if(resp.error) {
         document.getElementById('tasks').innerHTML = resp.error.toString();
       } else {
-        var tableHTML = "<table><tr><th>ID</th><th>Name</th><th>Agent Assigned</th><th>Framework</th><th>State</th></tr>"
+        var tableHTML = "<table><tr><th>Task ID</th><th>Name</th><th>Agent Assigned</th><th>Framework</th><th>Type</th><th>Image</th><th>State</th></tr>"
         for(var i =0; i<resp.length;i++) {
           var task = resp[i];
-          tableHTML += `<tr><td>${task.taskId}</td><td>${task.name}</td><td>${task.agentId}</td><td>${task.framework.name}</td><td>${task.state}</td></tr>`
+          tableHTML += `<tr><td>${task.taskId}</td><td>${task.name}</td><td>${task.agentId}</td><td>${task.framework.name}</td><td>${task.container.type}</td><td>${task.container.docker ? task.container.docker.image : ""}</td><td>${task.state}</td></tr>`
         }
         tableHTML += "</table>"
         document.getElementById('tasks').innerHTML = tableHTML
@@ -91,7 +91,7 @@ function loadAgents() {
       if(resp.error) {
         document.getElementById('agents').innerHTML = resp.error.toString();
       } else {
-        var tableHTML = "<table><tr><th>ID</th><th>Name</th><th>Last Ping</th></tr>"
+        var tableHTML = "<table><tr><th>Agent ID</th><th>Name</th><th>Last Ping</th></tr>"
         for(var i =0; i<resp.length;i++) {
           var agent = resp[i];
           tableHTML += `<tr><td>${agent.id}</td><td>${agent.name}</td><td>${agent.lastPing}</td></tr>`
