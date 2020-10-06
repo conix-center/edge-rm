@@ -124,7 +124,7 @@ def clear_stale_agents():
         if agents[agent_id].ping_rate:
             ping_rate = agents[agent_id].ping_rate
         elapsed = time.time() * 1000 - agentsDict[agent_id]['lastPing']
-        if elapsed > ping_rate * 2:
+        if elapsed > ping_rate * 3:
             agents_to_remove.append(agent_id)
     for agent_id in agents_to_remove:
         print("Deleting agent " + str(agent_id))

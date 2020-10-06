@@ -11,7 +11,7 @@ maxCPUs: 2.5
 #max Disk to allow the agent to use
 maxDisk: 50GB
 
-#optional ping rate in milliseconds
+#optional ping rate in milliseconds (default 1000ms)
 pingRate: 1000
 
 ## If domain is set this is a global accessible domain or IP

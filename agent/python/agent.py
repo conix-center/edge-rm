@@ -157,8 +157,6 @@ def main(host, port, configPath):  # pragma: no cover
     if configPath:
         config = parseConfig(configPath)
         print(config)
-        if config.pingRate:
-            ping_rate = config.pingRate
 
     # construct message
     wrapper = messages_pb2.WrapperMessage()
@@ -170,6 +168,8 @@ def main(host, port, configPath):  # pragma: no cover
 
     if 'name' in config:
         agent_name = config['name']
+    if 'pingRate' in config:
+            ping_rate = config.pingRate
 
     print("My Agent name is " + agent_name)
 
