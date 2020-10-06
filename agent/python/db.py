@@ -29,6 +29,7 @@ def load():
 			for task_id, task in tasks_to_read.items():
 				__tasks[task_id] = messages_pb2.TaskInfo()
 				Parse(task, __tasks[task_id])
+				print("Loaded tasks", __tasks)
 	except:
 		print("No tasks file")
 		pass

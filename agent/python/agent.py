@@ -149,6 +149,7 @@ def main(host, port, configPath):  # pragma: no cover
     client = HelperClient(server=(host, int(port)))
 
     db.load()
+    dockerhelper.load()
 
     #get the devices configuration
     config = dict()

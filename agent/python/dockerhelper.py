@@ -5,6 +5,11 @@ client = docker.from_env()
 
 containers = {}
 
+def load():
+    print("Loading docker containers...")
+    for container in client.containers.list():
+        containers[container.name] = container
+
 def hello():
     print("hello")
 
@@ -39,7 +44,7 @@ def fetchImage(imageURL, forcepull=False):
     return image
 
 def runImage(image, cpu_shares, mem_limit, disk_limit, network, ports, environment, devices, volumes, frameworkName, taskID,):
-    containerName = str(frameworkName + '-' + taskID).replace(" ","-")
+    containerName = str(taskID).replace(" ","-")
     container = client.containers.run(image, 
                                       cpu_quota=int(cpu_shares), 
                                       cpu_period=100000, 
