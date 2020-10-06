@@ -55,6 +55,7 @@ def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings
     print("Submitting task to agent " + agent_to_use + "...")
     # construct message
     wrapper = messages_pb2.WrapperMessage()
+    wrapper.type = messages_pb2.WrapperMessage.Type.RUN_TASK
     wrapper.run_task.task.framework.name = framework_name
     wrapper.run_task.task.framework.framework_id = framework_id
     wrapper.run_task.task.name = name
@@ -193,6 +194,7 @@ def getOffer():
     # get offers
     print("Requesting resource offers...")
     wrapper = messages_pb2.WrapperMessage()
+    wrapper.type = messages_pb2.WrapperMessage.Type.RESOURCE_REQUEST
     wrapper.request.framework_id = framework_id
     request_payload = wrapper.SerializeToString()
     ct = {'content_type': defines.Content_types["application/octet-stream"]}

@@ -117,6 +117,7 @@ def updateTasks():
     db.save()
 
 def constructPing(wrapper, config):
+    wrapper.type = messages_pb2.WrapperMessage.Type.PING
     wrapper.ping.agent.ping_rate = ping_rate
     wrapper.ping.agent.id = agent_id
     wrapper.ping.agent.name = agent_name

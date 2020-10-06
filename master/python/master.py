@@ -75,6 +75,7 @@ class RequestOfferResource(Resource):
         print("\nGot resource offer request! Framework \"" + framework_id + "\"\n")
         #currently just giving the framework everything we got
         wrapper = messages_pb2.WrapperMessage()
+        wrapper.type = messages_pb2.WrapperMessage.Type.RESOURCE_OFFER
         wrapper.offermsg.framework_id = framework_id
         for agent in db.get_all_agents():
             offer = wrapper.offermsg.offers.add()
@@ -124,6 +125,7 @@ class RunTaskResource(Resource):
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
+        wrapper.type = messages_pb2.WrapperMessage.Type.PONG
         wrapper.pong.agent_id = wrapper.run_task.task.agent_id
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
@@ -163,6 +165,7 @@ class KillTaskResource(Resource):
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
+        wrapper.type = messages_pb2.WrapperMessage.Type.PONG
         wrapper.pong.agent_id = wrapper.kill_task.agent_id
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
@@ -210,6 +213,7 @@ class PingResource(Resource):
 
         # construct response
         wrapper = messages_pb2.WrapperMessage()
+        wrapper.type = messages_pb2.WrapperMessage.Type.PONG
         wrapper.pong.agent_id = str(agent_id)
         if task_to_run:
             print("Got a task to schedule!!!")

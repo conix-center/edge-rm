@@ -5,14 +5,22 @@ syntax = "proto2";
 
 message WrapperMessage {
   // required string type = 1;
-  oneof msg {
-    PingAgentMessage ping = 2;
-    PongAgentMessage pong = 3;
-    RunTaskMessage run_task = 4;
-    KillTaskMessage kill_task = 5;
-    ResourceOfferMessage offermsg = 6;
-    ResourceRequestMessage request = 7;
+  enum Type {
+    PING = 0;
+    PONG = 1;
+    RUN_TASK = 2;
+    KILL_TASK = 3;
+    RESOURCE_OFFER = 4;
+    RESOURCE_REQUEST = 5;
   }
+
+  required Type type = 1;
+  optional PingAgentMessage ping = 2;
+  optional PongAgentMessage pong = 3;
+  optional RunTaskMessage run_task = 4;
+  optional KillTaskMessage kill_task = 5;
+  optional ResourceOfferMessage offermsg = 6;
+  optional ResourceRequestMessage request = 7;
 }
 
 /**
