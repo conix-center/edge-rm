@@ -202,7 +202,7 @@ message ContainerInfo {
 
   message WASMInfo {
     //TODO fill out WASMInfo for how to launch a wasm task.
-    required string empty = 1; 
+    required bytes wasm_binary = 1; 
   }
 
   required Type type = 1;
