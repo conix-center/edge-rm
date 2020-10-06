@@ -1,3 +1,5 @@
+#include <logging/log.h>
+LOG_MODULE_REGISTER(agent_port, LOG_LEVEL_DBG);
 
 #include <zephyr.h>
 #include "agent_port.h"
@@ -38,15 +40,20 @@ void agent_port_coap_send(const char* destination, uint8_t* payload, uint32_t le
    send_coap_request(payload, len);
 
    //Allocate date for the response
-   uint8_t ret_code;
-   uint32_t ret_len;
+   uint8_t ret_code = 0;
+   uint32_t ret_len = 0;
    uint8_t* recv_payload = (uint8_t *)k_malloc(MAX_COAP_MSG_LEN);
    if (!recv_payload) {
        return -ENOMEM;
    }
 
    //Wait for the response
-   process_coap_reply(&ret_code, recv_payload, &ret_len);
+   int ret = process_coap_reply(&ret_code, recv_payload, &ret_len);
+   if (ret < 0) {
+      LOG_ERR("Got error return code %d", ret);
+      k_free(recv_payload);
+      return;
+   }
 
    //Call the return callback
    recv_cb(ret_code, recv_payload, ret_len);
@@ -60,4 +67,12 @@ void agent_port_print(const char * fmt, ...) {
    va_start(args, fmt);
    vprintk(fmt, args);
    va_end(args);
+}
+
+void* agent_port_malloc(size_t size) {
+   return k_malloc(size);
+}
+
+void agent_port_free(void* pt) {
+   k_free(pt);
 }
