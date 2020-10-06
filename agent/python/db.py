@@ -17,7 +17,8 @@ def tasks():
 def save():
 	tasks_to_write = {}
 	for task_id, task in __tasks.items():
-		tasks_to_write[task_id] = MessageToJson(task)
+		if task.state == messages_pb2.TaskInfo.RUNNING or task.state == messages_pb2.TaskInfo.STARTING:
+			tasks_to_write[task_id] = MessageToJson(task)
 	with open('tasks.json', 'w') as file:
 		json.dump(tasks_to_write, file)
 
