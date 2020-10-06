@@ -1,6 +1,6 @@
 
 #include <logging/log.h>
-LOG_MODULE_REGISTER(net_coap_client_sample, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(coap_helper, LOG_LEVEL_DBG);
 
 #include <errno.h>
 #include <sys/printk.h>
@@ -33,7 +33,7 @@ static const char * const path[] = { "ping", NULL };
 
 static void wait(void)
 {
-	if (poll(fds, nfds, 10) < 0) {
+	if (poll(fds, nfds, 10000) < 0) {
 		LOG_ERR("Error in poll:%d", errno);
 	}
 }
@@ -93,12 +93,14 @@ int process_coap_reply(uint8_t* return_code, uint8_t* recv_payload, uint32_t* re
 	//recv the payload
 	rcvd = recv(sock, data, MAX_COAP_MSG_LEN, MSG_DONTWAIT);
 	if (rcvd == 0) {
+		LOG_ERR("Received no data");
 		ret = -EIO;
 		goto end;
 	}
 
 	if (rcvd < 0) {
 		if (errno == EAGAIN || errno == EWOULDBLOCK) {
+			LOG_ERR("EAGAIN/EWOULDBLOCK");
 			ret = 0;
 		} else {
 			ret = -errno;
@@ -190,7 +192,9 @@ int send_coap_request(uint8_t* data, uint32_t len)
 	}
 
 	//append the octetstream content type option
+	r = coap_append_option_int(&request, COAP_OPTION_CONTENT_FORMAT, 42);
 
+	//payload marker
 	r = coap_packet_append_payload_marker(&request);
 	if (r < 0) {
 		LOG_ERR("Unable to append payload marker");
