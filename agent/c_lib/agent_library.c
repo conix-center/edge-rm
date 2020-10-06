@@ -9,6 +9,9 @@
 const char* master_domain;
 static uint32_t ping_rate;
 
+#define RESPONSE_CODE_CONTENT 69
+#define RESPONSE_CODE_VALID 67
+
 bool generic_string_encode_callback(pb_ostream_t *ostream, const pb_field_iter_t *field, void * const* args) {
     //In this let's just set an ID and a name
     if (ostream != NULL) {
@@ -20,8 +23,6 @@ bool generic_string_encode_callback(pb_ostream_t *ostream, const pb_field_iter_t
 
     return true;
 }
-
-
 
 void construct_resource(pb_ostream_t* ostream, const char* name, Value_Type type, void* value, bool shared) {
     //For each resource 1) Initiate a resource message, 2) encode a submessage to initiate the resource callback
@@ -154,6 +155,37 @@ bool PingAgentMessage_callback(pb_istream_t *istream, pb_ostream_t *ostream, con
 
 void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
     agent_port_print("Got coap response with return code %d and length %d\n", return_code, len);
+
+    //parse the coap response
+    if(return_code == RESPONSE_CODE_CONTENT || return_code == RESPONSE_CODE_VALID) {
+
+        //Init wrapper
+        WrapperMessage wrapper = WrapperMessage_init_zero;
+
+        //setup wrapper decoding for run_task
+
+        pb_istream_t stream = pb_istream_from_buffer(buf, len);
+        int ret = pb_decode(&stream, WrapperMessage_fields, &wrapper);
+
+        if(wrapper.which_msg == WrapperMessage_pong_tag) {
+            if(wrapper.msg.pong.has_run_task) {
+                agent_port_print("Got Pong Message with run task request\n");
+            } else if (wrapper.msg.pong.has_kill_task) {
+                agent_port_print("Got Pong Message with kill task request\n");
+            } else {
+                agent_port_print("Got Pong Message\n");
+            }
+        } else if (wrapper.which_msg == WrapperMessage_run_task_tag) {
+            agent_port_print("Got Run Task Message\n");
+        } else if (wrapper.which_msg == WrapperMessage_kill_task_tag) {
+            agent_port_print("Got Kill Task Message\n");
+        } else {
+            agent_port_print("Got unknown message\n");
+        }
+
+    } else {
+        agent_port_print("Not a valid response code - not parsing\n");
+    }
 }
 
 void agent_init(const char* master) {
