@@ -139,6 +139,7 @@ def constructPing(wrapper, config):
 def main(host, port, configPath):  # pragma: no cover
     global client
     global agent_name
+    global ping_rate
 
     try:
         tmp = socket.gethostbyname(host)
@@ -156,6 +157,8 @@ def main(host, port, configPath):  # pragma: no cover
     if configPath:
         config = parseConfig(configPath)
         print(config)
+        if config.pingRate:
+            ping_rate = config.pingRate
 
     # construct message
     wrapper = messages_pb2.WrapperMessage()

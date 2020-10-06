@@ -44,7 +44,7 @@ def fetchImage(imageURL, forcepull=False):
     return image
 
 def runImage(image, cpu_shares, mem_limit, disk_limit, network, ports, environment, devices, volumes, frameworkName, taskID,):
-    containerName = str(taskID).replace(" ","-")
+    containerName = str(taskID)
     container = client.containers.run(image, 
                                       cpu_quota=int(cpu_shares), 
                                       cpu_period=100000, 
