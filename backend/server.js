@@ -76,6 +76,11 @@ app.get('/agents', function(req, res) {
 	request('http://128.97.92.77/').on('error', (e) => {res.status(500).send({})}).pipe(res);
 })
 
+app.get('/predictions', function(req, res) {
+	log.info("GET /agents")
+	request('http://128.97.92.77:3003/results').on('error', (e) => {res.status(500).send({})}).pipe(res);
+})
+
 app.get('/', function(req,res) {
 	// res.status(200).send({'hello':'world'});
 	res.status(200).sendFile(path.join(__dirname + '/html/index.html'))
