@@ -5,6 +5,7 @@
 #include "pb_common.h"
 #include "messages.pb.h"
 #include <string.h>
+#include <stdio.h>
 
 const char* master_domain;
 static uint32_t ping_rate;
@@ -61,25 +62,15 @@ bool generic_string_alloc_decode_callback(pb_istream_t *istream, const pb_field_
     //get my destination pointer
     char* dest = (char*)*arg;
 
-    //Make a substream
-    pb_istream_t* substream;
-    if(!pb_make_string_substream(istream, substream))
-        return false;
-
     //Allocate memory for the substream
-    dest = agent_port_malloc(substream->bytes_left);
+    dest = agent_port_malloc(istream->bytes_left);
     if(!dest) {
-        pb_close_string_substream(istream, substream);
         agent_port_print("Error allocating memory for stream");
         return false;
     }    
 
     //read the substream
-    if(!pb_read(substream, dest, substream->bytes_left))
-        return false;
-
-    //close the substream
-    if(!pb_close_string_substream(istream, substream))
+    if(!pb_read(istream, dest, istream->bytes_left))
         return false;
 
     return true;
@@ -89,17 +80,8 @@ bool generic_string_decode_callback(pb_istream_t *istream, const pb_field_iter_t
     //get my destination pointer
     char* dest = (char*)*arg;
 
-    //Make a substream
-    pb_istream_t* substream;
-    if(!pb_make_string_substream(istream, substream))
-        return false;
-
     //read the substream
-    if(!pb_read(substream, dest, substream->bytes_left))
-        return false;
-
-    //close the substream
-    if(!pb_close_string_substream(istream, substream))
+    if(!pb_read(istream, dest, istream->bytes_left))
         return false;
 
     return true;
@@ -266,7 +248,7 @@ bool AgentInfo_resources_callback(pb_ostream_t *ostream, const pb_field_iter_t *
         if(!pb_encode_tag_for_field(ostream, field))
             return false;
         float c = agent_port_get_free_cpu();
-        construct_resource(ostream, "cpu", Value_Type_SCALAR, &c, false);
+        construct_resource(ostream, "cpus", Value_Type_SCALAR, &c, false);
 
         for(uint8_t i = 0; true; i++) {
            agent_device_t d;
@@ -284,11 +266,6 @@ bool AgentInfo_resources_callback(pb_ostream_t *ostream, const pb_field_iter_t *
     } 
 }
 
-//nanopb encoding callbacks
-bool PingAgentMessage_callback(pb_istream_t *istream, pb_ostream_t *ostream, const pb_field_iter_t *field) {
-    // For now we aren't going to set any tasks so just leave this
-}
-
 void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
     agent_port_print("Got coap response with return code %d and length %d\n", return_code, len);
 
@@ -299,57 +276,70 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
         WrapperMessage wrapper = WrapperMessage_init_zero;
 
         //setup wrapper decoding for run_task
-        wrapper.msg.pong.run_task.task.task_id.funcs.decode = &generic_string_decode_callback;
-        wrapper.msg.pong.run_task.task.task_id.arg = new_task.task_id;
-        wrapper.msg.pong.run_task.task.name.funcs.decode = &generic_string_decode_callback;
-        wrapper.msg.pong.run_task.task.name.arg = new_task.task_name;
+        wrapper.pong.run_task.task.task_id.funcs.decode = &generic_string_decode_callback;
+        wrapper.pong.run_task.task.task_id.arg = new_task.task_id;
+        wrapper.pong.run_task.task.name.funcs.decode = &generic_string_decode_callback;
+        wrapper.pong.run_task.task.name.arg = new_task.task_name;
+        //wrapper.pong.run_task.task.agent_id.funcs.decode = &generic_string_decode_callback;
+        //wrapper.pong.run_task.task.agent_id.arg = new_task.agent_id;
 
-        wrapper.msg.pong.run_task.task.container.wasm.wasm_binary.funcs.decode = &generic_string_alloc_decode_callback;
-        wrapper.msg.pong.run_task.task.container.wasm.wasm_binary.arg = new_task.wasm;
+        wrapper.pong.run_task.task.container.wasm.wasm_binary.funcs.decode = &generic_string_alloc_decode_callback;
+        wrapper.pong.run_task.task.container.wasm.wasm_binary.arg = new_task.wasm;
+
+        //wrapper.pong.run_task.task.framework.name.funcs.decode = &generic_string_decode_callback;
+        //wrapper.pong.run_task.task.framework.name.arg = test;
+        //wrapper.pong.run_task.task.framework.framework_id.funcs.decode = &generic_string_decode_callback;
+        //wrapper.pong.run_task.task.framework.framework_id.arg = test;
 
         pb_istream_t stream = pb_istream_from_buffer(buf, len);
-        int ret = pb_decode(&stream, WrapperMessage_fields, &wrapper);
+        bool r = pb_decode(&stream, WrapperMessage_fields, &wrapper);
 
-        if(wrapper.which_msg == WrapperMessage_pong_tag) {
-            if(wrapper.msg.pong.has_run_task) {
+        agent_port_print("Decode status %d\n",(int)r);
+        agent_port_print("Task ID %s\n",new_task.task_id);
+        agent_port_print("Task Name %s\n",new_task.task_name);
+
+
+        if(wrapper.type == WrapperMessage_Type_PONG) {
+
+            if(wrapper.pong.has_run_task) {
                 agent_port_print("Got Pong Message with run task request\n");
                 
-                if(wrapper.msg.pong.run_task.task.container.type == ContainerInfo_Type_WASM &&
-                        wrapper.msg.pong.run_task.task.container.has_wasm == true) {
+                if(wrapper.pong.run_task.task.container.type == ContainerInfo_Type_WASM &&
+                        wrapper.pong.run_task.task.container.has_wasm == true) {
                     // Is something already running
                     if(agent_port_can_run_task()) {
                         //Is the task valid?
                         if(new_task.wasm != NULL && strlen(new_task.task_id) > 0) {
                             // Run the task
-                            agent_port_print("Running WASM Task!");
+                            agent_port_print("Running WASM Task!\n");
                             // Set the task state in the task struct
                         } else {
-                            agent_port_print("WASM task invalid");
+                            agent_port_print("WASM task invalid\n");
                             new_task.state = TaskInfo_TaskState_ERRORED;
                             new_task.error_message = "Invalid WASM task";
                         }
                     } else {
                         // Set the task state and error message in the task struct
-                        agent_port_print("Can't run task - task already running");
+                        agent_port_print("Can't run task - task already running\n");
                         new_task.state = TaskInfo_TaskState_ERRORED;
                         new_task.error_message = "Insufficient Resources";
                     }
                 } else {
                     // Set the task state and error message in the task struct
-                    agent_port_print("Got docker task");
+                    agent_port_print("Got docker task\n");
                     new_task.state = TaskInfo_TaskState_ERRORED;
                     new_task.error_message = "Only WASM Executor";
                 }
 
 
-            } else if (wrapper.msg.pong.has_kill_task) {
+            } else if (wrapper.pong.has_kill_task) {
                 agent_port_print("Got Pong Message with kill task request\n");
             } else {
                 agent_port_print("Got Pong Message\n");
             }
-        } else if (wrapper.which_msg == WrapperMessage_run_task_tag) {
+        } else if (wrapper.type == WrapperMessage_Type_RUN_TASK) {
             agent_port_print("Got Run Task Message\n");
-        } else if (wrapper.which_msg == WrapperMessage_kill_task_tag) {
+        } else if (wrapper.type == WrapperMessage_Type_KILL_TASK) {
             agent_port_print("Got Kill Task Message\n");
         } else {
             agent_port_print("Got unknown message\n");
@@ -383,19 +373,19 @@ void agent_ping(void) {
     //fill out the fields that are not callbacks
 
     // AgentInfo
-    wrapper.msg.ping.agent.has_ping_rate = true;
-    wrapper.msg.ping.agent.ping_rate = ping_rate;
-    wrapper.msg.ping.agent.id.funcs.encode = &generic_string_encode_callback;
-    wrapper.msg.ping.agent.id.arg = agent_port_get_agent_id();
-    wrapper.msg.ping.agent.name.funcs.encode = &generic_string_encode_callback;
-    wrapper.msg.ping.agent.name.arg = agent_port_get_agent_name();
-    wrapper.msg.ping.agent.resources.funcs.encode = &AgentInfo_resources_callback;
-    wrapper.msg.ping.agent.attributes.funcs.encode = &AgentInfo_attributes_callback;
+    wrapper.type = WrapperMessage_Type_PING;
+    wrapper.has_ping = true;
+    wrapper.ping.agent.has_ping_rate = true;
+    wrapper.ping.agent.ping_rate = ping_rate * 1000;
+    wrapper.ping.agent.id.funcs.encode = &generic_string_encode_callback;
+    wrapper.ping.agent.id.arg = agent_port_get_agent_id();
+    wrapper.ping.agent.name.funcs.encode = &generic_string_encode_callback;
+    wrapper.ping.agent.name.arg = agent_port_get_agent_name();
+    wrapper.ping.agent.resources.funcs.encode = &AgentInfo_resources_callback;
+    wrapper.ping.agent.attributes.funcs.encode = &AgentInfo_attributes_callback;
 
     // TaskInfo
-    wrapper.msg.ping.tasks.funcs.encode = &TaskInfo_callback;
-
-    wrapper.which_msg = WrapperMessage_ping_tag;
+    //wrapper.ping.tasks.funcs.encode = &TaskInfo_callback;
 
     //Get the size of the payload
     pb_ostream_t sizestream = {0};
