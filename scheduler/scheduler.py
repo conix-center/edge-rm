@@ -151,6 +151,30 @@ def getServerTask(offers):
     client.stop()
     sys.exit(1)
 
+def getClassifyTask(offers):
+    print("Searching for a good classify instance...")
+    agent_to_use = None
+    resources_to_use = {
+        "cpus":1,
+        "mem":1000000000
+    }
+    for i in reversed(range(len(offers))):
+        offer = offers[i]
+        if offer.agent_id:
+            good_cpu = False
+            good_mem = False
+            for resource in offer.resources:
+                if resource.name == "cpus" and resource.scalar.value >= 0.5:
+                    good_cpu = True
+                if resource.name == "mem" and resource.scalar.value >= 100000000:
+                    good_mem = True
+            for attribute in offer.attributes:
+                if good_cpu and good_mem and attribute.name == "domain":
+                    return (offer.agent_id, resources_to_use, attribute.text.value)
+    print("Failed to find a classify instance...")
+    client.stop()
+    sys.exit(1)
+
 def printOffer(offers):
     agent_to_use = None
     resources_to_use = {}
@@ -175,7 +199,7 @@ def printOffer(offers):
         print("No available agents...")
         return
 
-def submitTwoTasks(offers):
+def submitTasks(offers):
     print("Searching for a good server offer...")
     printOffer(offers)
 
@@ -183,10 +207,12 @@ def submitTwoTasks(offers):
     print("Got a camera!")
     (server_agent, server_resources, server_domain) = getServerTask(offers)
     print("Got a server!")
+    (classify_agent, classify_resources, classify_domain) = getClassifyTask(offers)
 
     # return
     # print("Submitting task to agent " + agent_to_use + "...")
     submitRunTask("webserver endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'])
+    submitRunTask("image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/latest", 'OUTPUT_URL=http://' + server_domain + ":3003/pushprediction"])
     submitRunTask("camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/image"])
     
 
@@ -228,7 +254,7 @@ def main(host, port, tasks):  # pragma: no cover
     # TODO: Should we register the framework first?
 
     offers = getOffer()
-    submitTwoTasks(offers)
+    submitTasks(offers)
 
     client.stop()
 

@@ -147,3 +147,117 @@
 {"message":"Killing task...\nKill task issued!\nKilling task...\nKill task issued!\n","level":"info"}
 {"message":0,"level":"info"}
 {"message":"GET /tasks","level":"info"}
+{"message":"Listening on port 3000","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"No tasks to kill!\n","level":"info"}
+{"message":1,"level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":"  File \"../scheduler/scheduler.py\", line 214\n    submitRunTask(\"image classification\", classify_agent, classify_resources, \"jnoor/classify:v1\", {:}, ['INPUT_URL=http://' + server_domain + \":3003/latest\", 'OUTPUT_URL=http://' + server_domain + \":3003/pushprediction\"])\n                                                                                                    ^\nSyntaxError: invalid syntax\n","level":"info"}
+{"message":1,"level":"info"}
+{"message":"starting tasks","level":"info"}
+{"message":0,"level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"stopping tasks","level":"info"}
+{"message":"Killing task...\nKill task issued!\nKilling task...\nKill task issued!\nKilling task...\nKill task issued!\n","level":"info"}
+{"message":0,"level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
+{"message":"GET /tasks","level":"info"}
+{"message":"GET /agents","level":"info"}
+{"message":"GET /framework","level":"info"}
