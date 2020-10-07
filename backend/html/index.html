@@ -33,6 +33,7 @@ tr:nth-child(even) {
     <input type="submit" value="Stop Tasks"/>
 </form>
 
+<h3 id='appoutput'></h3>
 <div id='predictions'>
 </div>
 
@@ -80,16 +81,21 @@ function loadPredictions(){
       var resp = JSON.parse(xmlHttp.responseText);
       if(resp.error) {
         document.getElementById('predictions').innerHTML = ''
+      	document.getElementById('appoutput').innerHTML = ''
+      } else if(resp.length < 0) {
+      	document.getElementById('appoutput').innerHTML = 'Latest Camera Frame'
+	document.getElementById('predictions').innerHTML = 'not ready yet'
       } else {
+	document.getElementById('appoutput').innerHTML = 'Latest Camera Frame'
         var tableHTML = "<table><tr><th>Prediction</th><th>Confidence</th></tr>"
         var cnt = 0;
-        for(var i =0; i<resp.objects.length;i++) {
-          var prediction = resp.objects[i];
+        for(var i =0; i<resp[0].objects.length;i++) {
+          var prediction = resp[0].objects[i];
             tableHTML += `<tr><td>${prediction.name}</td><td>${prediction.confidence}</td></tr>`
         }
         tableHTML += "</table>"
-        document.getElementById('predictions').innerHTML = resp.objects.length > 0 ? tableHTML : ''
-        document.getElementById('predictions').innerHTML += '<img src="http://conixdb.com:3003/predictions" alt="Latest image" width="300">'
+        document.getElementById('predictions').innerHTML = resp[0].objects.length > 0 ? tableHTML : ''
+        document.getElementById('predictions').innerHTML += '<img src="http://conixdb.com:3003/predictions" alt="Latest image" height="300">'
       }
     } 
   }
