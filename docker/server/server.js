@@ -31,6 +31,17 @@ const server = http.createServer((req, res) => {
                 res.end("received predictions!");
             });
         });
+    } else if(requestURL.pathname.startsWith('/pushresults')) {
+        let body = [];
+        req.on('data', (chunk) => {
+                body.push(chunk);
+        }).on('end', () => {
+            body = Buffer.concat(body);
+            fs.writeFile('./results.json',body, function(err, result) {
+                if (err) return res.end(err.toString());
+                res.end("received results!");
+            });
+        });
     } else if(requestURL.pathname.startsWith('/image')){
         let body = [];
         req.on('data', (chunk) => {
@@ -46,6 +57,14 @@ const server = http.createServer((req, res) => {
         try {
             if (fs.existsSync('./predictions.jpg')) {
                 return fs.createReadStream('./predictions.jpg').pipe(res);
+            }
+        } catch(err) {
+        }
+        return res.end("Predictions not available yet");
+    } else if(requestURL.pathname.startsWith('/results')) {
+        try {
+            if (fs.existsSync('./results.json')) {
+                return fs.createReadStream('./results.json').pipe(res);
             }
         } catch(err) {
         }

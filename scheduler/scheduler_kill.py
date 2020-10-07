@@ -50,6 +50,7 @@ def killTasks():
         index += 1
         print("Killing task...")
         wrapper = messages_pb2.WrapperMessage()
+        wrapper.type = messages_pb2.WrapperMessage.Type.KILL_TASK
         wrapper.kill_task.name = task['name']
         wrapper.kill_task.task_id = task['task_id']
         wrapper.kill_task.agent_id = task['agent_id']
