@@ -17,6 +17,7 @@ static uint32_t ping_rate;
 #define TASK_NAME_LEN 40
 #define FRAMEWORK_ID_LEN 40
 #define FRAMEWORK_NAME_LEN 40
+#define ENVIRONMENT_KEY_LEN 20
 typedef struct _agent_task {
     char task_name[TASK_NAME_LEN];
     char framework_name[FRAMEWORK_NAME_LEN];
@@ -25,9 +26,12 @@ typedef struct _agent_task {
     char* error_message;
     TaskInfo_TaskState state;
     uint8_t* wasm;
+    char environment_keys[4][ENVIRONMENT_KEY_LEN];
+    int32_t environment_values[4];
 } agent_task_t;
 
 agent_task_t new_task;
+uint8_t environment_idx = 0;
 agent_task_t running_task;
 
 void set_running_task_to_new_task(void) {
@@ -86,7 +90,6 @@ bool generic_string_alloc_decode_callback(pb_istream_t *istream, const pb_field_
 bool generic_string_decode_callback(pb_istream_t *istream, const pb_field_iter_t *field, void** arg) {
     //get my destination pointer
     char* dest = (char*)*arg;
-    agent_port_print("Value of arg %x\n",(uint32_t)arg);
 
     //read the substream
     if(!pb_read(istream, dest, istream->bytes_left))
@@ -94,6 +97,35 @@ bool generic_string_decode_callback(pb_istream_t *istream, const pb_field_iter_t
 
     return true;
 }
+
+bool environment_decode_callback(pb_istream_t *istream, const pb_field_iter_t *field, void** arg) {
+    
+    if(environment_idx <= 3) {
+        agent_task_t* t = *arg;
+
+        //This should get called once for every environment variable
+        ContainerInfo_WASMInfo_EnvironmentVariable e = ContainerInfo_WASMInfo_EnvironmentVariable_init_zero;
+
+        //Setup the decoding callback
+        e.key.funcs.decode = &generic_string_decode_callback;
+        e.key.arg = t->environment_keys[environment_idx];
+        
+        bool r = pb_decode(istream, ContainerInfo_WASMInfo_EnvironmentVariable_fields, &e);
+
+        //Cop the one outside of the callback
+        t->environment_values[environment_idx] = e.value;
+
+        environment_idx++;
+        
+        return r;
+    } else {
+        //just decode it and put it nowhere
+        ContainerInfo_WASMInfo_EnvironmentVariable e = ContainerInfo_WASMInfo_EnvironmentVariable_init_zero;
+        return pb_decode(istream, ContainerInfo_WASMInfo_EnvironmentVariable_fields, &e);
+    }
+}
+
+
 
 void construct_resource(pb_ostream_t* ostream, const char* name, Value_Type type, void* value, bool shared) {
     //For each resource 1) Initiate a resource message, 2) encode a submessage to initiate the resource callback
@@ -213,8 +245,10 @@ TaskInfo construct_TaskInfo(agent_task_t* task) {
     t.state = task->state;
 
     //Error message
-    t.error_message.funcs.encode = &generic_string_encode_callback;
-    t.error_message.arg = task->error_message;
+    if(task->error_message) {
+        t.error_message.funcs.encode = &generic_string_encode_callback;
+        t.error_message.arg = task->error_message;
+    }
 
     //Container
     t.container.type = ContainerInfo_Type_WASM;
@@ -296,17 +330,20 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
         wrapper.pong.run_task.task.task_id.arg = new_task.task_id;
         wrapper.pong.run_task.task.name.funcs.decode = &generic_string_decode_callback;
         wrapper.pong.run_task.task.name.arg = new_task.task_name;
+        wrapper.pong.run_task.task.framework.name.funcs.decode = &generic_string_decode_callback;
+        wrapper.pong.run_task.task.framework.name.arg = new_task.framework_name;
+        wrapper.pong.run_task.task.framework.framework_id.funcs.decode = &generic_string_decode_callback;
+        wrapper.pong.run_task.task.framework.framework_id.arg = new_task.framework_id;
 
         //For the alloc decode you have to do this indirect pointer thing I think...maybe there is a better way, but it works?
         wrapper.pong.run_task.task.container.wasm.wasm_binary.funcs.decode = &generic_string_alloc_decode_callback;
         char** wasm_indirect = &new_task.wasm;
         wrapper.pong.run_task.task.container.wasm.wasm_binary.arg = wasm_indirect;
 
-
-        wrapper.pong.run_task.task.framework.name.funcs.decode = &generic_string_decode_callback;
-        wrapper.pong.run_task.task.framework.name.arg = new_task.framework_name;
-        wrapper.pong.run_task.task.framework.framework_id.funcs.decode = &generic_string_decode_callback;
-        wrapper.pong.run_task.task.framework.framework_id.arg = new_task.framework_id;
+        // Okay we needed a special decoder for the environment variables
+        environment_idx = 0;
+        wrapper.pong.run_task.task.container.wasm.environment.funcs.decode = &environment_decode_callback;
+        wrapper.pong.run_task.task.container.wasm.environment.arg = &new_task;
 
         pb_istream_t stream = pb_istream_from_buffer(buf, len);
         bool r = pb_decode(&stream, WrapperMessage_fields, &wrapper);
@@ -378,12 +415,6 @@ void agent_init(const char* master) {
 void agent_ping(void) {
     agent_port_print("Pinging\n");
 
-    //Get resources from agent
-
-    // Construct an agent message
-    //AgentInfo agent;
-    //agent.ping_rate
-
     //Construct nanopb message
     WrapperMessage wrapper  = WrapperMessage_init_zero;
 
@@ -402,7 +433,7 @@ void agent_ping(void) {
     wrapper.ping.agent.attributes.funcs.encode = &AgentInfo_attributes_callback;
 
     // TaskInfo
-    //wrapper.ping.tasks.funcs.encode = &TaskInfo_callback;
+    wrapper.ping.tasks.funcs.encode = &TaskInfo_callback;
 
     //Get the size of the payload
     pb_ostream_t sizestream = {0};
