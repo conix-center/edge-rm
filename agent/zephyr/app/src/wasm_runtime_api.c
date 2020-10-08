@@ -205,7 +205,7 @@ void waMQTTSNDisconnect(wasm_exec_env_t exec_env)
     }
 }*/
 
-int waCoapPost(wasm_exec_env_t exec_env, char* ipv4Address, uint8_t* sendBuf, uint32_t sendBufLen, uint8_t* rcvBuf, uint32_t rcvBufLen, uint32_t timeout) {
+int waCoapPost(wasm_exec_env_t exec_env, char* ipv4Address, char* sendBuf, int sendBufLen, char* rcvBuf, int rcvBufLen, int timeout) {
    return 0;
 }
 
@@ -286,12 +286,12 @@ float waReadSensor(wasm_exec_env_t exec_env, char* attr)
      }
 }
 
-int waGetEnvironmentInt(wasm_exec_env_t exec_env, char* key, uint32_t* val, uint32_t len) {
+int waGetEnvironmentInt(wasm_exec_env_t exec_env, char* key, int* val, int len) {
    //probably can just access these through externed globals for now
    return 0;
 }
 
-int waGetEnvironmentString(wasm_exec_env_t exec_env, char* key, char* str, uint32_t len) {
+int waGetEnvironmentString(wasm_exec_env_t exec_env, char* key, char* str, int len) {
    //probably can just access these through externed globals for now
    return 0;
 }

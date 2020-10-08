@@ -13,7 +13,7 @@ void waMQTTSNSub(wasm_exec_env_t exec_env, int qos, char *topicName);
 int waMQTTSNReg(wasm_exec_env_t exec_env, char *topicName);
 
 // Sends coap data - Fills out rcvBuf - Returns bytes rcv
-int waCoapPost(wasm_exec_env_t exec_env, char* ipv4Address, uint8_t* sendBuf, uint32_t sendBufLen, uint8_t* rcvBuf, uint32_t rcvBufLen, uint32_t timeout);
+int waCoapPost(wasm_exec_env_t exec_env, char* ipv4Address, char* sendBuf, int sendBufLen, char* rcvBuf, int rcvBufLen, int timeout);
 
 // Sensor read functions
 float waReadSensor(wasm_exec_env_t exec_env, char* attr);
@@ -32,7 +32,7 @@ void printInt(wasm_exec_env_t exec_env, int i);
 void printFloat(wasm_exec_env_t exec_env, float f);
 
 // Environment functions
-int waGetEnvironmentInt(wasm_exec_env_t exec_env, char* key, uint32_t* val, uint32_t len);
-int waGetEnvironmentString(wasm_exec_env_t exec_env, char* key, char* str, uint32_t len);
+int waGetEnvironmentInt(wasm_exec_env_t exec_env, char* key, int* val, int len);
+int waGetEnvironmentString(wasm_exec_env_t exec_env, char* key, char* str, int len);
 
 #endif
