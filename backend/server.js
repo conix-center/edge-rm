@@ -99,17 +99,17 @@ app.get('/network.json', function(req, res) {
 		//add the master, framework, and client
 		var master = {
 			id: 'Master',
-			name: "Resource Manager Master",
+			name: "Master",
 			group:2
 		}
 		var framework = {
 			id: 'Framework',
-			name: 'Test Framework',
+			name: 'Framework (This)',
 			group:3
 		}
 		var client = {
 			id: 'Me',
-			name: 'Me',
+			name: 'Client (Me)',
 			group:4
 		}
 		//connect all agents to the master

@@ -25,7 +25,9 @@ tr:nth-child(even) {
 /* D3 styles */
 svg {
   flex-basis: 100%;
-  min-width: 400px;
+  /*min-width: 400px;*/
+  width: 100%;
+  max-width: 800px;
   min-height: 250px;
 }
 .links line {
@@ -73,7 +75,7 @@ var svg = d3.select("svg"),
     height = +svg.node().getBoundingClientRect().height;
 
 // svg objects
-var link, node;
+var link, node, textElems;
 // the data - an object with nodes and links
 var graph;
 
@@ -113,9 +115,9 @@ forceProperties = {
     },
     collide: {
         enabled: true,
-        strength: .7,
+        strength: 1,
         iterations: 1,
-        radius: 5
+        radius: 40
     },
     forceX: {
         enabled: true,
@@ -129,7 +131,7 @@ forceProperties = {
     },
     link: {
         enabled: true,
-        distance: 30,
+        distance: 50,
         iterations: 1
     }
 }
@@ -201,15 +203,22 @@ function initializeDisplay() {
     .enter().append("line");
 
   // set the data and properties of node circles
-  node = svg.append("g")
+
+  var elemEnter = svg.append("g")
         .attr("class", "nodes")
     .selectAll("circle")
     .data(graph.nodes)
-    .enter().append("circle")
+    .enter()
+
+  node = elemEnter.append("circle")
         .call(d3.drag()
             .on("start", dragstarted)
             .on("drag", dragged)
             .on("end", dragended));
+
+  textElems = elemEnter.append("text")
+        .attr('font-size',13)
+        .text(node => node.name)
 
   // node tooltip
   node.append("title")
@@ -219,20 +228,21 @@ function initializeDisplay() {
 }
 
 function getColorForGroup(g) {
-  if (g == '1') return 'orange';
-  if (g == '2') return 'blue';
-  if (g == '3') return 'green';
-  if (g == '4') return 'pink'
+  if (g == '1') return '#305F72';
+  if (g == '2') return '#568EA6';
+  if (g == '3') return '#F1D1B5';
+  if (g == '4') return '#F18C8E'
   return 'orange';
 }
 
 // update the display based on the forces (but not positions)
 function updateDisplay() {
     node
-        .attr("r", forceProperties.collide.radius)
+        .attr("r", 15)
         // .attr("stroke", forceProperties.charge.strength > 0 ? "blue" : "red")
         .attr('stroke', function(d) { return getColorForGroup(d.group)})
-        .attr("stroke-width", forceProperties.charge.enabled==false ? 0 : Math.abs(forceProperties.charge.strength)/15);
+        .attr('fill', function(d) { return getColorForGroup(d.group)})
+        // .attr("stroke-width", forceProperties.charge.enabled==false ? 0 : Math.abs(forceProperties.charge.strength)/15);
 
     link
         .attr("stroke-width", forceProperties.link.enabled ? 1 : .5)
@@ -250,6 +260,11 @@ function ticked() {
     node
         .attr("cx", function(d) { return d.x; })
         .attr("cy", function(d) { return d.y; });
+
+    textElems
+        .style("text-anchor", "middle")
+        .attr('dx', function(d) {return d.x;})
+        .attr('dy', function(d) {return d.y - 20;})
     d3.select('#alpha_value').style('flex-basis', (simulation.alpha()*100) + '%');
 }
 
@@ -324,12 +339,12 @@ function loadPredictions(){
       var resp = JSON.parse(xmlHttp.responseText);
       if(resp.error) {
         document.getElementById('predictions').innerHTML = ''
-      	document.getElementById('appoutput').innerHTML = ''
+        document.getElementById('appoutput').innerHTML = ''
       } else if(resp.length < 0) {
-      	document.getElementById('appoutput').innerHTML = 'Latest Camera Frame'
-	document.getElementById('predictions').innerHTML = 'not ready yet'
+        document.getElementById('appoutput').innerHTML = 'Latest Camera Frame'
+        document.getElementById('predictions').innerHTML = 'not ready yet'
       } else {
-	document.getElementById('appoutput').innerHTML = 'Latest Camera Frame'
+        document.getElementById('appoutput').innerHTML = 'Latest Camera Frame'
         var tableHTML = "<table><tr><th>Prediction</th><th>Confidence</th></tr>"
         var cnt = 0;
         for(var i =0; i<resp[0].objects.length;i++) {
