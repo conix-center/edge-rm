@@ -15,9 +15,13 @@ static uint32_t ping_rate;
 
 #define TASK_ID_LEN 40
 #define TASK_NAME_LEN 40
+#define FRAMEWORK_ID_LEN 40
+#define FRAMEWORK_NAME_LEN 40
 typedef struct _agent_task {
     char task_name[TASK_NAME_LEN];
+    char framework_name[FRAMEWORK_NAME_LEN];
     char task_id[TASK_ID_LEN];
+    char framework_id[FRAMEWORK_ID_LEN];
     char* error_message;
     TaskInfo_TaskState state;
     uint8_t* wasm;
@@ -38,11 +42,15 @@ void set_running_task_to_new_task(void) {
     running_task.state = TaskInfo_TaskState_RUNNING;
     memcpy(running_task.task_id, new_task.task_id, TASK_ID_LEN);
     memcpy(running_task.task_name, new_task.task_name, TASK_NAME_LEN);
+    memcpy(running_task.framework_id, new_task.framework_id, FRAMEWORK_ID_LEN);
+    memcpy(running_task.framework_name, new_task.framework_name, FRAMEWORK_NAME_LEN);
 
     //Clear out the new_task info
     new_task.error_message = "";
     memset(new_task.task_id, 0, TASK_ID_LEN);
     memset(new_task.task_name, 0, TASK_NAME_LEN);
+    memset(new_task.framework_id, 0, FRAMEWORK_ID_LEN);
+    memset(new_task.framework_name, 0, FRAMEWORK_NAME_LEN);
     new_task.wasm = NULL;
 }
 
@@ -59,18 +67,17 @@ bool generic_string_encode_callback(pb_ostream_t *ostream, const pb_field_iter_t
 }
 
 bool generic_string_alloc_decode_callback(pb_istream_t *istream, const pb_field_iter_t *field, void** arg) {
-    //get my destination pointer
-    char* dest = (char*)*arg;
+    char** dest = *arg;
 
     //Allocate memory for the substream
-    dest = agent_port_malloc(istream->bytes_left);
-    if(!dest) {
+    *dest = agent_port_malloc(istream->bytes_left);
+    if(!(*dest)) {
         agent_port_print("Error allocating memory for stream");
         return false;
     }    
 
     //read the substream
-    if(!pb_read(istream, dest, istream->bytes_left))
+    if(!pb_read(istream, *dest, istream->bytes_left))
         return false;
 
     return true;
@@ -79,6 +86,7 @@ bool generic_string_alloc_decode_callback(pb_istream_t *istream, const pb_field_
 bool generic_string_decode_callback(pb_istream_t *istream, const pb_field_iter_t *field, void** arg) {
     //get my destination pointer
     char* dest = (char*)*arg;
+    agent_port_print("Value of arg %x\n",(uint32_t)arg);
 
     //read the substream
     if(!pb_read(istream, dest, istream->bytes_left))
@@ -186,11 +194,15 @@ TaskInfo construct_TaskInfo(agent_task_t* task) {
 
     //Name
     t.name.funcs.encode = &generic_string_encode_callback;
-    t.name.arg = running_task.task_name;
+    t.name.arg = task->task_name;
+    t.framework.name.funcs.encode = &generic_string_encode_callback;
+    t.framework.name.arg = task->framework_name;
 
     //ID
     t.task_id.funcs.encode = &generic_string_encode_callback;
-    t.task_id.arg = running_task.task_id;
+    t.task_id.arg = task->task_id;
+    t.framework.framework_id.funcs.encode = &generic_string_encode_callback;
+    t.framework.framework_id.arg = task->framework_id;
 
     //ID
     t.agent_id.funcs.encode = &generic_string_encode_callback;
@@ -198,11 +210,11 @@ TaskInfo construct_TaskInfo(agent_task_t* task) {
 
     //State
     t.has_state = true;
-    t.state = running_task.state;
+    t.state = task->state;
 
     //Error message
     t.error_message.funcs.encode = &generic_string_encode_callback;
-    t.error_message.arg = running_task.error_message;
+    t.error_message.arg = task->error_message;
 
     //Container
     t.container.type = ContainerInfo_Type_WASM;
@@ -233,7 +245,11 @@ bool TaskInfo_callback(pb_ostream_t *ostream, const pb_field_iter_t *field, void
             if(!pb_encode_submessage(ostream, TaskInfo_fields, &t))
                 return false;
         }
+
+        return true;
     } 
+
+    return false;
 }
 
 bool AgentInfo_resources_callback(pb_ostream_t *ostream, const pb_field_iter_t *field, void * const* args) {
@@ -280,29 +296,30 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
         wrapper.pong.run_task.task.task_id.arg = new_task.task_id;
         wrapper.pong.run_task.task.name.funcs.decode = &generic_string_decode_callback;
         wrapper.pong.run_task.task.name.arg = new_task.task_name;
-        //wrapper.pong.run_task.task.agent_id.funcs.decode = &generic_string_decode_callback;
-        //wrapper.pong.run_task.task.agent_id.arg = new_task.agent_id;
 
+        //For the alloc decode you have to do this indirect pointer thing I think...maybe there is a better way, but it works?
         wrapper.pong.run_task.task.container.wasm.wasm_binary.funcs.decode = &generic_string_alloc_decode_callback;
-        wrapper.pong.run_task.task.container.wasm.wasm_binary.arg = new_task.wasm;
+        char** wasm_indirect = &new_task.wasm;
+        wrapper.pong.run_task.task.container.wasm.wasm_binary.arg = wasm_indirect;
 
-        //wrapper.pong.run_task.task.framework.name.funcs.decode = &generic_string_decode_callback;
-        //wrapper.pong.run_task.task.framework.name.arg = test;
-        //wrapper.pong.run_task.task.framework.framework_id.funcs.decode = &generic_string_decode_callback;
-        //wrapper.pong.run_task.task.framework.framework_id.arg = test;
+
+        wrapper.pong.run_task.task.framework.name.funcs.decode = &generic_string_decode_callback;
+        wrapper.pong.run_task.task.framework.name.arg = new_task.framework_name;
+        wrapper.pong.run_task.task.framework.framework_id.funcs.decode = &generic_string_decode_callback;
+        wrapper.pong.run_task.task.framework.framework_id.arg = new_task.framework_id;
 
         pb_istream_t stream = pb_istream_from_buffer(buf, len);
         bool r = pb_decode(&stream, WrapperMessage_fields, &wrapper);
-
-        agent_port_print("Decode status %d\n",(int)r);
-        agent_port_print("Task ID %s\n",new_task.task_id);
-        agent_port_print("Task Name %s\n",new_task.task_name);
-
 
         if(wrapper.type == WrapperMessage_Type_PONG) {
 
             if(wrapper.pong.has_run_task) {
                 agent_port_print("Got Pong Message with run task request\n");
+                agent_port_print("Decode status %d\n",(int)r);
+                agent_port_print("Task ID %s\n",new_task.task_id);
+                agent_port_print("Task Name %s\n",new_task.task_name);
+                agent_port_print("Framework ID %s\n",new_task.framework_id);
+                agent_port_print("Framework Name %s\n",new_task.framework_name);
                 
                 if(wrapper.pong.run_task.task.container.type == ContainerInfo_Type_WASM &&
                         wrapper.pong.run_task.task.container.has_wasm == true) {
