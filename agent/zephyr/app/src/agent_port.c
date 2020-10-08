@@ -42,10 +42,11 @@ void agent_port_coap_send(const char* destination, uint8_t* payload, uint32_t le
 
    //Allocate date for the response
    uint8_t ret_code = 0;
-   uint32_t ret_len = 0;
+   uint16_t ret_len = 0;
    uint8_t* recv_payload = (uint8_t *)k_malloc(MAX_COAP_MSG_LEN);
    if (!recv_payload) {
-       return -ENOMEM;
+      LOG_ERR("Error allocating memory");
+      return;
    }
 
    //Wait for the response
@@ -118,5 +119,13 @@ bool agent_port_get_device(uint8_t device_number, agent_device_t* device) {
    }
 
    return false; 
+}
+
+bool agent_port_run_wasm_task(uint8_t* wasm_binary, 
+                            uint32_t wasm_binary_length,
+                            char* environment_keys,
+                            int32_t* environment_values,
+                            uint8_t num_environment_variables) {
+   return true;
 }
 

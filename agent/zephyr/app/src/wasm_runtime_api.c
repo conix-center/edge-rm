@@ -35,7 +35,7 @@
 #define GATEWAY_PORT 47193
 #define GATEWAY_ADDRESS "fdde:ad00:beef:0:9a2a:2a02:71bf:f061"
 
-struct device *dev;
+struct device *dev = NULL;
 otInstance *instance = NULL;
 bool connected=false;
 bool registered=false;
@@ -134,7 +134,7 @@ void waMQTTSNPub(wasm_exec_env_t exec_env, char *data, int qos, int ID)
    k_sleep(Z_TIMEOUT_MS(50));
    //const char* data = "{\"temperature\":24.0}";
    int32_t length = strlen(data);
-   //*topic = otMqttsnCreateTopicName(topicName);
+   //topic = otMqttsnCreateTopicName(topicName);
    *topic=otMqttsnCreateTopicId((otMqttsnTopicId)ID);
    //printk("topicID: %i, ID: %i\n",topicID, ID);
    otMqttsnClientState cliState=otMqttsnGetState(instance);
@@ -205,63 +205,93 @@ void waMQTTSNDisconnect(wasm_exec_env_t exec_env)
     }
 }*/
 
-
-int waGetCPUCycles(wasm_exec_env_t exec_env){
-    return k_uptime_get_32();
-}
-int waConvertCyclesToMilis(wasm_exec_env_t exec_env, int cycles){
-    return SYS_CLOCK_HW_CYCLES_TO_NS(cycles);
+int waCoapPost(wasm_exec_env_t exec_env, char* ipv4Address, uint8_t* sendBuf, uint32_t sendBufLen, uint8_t* rcvBuf, uint32_t rcvBufLen, uint32_t timeout) {
+   return 0;
 }
 
-void waOpen(wasm_exec_env_t exec_env, char* sensorName)
+int waGetCycles(wasm_exec_env_t exec_env){
+    return k_cycle_get_32();
+}
+int waConvertCyclesToNs(wasm_exec_env_t exec_env, int cycles){
+    return k_cyc_to_ns_floor32(cycles);
+}
+int waConvertCyclesToMs(wasm_exec_env_t exec_env, int cycles){
+    return k_cyc_to_ms_floor32(cycles);
+}
+int waGetNs(wasm_exec_env_t exec_env) {
+    return k_cyc_to_ns_floor32(k_cycle_get_32());
+}
+int waGetMs(wasm_exec_env_t exec_env) {
+    return k_cyc_to_ms_floor32(k_cycle_get_32());
+}
+void waDelayMs(wasm_exec_env_t exec_env, int ms) {
+   int m = k_cyc_to_ms_floor32(k_cycle_get_32());
+   while(k_cyc_to_ms_floor32(k_cycle_get_32()) - m < ms);
+}
+
+void printString(wasm_exec_env_t exec_env, char* str)
 {
-   if(strcmp(sensorName, "BME280")==0){
-	dev = device_get_binding("BME280");
-	if (dev == NULL) {
-		printk("No device \"%s\" found; did initialization fail?\n",
-		       BME280_LABEL);
-	} else {
-		printk("Found device \"%s\"\n", BME280_LABEL);
-	}
-   }
-   
+ 	printk("%s", str);
+}
+void printInt(wasm_exec_env_t exec_env, int i)
+{
+ 	printk("%d", i);
+}
+void printFloat(wasm_exec_env_t exec_env, float f)
+{
+ 	printk("%f", f);
 }
 
-void printConsole(wasm_exec_env_t exec_env, int time)
+float waReadSensor(wasm_exec_env_t exec_env, char* attr)
 {
- 	printk("Hello World: %d\n",time);
+      struct sensor_value temp, press, humidity;
+      float t,p,h;
+      
+      //If the device isn't initialized, lazily initialize it
+      if(dev == NULL) {
+	 dev = (struct device*)device_get_binding("BME280");
+	 if (dev == NULL) {
+	    printk("No device \"%s\" found; did initialization fail?\n", BME280_LABEL);
+	 } else {
+	    printk("Found device \"%s\"\n", BME280_LABEL);
+	 }
+      }
+
+      // Sample the sensor
+      sensor_sample_fetch(dev);
+
+      if(strcmp(attr, "humidity") == 0 ){
+	 sensor_channel_get(dev, SENSOR_CHAN_HUMIDITY, &humidity);
+
+	 h=humidity.val1+humidity.val2/1000000.0;
+	 k_sleep(K_MSEC(50));
+
+	 return h;
+      } else if(strcmp(attr, "press") == 0) {
+	 sensor_channel_get(dev, SENSOR_CHAN_PRESS, &press);
+
+	 p=press.val1+press.val2/1000000.0;
+	 k_sleep(K_MSEC(50));
+
+	 return p;
+     } else if(strcmp(attr, "temp") == 0) {
+	 sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &temp);
+
+	 t=temp.val1+temp.val2/1000000.0;
+	 k_sleep(K_MSEC(50));
+
+	 return t;
+     } else {
+	return -1.0;
+     }
 }
 
-float waRead(wasm_exec_env_t exec_env, char* sensorName, char* attr)
-{
+int waGetEnvironmentInt(wasm_exec_env_t exec_env, char* key, uint32_t* val, uint32_t len) {
+   //probably can just access these through externed globals for now
+   return 0;
+}
 
-	struct sensor_value temp, press, humidity;
-        float t,p,h;
-        if(strcmp(sensorName, "BME280")==0){
-	sensor_sample_fetch(dev);
-	if(strcmp(attr, "humidity")==0){
-		sensor_channel_get(dev, SENSOR_CHAN_HUMIDITY, &humidity);
-		//printk("humidity: %d.%06d\n",humidity.val1, humidity.val2);
-                h=humidity.val1+humidity.val2/1000000.0;
-                k_sleep(K_MSEC(50));
-                return h;
-                
-	}
-	if(strcmp(attr, "press")==0){
-		sensor_channel_get(dev, SENSOR_CHAN_PRESS, &press);
-		//printk("pressure: %d.%06d\n",press.val1, press.val2);
-                p=press.val1+press.val2/1000000.0;
-                k_sleep(K_MSEC(50));
-                return p;
-	}
-	if(strcmp(attr, "temp")==0){
-		sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &temp);
-		//printk("temperature: %d.%06d\n",temp.val1, temp.val2);
-                t=temp.val1+temp.val2/1000000.0;
-                k_sleep(K_MSEC(50));
-                return t;
-	}
-       }
-        return 0.0;
-
+int waGetEnvironmentString(wasm_exec_env_t exec_env, char* key, char* str, uint32_t len) {
+   //probably can just access these through externed globals for now
+   return 0;
 }

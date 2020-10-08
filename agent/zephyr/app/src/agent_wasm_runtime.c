@@ -3,7 +3,8 @@
 
 #include "agent_wasm_runtime.h"
 #include "wasm_runtime_api.h"
-
+#include <stdio.h>
+#include <string.h>
 #include "wasm_export.h"
 
 #define CONFIG_GLOBAL_HEAP_BUF_SIZE 131072
@@ -42,7 +43,6 @@ static void* app_instance_main(wasm_module_inst_t module_inst)
     return NULL;
 }
 
-
 // Global Heap for the WASM runtime
 static char global_heap_buf[CONFIG_GLOBAL_HEAP_BUF_SIZE] = { 0 };
 
@@ -64,79 +64,65 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
     {
 
 	{
-            "waGetCPUCycles", 		// the name of WASM function name
-            waGetCPUCycles, 			// the native function pointer
-            "()i",			// the function prototype signature, avoid to use i32
-            NULL                // attachment is NULL
-        },
-	{
-            "waConvertCyclesToMilis", 		// the name of WASM function name
-            waConvertCyclesToMilis, 			// the native function pointer
-            "(i)i",			// the function prototype signature, avoid to use i32
-            NULL                // attachment is NULL
-        },
-	{
-            "waMQTTSNStart", 		// the name of WASM function name
-            waMQTTSNStart, 			// the native function pointer
-            "(i)",			// the function prototype signature, avoid to use i32
-            NULL                // attachment is NULL
-        },
-	{
-            "waMQTTSNStop", 		// the name of WASM function name
-            waMQTTSNStop, 			// the native function pointer
-            "()",			// the function prototype signature, avoid to use i32
-            NULL                // attachment is NULL
+            EXPORT_WASM_API_WITH_SIG(waGetCycles,"()i")
         },
         {
-            "waMQTTSNConnect", 		// the name of WASM function name
-            waMQTTSNConnect, 			// the native function pointer
-            "($i$i)",			// the function prototype signature, avoid to use i32
-            NULL                // attachment is NULL
+            EXPORT_WASM_API_WITH_SIG(waGetMs,"()i")
+        },
+        {
+            EXPORT_WASM_API_WITH_SIG(waGetNs,"()i")
         },
 	{
-            "waMQTTSNDisconnect", 		// the name of WASM function name
-            waMQTTSNDisconnect, 			// the native function pointer
-            "()",			// the function prototype signature, avoid to use i32
-            NULL                // attachment is NULL
+            EXPORT_WASM_API_WITH_SIG(waConvertCyclesToMs,"(i)i")
         },
 	{
-            "waMQTTSNReg", 		// the name of WASM function name
-            waMQTTSNReg, 			// the native function pointer
-            "($)i",			// the function prototype signature, avoid to use i32
-            NULL                // attachment is NULL
+            EXPORT_WASM_API_WITH_SIG(waConvertCyclesToNs,"(i)i")
         },
 	{
-            "waMQTTSNPub", 		// the name of WASM function name
-            waMQTTSNPub, 			// the native function pointer
-            "($ii)",			// the function prototype signature, avoid to use i32
-            NULL                // attachment is NULL
+            EXPORT_WASM_API_WITH_SIG(waDelayMs,"(i)")
         },
 	{
-            "waMQTTSNSub", 		// the name of WASM function name
-            waMQTTSNSub, 			// the native function pointer
-            "(i$)",			// the function prototype signature, avoid to use i32
-            NULL                // attachment is NULL
+            EXPORT_WASM_API_WITH_SIG(waMQTTSNStart,"(i)")
         },
 	{
-            "waRead", 		// the name of WASM function name
-            waRead, 			// the native function pointer
-            "($$)f",			// the function prototype signature, avoid to use i32
-            NULL                // attachment is NULL
+            EXPORT_WASM_API_WITH_SIG(waMQTTSNStop,"()")
+        },
+        {
+            EXPORT_WASM_API_WITH_SIG(waMQTTSNConnect,"($i$i)")
         },
 	{
-            "waOpen", 		// the name of WASM function name
-            waOpen, 			// the native function pointer
-            "($)",			// the function prototype signature, avoid to use i32
-            NULL                // attachment is NULL
+            EXPORT_WASM_API_WITH_SIG(waMQTTSNDisconnect,"()")
         },
 	{
-            "printConsole", 		// the name of WASM function name
-            printConsole, 			// the native function pointer
-            "(i)",			// the function prototype signature, avoid to use i32
-            NULL                // attachment is NULL
+            EXPORT_WASM_API_WITH_SIG(waMQTTSNReg,"($)i")
+        },
+	{
+            EXPORT_WASM_API_WITH_SIG(waMQTTSNPub,"($ii)")
+        },
+	{
+            EXPORT_WASM_API_WITH_SIG(waMQTTSNSub,"(i$)")
+        },
+	{
+            EXPORT_WASM_API_WITH_SIG(waReadSensor,"($)f")
+        },
+	{
+            EXPORT_WASM_API_WITH_SIG(printString,"($)")
+        },
+        {
+            EXPORT_WASM_API_WITH_SIG(printInt,"(i)")
+        },
+        {
+            EXPORT_WASM_API_WITH_SIG(printFloat,"(f)")
+        },
+        {
+            EXPORT_WASM_API_WITH_SIG(waCoapPost,"($*~*~i)i")
+        },
+        {
+            EXPORT_WASM_API_WITH_SIG(waGetEnvironmentInt,"($*~)i")
+        },
+        {
+            EXPORT_WASM_API_WITH_SIG(waGetEnvironmentString,"($*~)i")
         }
-	
-
     };
     
 
