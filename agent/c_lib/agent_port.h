@@ -39,4 +39,19 @@ typedef struct _agent_device_t {
 
 bool agent_port_get_device(uint8_t device_number, agent_device_t* device);
 
+//task
+bool agent_port_run_wasm_task(uint8_t* wasm_binary, 
+                            uint32_t wasm_binary_length,
+                            char* environment_keys,
+                            int32_t* environment_values,
+                            uint8_t num_environment_variables);
+
+typedef enum _task_state {
+    RUNNING = 0,
+    ERRORED = 1,
+    COMPLETED =2
+} task_state_t;
+
+task_state_t agent_port_get_wasm_task_state(void);
+
 #endif
