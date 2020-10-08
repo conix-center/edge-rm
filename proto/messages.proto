@@ -211,6 +211,13 @@ message ContainerInfo {
   message WASMInfo {
     //TODO fill out WASMInfo for how to launch a wasm task.
     required bytes wasm_binary = 1; 
+
+    message EnvironmentVariable {
+      required string key = 1;
+      required int32 value = 2;
+    }
+
+    repeated EnvironmentVariable environment = 2;
   }
 
   required Type type = 1;
