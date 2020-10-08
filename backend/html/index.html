@@ -24,11 +24,11 @@ tr:nth-child(even) {
 
 /* D3 styles */
 svg {
-  flex-basis: 100%;
+  /*flex-basis: 100%;*/
   /*min-width: 400px;*/
-  width: 100%;
-  max-width: 800px;
-  min-height: 250px;
+  /*width: 100%;*/
+  width: 800px;
+  height: 250px;
 }
 .links line {
   stroke: #aaa;
@@ -76,6 +76,8 @@ var svg = d3.select("svg"),
 
 // svg objects
 var link, node, textElems;
+// animation objects
+var circles = [];
 // the data - an object with nodes and links
 var graph;
 
@@ -202,6 +204,10 @@ function initializeDisplay() {
     .data(graph.links)
     .enter().append("line");
 
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+
   // set the data and properties of node circles
 
   var elemEnter = svg.append("g")
@@ -225,6 +231,23 @@ function initializeDisplay() {
       .text(function(d) { return d.name; });
   // visualize the graph
   updateDisplay();
+
+
+  //Set up message animations
+  setTimeout(function() {
+    setInterval(function() {
+      sendMessage("Me", "Framework", 0);
+      sendMessage("Framework", "Master", 0);
+      sendMessage("Master", "Framework", 0);
+      sendMessage("Framework", "Me", 0);
+    }, 1000)
+    setInterval(function() {
+      sendMessage("202481596976831", "Master", 1);
+    }, 3000);
+    setInterval(function() {
+      sendMessage("14038003386728", "Master", 2);
+    }, 1000)
+  }, 1000)  
 }
 
 function getColorForGroup(g) {
@@ -249,6 +272,8 @@ function updateDisplay() {
         .attr("opacity", forceProperties.link.enabled ? 1 : 0);
 }
 
+
+
 // update the display positions after each simulation tick
 function ticked() {
     link
@@ -266,9 +291,80 @@ function ticked() {
         .attr('dx', function(d) {return d.x;})
         .attr('dy', function(d) {return d.y - 20;})
     d3.select('#alpha_value').style('flex-basis', (simulation.alpha()*100) + '%');
+
+    console.log('tick')
 }
 
+var cnt = 200;
+var fromID = '';
+var toID = '';
+var startX = 0;
+var startY = 0;
+var endX = 0;
+var endY = 0;
+var circleQueue = []
+function circleTick() {
 
+  for(var i = 0; i < circleQueue.length; i++) {
+    var circle = circles[i];
+    var cQ = circleQueue[i];
+    if(cQ.length > 0) {
+      var cnt = cQ[0][0]
+      if (cnt >= 100 && cQ.length > 1) {
+        //there's another message waiting, pop this one!
+        cQ.shift();
+      }
+      //we've got a message to send
+      var cnt = cQ[0][0]
+      var fromID = cQ[0][1]
+      var toID = cQ[0][4]
+
+      //update start and end coords
+      node.attr("cx", function(d) {
+        if(d.id == fromID) {
+          cQ[0][2] = d.x;
+          cQ[0][3] = d.y;
+        } else if (d.id == toID) {
+          cQ[0][5] = d.x;
+          cQ[0][6] = d.y;
+        }
+        return d.x;
+      })
+
+      //extract update start/end coords
+      var startX = cQ[0][2]
+      var startY = cQ[0][3]
+      var endX = cQ[0][5]
+      var endY = cQ[0][6]
+
+      //update circle location
+      circle.attr('cx', Math.abs(100 - cnt) * startX / 100 + (100 - Math.abs(100 - cnt)) * endX / 100);
+      circle.attr('cy', Math.abs(100 - cnt) * startY / 100 + (100 - Math.abs(100 - cnt)) * endY / 100);
+
+      if(cnt < 100) {
+        //increment the count
+        cQ[0][0] += 5
+      } else {
+        cQ[0][2] = -10
+        cQ[0][3] = -10
+      }
+    }
+  }
+}
+
+var circleTickInterval = undefined;
+
+function sendMessage(from, to, circleToUse) {
+  while(circleQueue.length <= circleToUse) {
+    //circleQueue is an array of length (# circles), each element is an array that represents a single message
+    circleQueue.push([])
+  }
+  //add a new message to the circleQueue for this particular circle
+  circleQueue[circleToUse].push([0,from,-10,-10,to,-10,-10])
+  if(!circleTickInterval) {
+    circleTickInterval = setInterval(circleTick, 10)
+  }
+}
 
 //////////// UI EVENTS ////////////
 
@@ -290,11 +386,11 @@ function dragended(d) {
 }
 
 // update size-related forces
-d3.select(window).on("resize", function(){
-    width = +svg.node().getBoundingClientRect().width;
-    height = +svg.node().getBoundingClientRect().height;
-    updateForces();
-});
+// d3.select(window).on("resize", function(){
+//     width = +svg.node().getBoundingClientRect().width;
+//     height = +svg.node().getBoundingClientRect().height;
+//     updateForces();
+// });
 
 // convenience function to update everything (run after UI input)
 function updateAll() {
@@ -341,10 +437,10 @@ function loadPredictions(){
         document.getElementById('predictions').innerHTML = ''
         document.getElementById('appoutput').innerHTML = ''
       } else if(resp.length < 0) {
-        document.getElementById('appoutput').innerHTML = 'Latest Camera Frame'
+        document.getElementById('appoutput').innerHTML = 'Latest Camera Frame Prediction'
         document.getElementById('predictions').innerHTML = 'not ready yet'
       } else {
-        document.getElementById('appoutput').innerHTML = 'Latest Camera Frame'
+        document.getElementById('appoutput').innerHTML = 'Latest Camera Frame Prediction'
         var tableHTML = "<table><tr><th>Prediction</th><th>Confidence</th></tr>"
         var cnt = 0;
         for(var i =0; i<resp[0].objects.length;i++) {
@@ -402,6 +498,12 @@ function loadAgents() {
   xmlHttp.send(null);
 }
 loadAgents();
+
+setInterval(function() {
+  loadAgents()
+  loadPredictions()
+  loadTasks()
+}, 1000)
 </script>
 
 </body>

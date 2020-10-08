@@ -109,7 +109,7 @@ app.get('/network.json', function(req, res) {
 		}
 		var client = {
 			id: 'Me',
-			name: 'Client (Me)',
+			name: 'You are here',
 			group:4
 		}
 		//connect all agents to the master
