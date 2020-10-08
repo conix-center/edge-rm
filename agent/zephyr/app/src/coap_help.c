@@ -18,7 +18,7 @@ LOG_MODULE_REGISTER(coap_helper, LOG_LEVEL_DBG);
 
 
 /* CoAP socket fd */
-static int sock = NULL;
+static int sock = 0;
 struct sockaddr_in6 addr6;
 
 struct pollfd fds[1];
@@ -27,7 +27,7 @@ uint32_t token_int = 0;
 
 #define BLOCK_WISE_TRANSFER_SIZE_GET 2048
 
-static struct coap_block_context blk_ctx;
+//static struct coap_block_context blk_ctx;
 
 static const char * const path[] = { "ping", NULL };
 
@@ -75,7 +75,7 @@ int connect_coap_socket(void)
 	return 0;
 }
 
-int process_coap_reply(uint8_t* return_code, uint8_t* recv_payload, uint32_t* recv_len)
+int process_coap_reply(uint8_t* return_code, uint8_t* recv_payload, uint16_t* recv_len)
 {
 	struct coap_packet reply;
 	uint8_t* data;
@@ -138,7 +138,7 @@ int send_coap_request(uint8_t* data, uint32_t len)
 
 	//If the socket isn't created then create it
 	int ret;
-	if(sock == NULL) {
+	if(sock == 0) {
 		ret = create_coap_socket();
 		if (ret < 0) {
 			LOG_ERR("Error creating socket");

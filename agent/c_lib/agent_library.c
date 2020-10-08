@@ -147,7 +147,7 @@ void construct_resource(pb_ostream_t* ostream, const char* name, Value_Type type
 
     //Name
     r.name.funcs.encode = &generic_string_encode_callback;
-    r.name.arg = name;
+    r.name.arg = (char*)name;
 
     //Type
     r.type = type;
@@ -188,7 +188,7 @@ void construct_attribute(pb_ostream_t* ostream, const char* name, Value_Type typ
 
     //Name
     a.name.funcs.encode = &generic_string_encode_callback;
-    a.name.arg = name;
+    a.name.arg = (char*)name;
 
     //Type
     a.type = type;
@@ -212,6 +212,8 @@ void construct_attribute(pb_ostream_t* ostream, const char* name, Value_Type typ
         a.set.item.funcs.encode = &generic_string_encode_callback;
         a.set.item.arg = (char*)value;
         break;
+    case Value_Type_DEVICE:
+        break;
     }
 
     pb_encode_submessage(ostream, Attribute_fields, &a);
@@ -225,7 +227,7 @@ bool AgentInfo_attributes_callback(pb_ostream_t *ostream, const pb_field_iter_t 
 
         if(!pb_encode_tag_for_field(ostream, field))
             return false;
-        construct_attribute(ostream, "OS", Value_Type_TEXT, agent_port_get_os());
+        construct_attribute(ostream, "OS", Value_Type_TEXT, (char*)agent_port_get_os());
 
         if(!pb_encode_tag_for_field(ostream, field))
             return false;
@@ -233,6 +235,8 @@ bool AgentInfo_attributes_callback(pb_ostream_t *ostream, const pb_field_iter_t 
 
         return true;
     }
+
+    return true;
 }
 
 TaskInfo construct_TaskInfo(agent_task_t* task) {
@@ -252,7 +256,7 @@ TaskInfo construct_TaskInfo(agent_task_t* task) {
 
     //ID
     t.agent_id.funcs.encode = &generic_string_encode_callback;
-    t.agent_id.arg = agent_port_get_agent_id();
+    t.agent_id.arg = (char*)agent_port_get_agent_id();
 
     //State
     t.has_state = true;
@@ -327,7 +331,9 @@ bool AgentInfo_resources_callback(pb_ostream_t *ostream, const pb_field_iter_t *
         }
 
         return true;
-    } 
+    }
+
+    return true;
 }
 
 void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
@@ -465,9 +471,9 @@ void agent_ping(void) {
     wrapper.ping.agent.has_ping_rate = true;
     wrapper.ping.agent.ping_rate = ping_rate * 1000;
     wrapper.ping.agent.id.funcs.encode = &generic_string_encode_callback;
-    wrapper.ping.agent.id.arg = agent_port_get_agent_id();
+    wrapper.ping.agent.id.arg = (char*)agent_port_get_agent_id();
     wrapper.ping.agent.name.funcs.encode = &generic_string_encode_callback;
-    wrapper.ping.agent.name.arg = agent_port_get_agent_name();
+    wrapper.ping.agent.name.arg = (char*)agent_port_get_agent_name();
     wrapper.ping.agent.resources.funcs.encode = &AgentInfo_resources_callback;
     wrapper.ping.agent.attributes.funcs.encode = &AgentInfo_attributes_callback;
 

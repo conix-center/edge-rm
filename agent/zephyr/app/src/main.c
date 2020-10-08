@@ -48,7 +48,7 @@ LOG_MODULE_REGISTER(net_echo_client_sample, LOG_LEVEL_DBG);
 
 #include "agent_library.h"
 
-static void on_thread_state_changed(uint32_t flags, void *context)
+/*static void on_thread_state_changed(uint32_t flags, void *context)
 {
 	struct openthread_context *ot_context =(struct openthread_context*) context;
 
@@ -75,7 +75,7 @@ static void on_thread_state_changed(uint32_t flags, void *context)
                      break;
 		}
 	}
-}
+}*/
 
 void main(void)
 {
