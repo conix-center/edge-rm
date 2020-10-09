@@ -214,7 +214,8 @@ message ContainerInfo {
 
     message EnvironmentVariable {
       required string key = 1;
-      required int32 value = 2;
+      optional int32 value = 2;
+      optional string str_value = 3;
     }
 
     repeated EnvironmentVariable environment = 2;
