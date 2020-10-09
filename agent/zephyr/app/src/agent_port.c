@@ -5,9 +5,11 @@ LOG_MODULE_REGISTER(agent_port, LOG_LEVEL_DBG);
 #include "agent_port.h"
 #include "coap_help.h"
 #include "config.h"
+#include "agent_wasm_runtime.h"
 
 agent_port_timer_cb local_cb;
 agent_port_coap_receive_cb recv_cb;
+k_tid_t wasm_thread;
 
 void agent_work_handler(struct k_work *work)
 {
@@ -126,6 +128,38 @@ bool agent_port_run_wasm_task(uint8_t* wasm_binary,
                             char* environment_keys,
                             int32_t* environment_values,
                             uint8_t num_environment_variables) {
+
+   //figure out how to pass in or save environment variables
+
+   //start the module, save the thread
+   wasm_thread = run_wasm_module(wasm_binary, wasm_binary_length);
+
    return true;
 }
 
+task_state_t agent_port_get_wasm_task_state(char** error_message) {
+
+   uint32_t state =  wasm_thread->base.thread_state;
+
+   if(state & _THREAD_DEAD || state & _THREAD_ABORTING) {
+      //check for errors 
+      if(check_wasm_errored()) {
+         *error_message = get_wasm_error_message();
+         return ERRORED;
+      } else {
+         return COMPLETED;
+      }
+   } else if(state & _THREAD_SUSPENDED || state & _THREAD_QUEUED || state & _THREAD_PENDING) {
+      return RUNNING;
+   } else if (state & _THREAD_PRESTART) {
+      return STARTING;
+   } else {
+      return RUNNING;
+   }
+}
+
+bool agent_port_kill_wasm_task(void) {
+   k_thread_abort(wasm_thread);
+   cleanup_wasm_module();
+   return true;
+}

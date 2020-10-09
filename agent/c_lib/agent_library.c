@@ -364,8 +364,14 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
         wrapper.pong.run_task.task.container.wasm.environment.funcs.decode = &environment_decode_callback;
         wrapper.pong.run_task.task.container.wasm.environment.arg = &new_task;
 
+        //get the kill task id
+        char kill_task_id[TASK_ID_LEN];
+        wrapper.pong.kill_task.task_id.funcs.decode = &generic_string_decode_callback;
+        wrapper.pong.kill_task.task_id.arg = kill_task_id;
+
         pb_istream_t stream = pb_istream_from_buffer(buf, len);
         bool r = pb_decode(&stream, WrapperMessage_fields, &wrapper);
+
 
         if(wrapper.type == WrapperMessage_Type_PONG) {
 
@@ -433,6 +439,10 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
 
             } else if (wrapper.pong.has_kill_task) {
                 agent_port_print("Got Pong Message with kill task request\n");
+
+                if(strncmp(running_task.task_id,kill_task_id,TASK_ID_LEN) == 0) {
+                    agent_port_kill_wasm_task();
+                }
             } else {
                 agent_port_print("Got Pong Message\n");
             }
@@ -479,6 +489,19 @@ void agent_ping(void) {
 
     // TaskInfo
     wrapper.ping.tasks.funcs.encode = &TaskInfo_callback;
+
+    //update the state of the running_task
+    task_state_t s = agent_port_get_wasm_task_state(&(running_task.error_message));
+    if(s == RUNNING) {
+        running_task.state = TaskInfo_TaskState_RUNNING;
+    } else if (s == COMPLETED) {
+        running_task.state = TaskInfo_TaskState_COMPLETED;
+    } else if (s == STARTING) {
+        running_task.state = TaskInfo_TaskState_STARTING;
+    } else if(s == ERRORED) {
+        running_task.state = TaskInfo_TaskState_ERRORED;
+        agent_port_print("Got error message: %s",running_task.error_message);
+    }
 
     //Get the size of the payload
     pb_ostream_t sizestream = {0};
