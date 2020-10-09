@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+
 typedef void (*agent_port_timer_cb)(); 
 typedef void (*agent_port_coap_receive_cb)(uint8_t, uint8_t*, uint32_t); 
 
@@ -42,8 +43,9 @@ bool agent_port_get_device(uint8_t device_number, agent_device_t* device);
 //task
 bool agent_port_run_wasm_task(uint8_t* wasm_binary, 
                             uint32_t wasm_binary_length,
-                            char* environment_keys,
-                            int32_t* environment_values,
+                            char* environment_keys[],
+                            int32_t environment_int_values[],
+                            char* environment_str_values[],
                             uint8_t num_environment_variables);
 
 bool agent_port_kill_wasm_task(void);

@@ -44,6 +44,10 @@ bool subscribed=false;
 int topicID=0;
 //otMqttsnTopic* topic;
 
+extern char** wasm_environment_keys;
+extern char** wasm_environment_str_values;
+extern int32_t** wasm_environment_values;
+extern uint8_t wasm_num_environment_vars;
 
 /*void HandlePublished(otMqttsnReturnCode aCode, void* aContext)
 {
@@ -232,17 +236,17 @@ void waDelayMs(wasm_exec_env_t exec_env, int ms) {
 
 void printString(wasm_exec_env_t exec_env, char* str)
 {
- 	printf("%s", str);
+ 	printk("%s", str);
 	k_sleep(Z_TIMEOUT_MS(50));
 }
 void printInt(wasm_exec_env_t exec_env, int i)
 {
- 	printf("%d", i);
+ 	printk("%d", i);
 	k_sleep(Z_TIMEOUT_MS(50));
 }
 void printFloat(wasm_exec_env_t exec_env, float f)
 {
- 	printf("%f", f);
+ 	printk("%f", f);
 	k_sleep(Z_TIMEOUT_MS(50));
 }
 
@@ -291,11 +295,30 @@ float waReadSensor(wasm_exec_env_t exec_env, char* attr)
 }
 
 int waGetEnvironmentInt(wasm_exec_env_t exec_env, char* key, int* val, int len) {
-   //probably can just access these through externed globals for now
+
+   for(uint8_t i = 0; i < wasm_num_environment_vars; i++) {
+      if(strcmp(key, wasm_environment_keys[i]) == 0) {
+	 *val = wasm_environment_values[i];
+	 return 1;
+      }
+   }
+
    return 0;
 }
 
 int waGetEnvironmentString(wasm_exec_env_t exec_env, char* key, char* str, int len) {
-   //probably can just access these through externed globals for now
+
+   for(uint8_t i = 0; i < wasm_num_environment_vars; i++) {
+      if(strcmp(key, wasm_environment_keys[i]) == 0) {
+	 int slen = strlen(wasm_environment_str_values[i]);
+	 if(len < slen) {
+	    memcpy(str, wasm_environment_str_values[i], len);
+	 } else {
+	    memcpy(str, wasm_environment_str_values[i], slen);
+	 }
+	 return 1;
+      }
+   }
+
    return 0;
 }

@@ -10,6 +10,7 @@ LOG_MODULE_REGISTER(agent_port, LOG_LEVEL_DBG);
 agent_port_timer_cb local_cb;
 agent_port_coap_receive_cb recv_cb;
 k_tid_t wasm_thread;
+static bool running_task = false;
 
 void agent_work_handler(struct k_work *work)
 {
@@ -82,7 +83,14 @@ void agent_port_free(void* pt) {
 }
 
 bool agent_port_can_run_task(void) {
-   return true;
+   task_state_t s = agent_port_get_wasm_task_state(NULL);
+
+   if(running_task == true && s != COMPLETED && s != ERRORED) {
+      return false;
+   } else {
+      running_task = false;
+      return true;
+   }
 }
 
 //Resources
@@ -91,7 +99,11 @@ float agent_port_get_free_memory() {
 }
 
 float agent_port_get_free_cpu() {
-   return 1.0;
+   if(agent_port_can_run_task()){
+      return 1.0;
+   } else {
+      return 0;
+   }
 }
 
 const char* agent_port_get_agent_id() {
@@ -125,14 +137,14 @@ bool agent_port_get_device(uint8_t device_number, agent_device_t* device) {
 
 bool agent_port_run_wasm_task(uint8_t* wasm_binary, 
                             uint32_t wasm_binary_length,
-                            char* environment_keys,
-                            int32_t* environment_values,
+                            char* environment_keys[],
+                            int32_t environment_int_values[],
+                            char* environment_str_values[],
                             uint8_t num_environment_variables) {
 
-   //figure out how to pass in or save environment variables
-
    //start the module, save the thread
-   wasm_thread = run_wasm_module(wasm_binary, wasm_binary_length);
+   running_task = true;
+   wasm_thread = run_wasm_module(wasm_binary, wasm_binary_length, environment_keys, environment_int_values, environment_str_values, num_environment_variables);
 
    return true;
 }
@@ -144,11 +156,14 @@ task_state_t agent_port_get_wasm_task_state(char** error_message) {
    if(state & _THREAD_DEAD || state & _THREAD_ABORTING) {
       //check for errors 
       if(check_wasm_errored()) {
-         *error_message = get_wasm_error_message();
+         if(error_message != NULL) {
+            *error_message = get_wasm_error_message();
+         }
          return ERRORED;
       } else {
          return COMPLETED;
       }
+      running_task = false;
    } else if(state & _THREAD_SUSPENDED || state & _THREAD_QUEUED || state & _THREAD_PENDING) {
       return RUNNING;
    } else if (state & _THREAD_PRESTART) {

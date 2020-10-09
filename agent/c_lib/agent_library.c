@@ -17,7 +17,8 @@ static uint32_t ping_rate;
 #define TASK_NAME_LEN 40
 #define FRAMEWORK_ID_LEN 40
 #define FRAMEWORK_NAME_LEN 40
-#define ENVIRONMENT_KEY_LEN 20
+#define ENVIRONMENT_KEY_LEN 40
+#define ENVIRONMENT_VALUE_LEN 40
 #define NUM_ENVIRONMENT_VARIABLES 4
 typedef struct _agent_task {
     char task_name[TASK_NAME_LEN];
@@ -29,12 +30,15 @@ typedef struct _agent_task {
     uint8_t* wasm_binary;
     uint32_t wasm_binary_length;
     char environment_keys[NUM_ENVIRONMENT_VARIABLES][ENVIRONMENT_KEY_LEN];
+    char * environment_key_pointers[NUM_ENVIRONMENT_VARIABLES];
     int32_t environment_values[NUM_ENVIRONMENT_VARIABLES];
+    char environment_str_values[NUM_ENVIRONMENT_VARIABLES][ENVIRONMENT_VALUE_LEN];
+    char * environment_str_value_pointers[NUM_ENVIRONMENT_VARIABLES];
 } agent_task_t;
 
-agent_task_t new_task;
-uint8_t environment_idx = 0;
-agent_task_t running_task;
+static agent_task_t new_task;
+static uint8_t environment_idx = 0;
+static agent_task_t running_task;
 
 void set_running_task_to_new_task(void) {
     //Does the current running task have some wasm allocated?
@@ -55,6 +59,7 @@ void set_running_task_to_new_task(void) {
     for(uint8_t i = 0; i < NUM_ENVIRONMENT_VARIABLES; i++) {
         running_task.environment_values[i] = new_task.environment_values[i];
         memcpy(running_task.environment_keys[i], new_task.environment_keys[i], ENVIRONMENT_KEY_LEN);
+        memcpy(running_task.environment_str_values[i], new_task.environment_str_values[i], ENVIRONMENT_VALUE_LEN);
     }
 
     //Clear out the new_task info
@@ -65,6 +70,7 @@ void set_running_task_to_new_task(void) {
     memset(new_task.framework_name, 0, FRAMEWORK_NAME_LEN);
     for(uint8_t i = 0; i < NUM_ENVIRONMENT_VARIABLES; i++) {
         memset(new_task.environment_keys[i], 0, ENVIRONMENT_KEY_LEN);
+        memset(new_task.environment_str_values[i], 0, ENVIRONMENT_VALUE_LEN);
         new_task.environment_values[i] = 0;
     }
     new_task.wasm_binary = NULL;
@@ -123,11 +129,17 @@ bool environment_decode_callback(pb_istream_t *istream, const pb_field_iter_t *f
         //Setup the decoding callback
         e.key.funcs.decode = &generic_string_decode_callback;
         e.key.arg = t->environment_keys[environment_idx];
+        e.str_value.funcs.decode = &generic_string_decode_callback;
+        e.str_value.arg = t->environment_str_values[environment_idx];
         
         bool r = pb_decode(istream, ContainerInfo_WASMInfo_EnvironmentVariable_fields, &e);
 
-        //Cop the one outside of the callback
-        t->environment_values[environment_idx] = e.value;
+        //Copy the one outside of the callback
+        if (e.has_value) {
+            t->environment_values[environment_idx] = e.value;
+        } else {
+            t->environment_values[environment_idx] = 0;
+        }
 
         environment_idx++;
         
@@ -385,7 +397,8 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
                 agent_port_print("\tWASM binary length: %d\n",new_task.wasm_binary_length);
                 for(uint8_t i = 0; i < NUM_ENVIRONMENT_VARIABLES; i++) {
                     if(strlen(new_task.environment_keys[i]) > 0) {
-                       agent_port_print("\tEnvironment Variable %d: %s=%d\n",i,new_task.environment_keys[i],new_task.environment_values[i]); 
+                       agent_port_print("\tEnvironment Variable %d: %s = %d | %s\n",i,new_task.environment_keys[i],
+                                        new_task.environment_values[i],new_task.environment_str_values[i]); 
                     } else {
                         break;
                     }
@@ -400,23 +413,30 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
                             // Run the task
                             agent_port_print("Running WASM Task!\n");
                             
+                            //Copy the task to the running task slot
+                            set_running_task_to_new_task();
+
+                            //Setup the environment keys
+                            for(uint8_t i = 0; i < NUM_ENVIRONMENT_VARIABLES; i++) {
+                                running_task.environment_key_pointers[i] = running_task.environment_keys[i];
+                                running_task.environment_str_value_pointers[i] = running_task.environment_str_values[i];
+                            }
+
                             //Start the WASM task
-                            bool success = agent_port_run_wasm_task(new_task.wasm_binary,
-                                                        new_task.wasm_binary_length,
-                                                        new_task.environment_keys,
-                                                        new_task.environment_values,
+                            bool success = agent_port_run_wasm_task(running_task.wasm_binary,
+                                                        running_task.wasm_binary_length,
+                                                        running_task.environment_key_pointers,
+                                                        running_task.environment_values,
+                                                        running_task.environment_str_value_pointers,
                                                         NUM_ENVIRONMENT_VARIABLES);
 
                             if(success) {
                                 // Set the task state in the task struct
-                                new_task.state = TaskInfo_TaskState_RUNNING;
-
-                                //Copy the task to the running task slot
-                                set_running_task_to_new_task();
+                                running_task.state = TaskInfo_TaskState_RUNNING;
                             } else {
                                 agent_port_print("RUNNING WASM task failed\n");
-                                new_task.state = TaskInfo_TaskState_ERRORED;
-                                new_task.error_message = "Failed to start WASM";
+                                running_task.state = TaskInfo_TaskState_ERRORED;
+                                running_task.error_message = "Failed to start WASM";
                             }
                         } else {
                             agent_port_print("WASM task invalid\n");

@@ -36,6 +36,12 @@ bool wasm_application_execute_main(wasm_module_inst_t module_inst,
 #define EXCEPTION_LEN 128
 char  wasm_exception[EXCEPTION_LEN];
 bool  wasm_errored = false;
+uint32_t wasm_buf_len;
+
+char** wasm_environment_keys;
+int32_t* wasm_environment_values;
+char** wasm_environment_str_values;
+uint8_t wasm_num_environment_vars;
 
 bool check_wasm_errored(void) {
     return wasm_errored;
@@ -178,7 +184,7 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
 K_THREAD_STACK_DEFINE(iwasm_main_thread_stack, MAIN_THREAD_STACK_SIZE);
 static struct k_thread iwasm_main_thread;
 
-k_tid_t run_wasm_module(uint8_t* buf, uint32_t len) {
+k_tid_t run_wasm_module(uint8_t* buf, uint32_t len, char* e_keys[], int32_t e_values[], char* e_str_values[], uint8_t num_env_vars) {
 
     // Pass in the buffer containing the WASM module and its length to the thread
     printk("Starting WASM thread\n");
@@ -187,9 +193,17 @@ k_tid_t run_wasm_module(uint8_t* buf, uint32_t len) {
     wasm_errored = false;
     memset(wasm_exception,0,EXCEPTION_LEN);
 
+    //set up the environment
+    wasm_environment_keys = e_keys;
+    wasm_environment_values = e_values;
+    wasm_environment_str_values = e_str_values;
+    wasm_num_environment_vars = num_env_vars;
+
+    wasm_buf_len = len;
+
     k_tid_t tid = k_thread_create(&iwasm_main_thread, iwasm_main_thread_stack,
                                   MAIN_THREAD_STACK_SIZE,
-                                  iwasm_main, buf, &len, NULL,
+                                  iwasm_main, buf, &wasm_buf_len, NULL,
                                   MAIN_THREAD_PRIORITY, 0, K_NO_WAIT);
     return tid;
 }
