@@ -1,12 +1,13 @@
 var coap        = require('coap')
   , server      = coap.createServer()
 
-var latestValue = ''
+var latestValue = 'default value'
  
 server.on('request', function(req, res) {
   var path = req.url.split('/')[1];
   console.log(path)
   if (path == 'post') {
+    console.log(req.payload)
     latestValue = req.payload.toString()
     res.end("Got it!")
   } else if (path == 'latest') {
@@ -23,14 +24,14 @@ if (!port) {
 }
 
 server.listen(port, function() {
-  var req = coap.request('coap://localhost:3000/post')
+  // var req = coap.request('coap://localhost:3000/post')
  
-  req.on('response', function(res) {
-    res.pipe(process.stdout)
-    res.on('end', function() {
-      process.exit(0)
-    })
-  })
+  // req.on('response', function(res) {
+  //   res.pipe(process.stdout)
+  //   res.on('end', function() {
+  //     process.exit(0)
+  //   })
+  // })
  
-  req.end()
+  // req.end()
 })
