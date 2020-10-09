@@ -151,6 +151,30 @@ def getServerTask(offers):
     client.stop()
     sys.exit(1)
 
+def getCoAPTask(offers):
+    print("Searching for a good coap server...")
+    agent_to_use = None
+    resources_to_use = {
+        "cpus":1,
+        "mem":500000000
+    }
+    for i in reversed(range(len(offers))):
+        offer = offers[i]
+        if offer.agent_id:
+            good_cpu = False
+            good_mem = False
+            for resource in offer.resources:
+                if resource.name == "cpus" and resource.scalar.value >= 0.5:
+                    good_cpu = True
+                if resource.name == "mem" and resource.scalar.value >= 100000000:
+                    good_mem = True
+            for attribute in offer.attributes:
+                if good_cpu and good_mem and attribute.name == "domain":
+                    return (offer.agent_id, resources_to_use, attribute.text.value)
+    print("Failed to find a coap server...")
+    client.stop()
+    sys.exit(1)
+
 def getClassifyTask(offers):
     print("Searching for a good classify instance...")
     agent_to_use = None
@@ -207,11 +231,15 @@ def submitTasks(offers):
     print("Got a camera!")
     (server_agent, server_resources, server_domain) = getServerTask(offers)
     print("Got a server!")
+    (coap_agent, coap_resources, coap_domain) = getCoAPTask(offers)
+    print("Got a CoAP server!")
     (classify_agent, classify_resources, classify_domain) = getClassifyTask(offers)
+    print("Got a classify instance!")
 
     # return
     # print("Submitting task to agent " + agent_to_use + "...")
-    submitRunTask("webserver endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'])
+    submitRunTask("HTTP endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'])
+    submitRunTask("CoAP endpoint", coap_agent, coap_resources, "jnoor/coapserver:v1", {3002:3002}, ['SERVER_PORT=3002'])
     submitRunTask("image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/latest", 'OUTPUT_URL=http://' + server_domain + ":3003/pushprediction", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/pushresults"])
     submitRunTask("camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/image"])
     
