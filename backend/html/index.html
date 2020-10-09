@@ -207,6 +207,10 @@ function initializeDisplay() {
   circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
   circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
   circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
 
   // set the data and properties of node circles
 
@@ -231,23 +235,6 @@ function initializeDisplay() {
       .text(function(d) { return d.name; });
   // visualize the graph
   updateDisplay();
-
-
-  //Set up message animations
-  setTimeout(function() {
-    setInterval(function() {
-      sendMessage("Me", "Framework", 0);
-      sendMessage("Framework", "Master", 0);
-      sendMessage("Master", "Framework", 0);
-      sendMessage("Framework", "Me", 0);
-    }, 1000)
-    setInterval(function() {
-      sendMessage("202481596976831", "Master", 1);
-    }, 3000);
-    setInterval(function() {
-      sendMessage("14038003386728", "Master", 2);
-    }, 1000)
-  }, 1000)  
 }
 
 function getColorForGroup(g) {
@@ -475,6 +462,8 @@ function loadFramework() {
 }
 loadFramework();
 
+var lastPing = {};
+
 function loadAgents() {
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function () {
@@ -487,6 +476,12 @@ function loadAgents() {
         for(var i =0; i<resp.length;i++) {
           var agent = resp[i];
           tableHTML += `<tr><td>${agent.id}</td><td>${agent.name}</td><td>${agent.lastPing}</td></tr>`
+
+          //check if there's a new ping
+          if (lastPing[agent.id] != agent.lastPing) {
+            lastPing[agent.id] = agent.lastPing;
+            sendMessage(agent.id, "Master", i+1); //circle 0 is reserved for client => master => client
+          }
         }
         tableHTML += "</table>"
         document.getElementById('agents').innerHTML = tableHTML
@@ -500,6 +495,10 @@ function loadAgents() {
 loadAgents();
 
 setInterval(function() {
+  sendMessage("Me", "Framework", 0);
+  sendMessage("Framework", "Master", 0);
+  sendMessage("Master", "Framework", 0);
+  sendMessage("Framework", "Me", 0);
   loadAgents()
   loadPredictions()
   loadTasks()
