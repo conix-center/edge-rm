@@ -209,9 +209,6 @@ int waCoapPost(wasm_exec_env_t exec_env, char* ipv4Address, char* sendBuf, int s
    return 0;
 }
 
-int waGetCycles(wasm_exec_env_t exec_env){
-    return k_cycle_get_32();
-}
 int waConvertCyclesToNs(wasm_exec_env_t exec_env, int cycles){
     return k_cyc_to_ns_floor32(cycles);
 }
@@ -224,22 +221,29 @@ int waGetNs(wasm_exec_env_t exec_env) {
 int waGetMs(wasm_exec_env_t exec_env) {
     return k_cyc_to_ms_floor32(k_cycle_get_32());
 }
+
+int waGetCycles(wasm_exec_env_t exec_env){
+    return k_cycle_get_32();
+}
+
 void waDelayMs(wasm_exec_env_t exec_env, int ms) {
-   int m = k_cyc_to_ms_floor32(k_cycle_get_32());
-   while(k_cyc_to_ms_floor32(k_cycle_get_32()) - m < ms);
+   k_sleep(Z_TIMEOUT_MS(ms));
 }
 
 void printString(wasm_exec_env_t exec_env, char* str)
 {
- 	printk("%s", str);
+ 	printf("%s", str);
+	k_sleep(Z_TIMEOUT_MS(50));
 }
 void printInt(wasm_exec_env_t exec_env, int i)
 {
- 	printk("%d", i);
+ 	printf("%d", i);
+	k_sleep(Z_TIMEOUT_MS(50));
 }
 void printFloat(wasm_exec_env_t exec_env, float f)
 {
- 	printk("%f", f);
+ 	printf("%f", f);
+	k_sleep(Z_TIMEOUT_MS(50));
 }
 
 float waReadSensor(wasm_exec_env_t exec_env, char* attr)

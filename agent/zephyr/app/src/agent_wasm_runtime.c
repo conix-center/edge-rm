@@ -88,7 +88,7 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
     uint8_t* wasm_file_buf = (uint8_t*)arg1;
     uint32_t wasm_file_size = *((uint32_t*)arg2);
 
-    printk("Starting wasm thread main\n");
+    printk("Beginning of wasm thread main\n");
     printk("Got wasm binary with size %d\n", wasm_file_size);
 
     RuntimeInitArgs init_args;
@@ -96,80 +96,28 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
     char error_buf[128];
 
     // Instantiate the symbols to pass into the WASM Module
-    /*static NativeSymbol native_symbols[] =
-    {
-
-	{
-            EXPORT_WASM_API_WITH_SIG(waGetCycles,"()i")
-        },
-        {
-            EXPORT_WASM_API_WITH_SIG(waGetMs,"()i")
-        },
-        {
-            EXPORT_WASM_API_WITH_SIG(waGetNs,"()i")
-        },
-	{
-            EXPORT_WASM_API_WITH_SIG(waConvertCyclesToMs,"(i)i")
-        },
-	{
-            EXPORT_WASM_API_WITH_SIG(waConvertCyclesToNs,"(i)i")
-        },
-	{
-            EXPORT_WASM_API_WITH_SIG(waDelayMs,"(i)")
-        },
-	{
-            EXPORT_WASM_API_WITH_SIG(waMQTTSNStart,"(i)")
-        },
-	{
-            EXPORT_WASM_API_WITH_SIG(waMQTTSNStop,"()")
-        },
-        {
-            EXPORT_WASM_API_WITH_SIG(waMQTTSNConnect,"($i$i)")
-        },
-	{
-            EXPORT_WASM_API_WITH_SIG(waMQTTSNDisconnect,"()")
-        },
-	{
-            EXPORT_WASM_API_WITH_SIG(waMQTTSNReg,"($)i")
-        },
-	{
-            EXPORT_WASM_API_WITH_SIG(waMQTTSNPub,"($ii)")
-        },
-	{
-            EXPORT_WASM_API_WITH_SIG(waMQTTSNSub,"(i$)")
-        },
-	{
-            EXPORT_WASM_API_WITH_SIG(waReadSensor,"($)f")
-        },
-	{
-            EXPORT_WASM_API_WITH_SIG(printString,"($)")
-        },
-        {
-            EXPORT_WASM_API_WITH_SIG(printInt,"(i)")
-        },
-        {
-            EXPORT_WASM_API_WITH_SIG(printFloat,"(f)")
-        },
-        {
-            EXPORT_WASM_API_WITH_SIG(waCoapPost,"($*~*~i)i")
-        },
-        {
-            EXPORT_WASM_API_WITH_SIG(waGetEnvironmentInt,"($*~)i")
-        },
-        {
-            EXPORT_WASM_API_WITH_SIG(waGetEnvironmentString,"($*~)i")
-        }
-    };*/
-
     static NativeSymbol native_symbols[] =
     {
-
-	{
-            EXPORT_WASM_API_WITH_SIG(waDelayMs,"(i)")
-        },
-	{
-            EXPORT_WASM_API_WITH_SIG(printString,"($)")
-        }
+        EXPORT_WASM_API_WITH_SIG(waGetCycles,"()i"),
+        EXPORT_WASM_API_WITH_SIG(waGetMs,"()i"),
+        EXPORT_WASM_API_WITH_SIG(waGetNs,"()i"),
+        EXPORT_WASM_API_WITH_SIG(waConvertCyclesToMs,"(i)i"),
+        EXPORT_WASM_API_WITH_SIG(waConvertCyclesToNs,"(i)i"),
+        EXPORT_WASM_API_WITH_SIG(waDelayMs,"(i)"),
+        //EXPORT_WASM_API_WITH_SIG(waMQTTSNStart,"(i)"),
+        //EXPORT_WASM_API_WITH_SIG(waMQTTSNStop,"()"),
+        //EXPORT_WASM_API_WITH_SIG(waMQTTSNConnect,"($i$i)"),
+        //EXPORT_WASM_API_WITH_SIG(waMQTTSNDisconnect,"()"),
+        //EXPORT_WASM_API_WITH_SIG(waMQTTSNReg,"($)i"),
+        //EXPORT_WASM_API_WITH_SIG(waMQTTSNPub,"($ii)"),
+        //EXPORT_WASM_API_WITH_SIG(waMQTTSNSub,"(i$)"),
+        EXPORT_WASM_API_WITH_SIG(waReadSensor,"($)f"),
+        EXPORT_WASM_API_WITH_SIG(printString,"($)"),
+        EXPORT_WASM_API_WITH_SIG(printInt,"(i)"),
+        EXPORT_WASM_API_WITH_SIG(printFloat,"(f)"),
+        EXPORT_WASM_API_WITH_SIG(waCoapPost,"($*~*~i)i"),
+        EXPORT_WASM_API_WITH_SIG(waGetEnvironmentInt,"($*~)i"),
+        EXPORT_WASM_API_WITH_SIG(waGetEnvironmentString,"($*~)i")
     };
 
     memset(&init_args, 0, sizeof(RuntimeInitArgs));
@@ -214,7 +162,6 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
 
     k_sleep(Z_TIMEOUT_MS(500));
 
-    /* invoke the main function */
     app_instance_main(wasm_module_inst);
 
     k_sleep(Z_TIMEOUT_MS(500));
@@ -234,7 +181,7 @@ static struct k_thread iwasm_main_thread;
 k_tid_t run_wasm_module(uint8_t* buf, uint32_t len) {
 
     // Pass in the buffer containing the WASM module and its length to the thread
-    printk("Starting WASM thread");
+    printk("Starting WASM thread\n");
 
     //reset exception flags
     wasm_errored = false;
