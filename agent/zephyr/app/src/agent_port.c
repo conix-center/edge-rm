@@ -39,13 +39,16 @@ void agent_port_register_coap_receive_cb(agent_port_coap_receive_cb cb) {
    recv_cb = cb;
 }
 
-void agent_port_coap_send(const char* destination, uint8_t* payload, uint32_t len) {
-   //Send the packet
-   send_coap_request(payload, len);
-
-   //Allocate date for the response
+void agent_port_coap_send(const char* destination, uint16_t port, char* path, uint8_t* payload, uint32_t len) {
+   //Clear the receive buffer
    uint8_t ret_code = 0;
    uint16_t ret_len = 0;
+   process_coap_reply(100, &ret_code, NULL, &ret_len);
+
+   //Send the packet
+   send_coap_request(destination, port, path, payload, len);
+
+   //Allocate date for the response
    uint8_t* recv_payload = (uint8_t *)k_malloc(MAX_COAP_MSG_LEN);
    if (!recv_payload) {
       LOG_ERR("Error allocating memory");
@@ -53,7 +56,7 @@ void agent_port_coap_send(const char* destination, uint8_t* payload, uint32_t le
    }
 
    //Wait for the response
-   int ret = process_coap_reply(&ret_code, recv_payload, &ret_len);
+   int ret = process_coap_reply(10000, &ret_code, recv_payload, &ret_len);
    if (ret < 0) {
       LOG_ERR("Got error return code %d", ret);
       k_free(recv_payload);

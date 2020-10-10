@@ -22,7 +22,7 @@ void agent_port_stop_timer_repeated();
 
 //COAP
 void agent_port_register_coap_receive_cb(agent_port_coap_receive_cb cb);
-void agent_port_coap_send(const char* destination, uint8_t* payload, uint32_t len);
+void agent_port_coap_send(const char* destination, uint16_t port, char* path, uint8_t* payload, uint32_t len);
 
 //Utilities
 void agent_port_print(const char* fmt, ...);

@@ -18,6 +18,7 @@
 #include <openthread-system.h>
 #include <openthread-config-generic.h>
 //#include "openthread/mqttsn.h"
+#include "coap_help.h"
 
 #include <drivers/sensor.h>
 
@@ -209,8 +210,10 @@ void waMQTTSNDisconnect(wasm_exec_env_t exec_env)
     }
 }*/
 
-int waCoapPost(wasm_exec_env_t exec_env, char* ipv4Address, char* sendBuf, int sendBufLen, char* rcvBuf, int rcvBufLen, int timeout) {
-   return 0;
+int waCoapPost(wasm_exec_env_t exec_env, char* ipv4Address, int port, char* path, char* sendBuf, int sendBufLen) {
+   return send_coap_request(ipv4Address, port, path, sendBuf, sendBufLen);
+
+   //For now just drop the response
 }
 
 int waConvertCyclesToNs(wasm_exec_env_t exec_env, int cycles){

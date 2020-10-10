@@ -121,7 +121,7 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
         EXPORT_WASM_API_WITH_SIG(printString,"($)"),
         EXPORT_WASM_API_WITH_SIG(printInt,"(i)"),
         EXPORT_WASM_API_WITH_SIG(printFloat,"(f)"),
-        EXPORT_WASM_API_WITH_SIG(waCoapPost,"($*~*~i)i"),
+        EXPORT_WASM_API_WITH_SIG(waCoapPost,"($i$*~)i"),
         EXPORT_WASM_API_WITH_SIG(waGetEnvironmentInt,"($*~)i"),
         EXPORT_WASM_API_WITH_SIG(waGetEnvironmentString,"($*~)i")
     };

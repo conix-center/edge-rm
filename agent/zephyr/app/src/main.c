@@ -86,6 +86,6 @@ void main(void)
     //openthread_start(openthread_get_default_context());
 
     // Initialize the  agent code
-    agent_init("test.com");
+    agent_init("52.12.144.134");
     agent_start(60);
 }

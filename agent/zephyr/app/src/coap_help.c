@@ -21,6 +21,7 @@ LOG_MODULE_REGISTER(coap_helper, LOG_LEVEL_DBG);
 static int sock = 0;
 struct sockaddr_in6 addr6;
 
+char ipv6Addr[128];
 struct pollfd fds[1];
 static int nfds = 0;
 uint32_t token_int = 0;
@@ -29,11 +30,10 @@ uint32_t token_int = 0;
 
 //static struct coap_block_context blk_ctx;
 
-static const char * const path[] = { "ping", NULL };
 
-static void wait(void)
+static void wait(uint32_t timeout_ms)
 {
-	if (poll(fds, nfds, 10000) < 0) {
+	if (poll(fds, nfds, timeout_ms) < 0) {
 		LOG_ERR("Error in poll:%d", errno);
 	}
 }
@@ -44,15 +44,54 @@ static void prepare_fds(void)
 	fds[nfds].events = POLLIN;
 }
 
-int create_coap_socket(void) {
-	addr6.sin6_family = AF_INET6;
-	addr6.sin6_port = htons(PEER_PORT);
-	addr6.sin6_scope_id = 0U;
+bool convert_ipv4_ipv6(char* ipv4, char* ipv6) {
+	uint8_t d[5];
+	uint8_t d_idx = 1;
+	d[4] = strlen(ipv4);
+	d[0] = 0;
+	for(uint8_t i = 0; i < strlen(ipv4); i++) {
+		if(ipv4[i] == '.') {
+			d[d_idx] = i;
+			d_idx++;
+			if(d_idx == 4) {
+				break;
+			}
+		}
+	}
 
-	inet_pton(AF_INET6, CONFIG_NET_CONFIG_PEER_IPV6_ADDR,
-		  &addr6.sin6_addr);
+	if(d_idx != 4) {
+		return false;
+	}
 
-	sock = socket(addr6.sin6_family, SOCK_DGRAM, IPPROTO_UDP);
+	if(d[0] >= d[1] || d[1] >= d[2] || d[2] >= d[3] || d[3] >= d[4]) {
+		return false;
+	}
+
+	char ip_str[4];
+	uint8_t ip[4];
+	for(uint8_t i = 0; i < 4; i++) {
+		memset(ip_str,0,4);
+		if(i == 0) {
+		    memcpy(ip_str,ipv4 + d[i],d[i+1]-d[i]);
+		} else {
+		    memcpy(ip_str,ipv4 + d[i] + 1,d[i+1]-d[i]-1);
+		}
+		
+		ip[i] = atoi(ip_str);
+		if (ip[i] == 0 && strcmp(ip_str,"0") != 0) {
+		    return false;
+		}
+	}
+
+	//now write the ipv6 string
+	sprintf(ipv6,"64:ff9b::%02x%02x:%02x%02x",ip[0],ip[1],ip[2],ip[3]);
+
+	return true;
+}
+
+int create_coap_socket() {
+	
+	sock = socket(AF_INET6, SOCK_DGRAM, IPPROTO_UDP);
 	if (sock < 0) {
 		LOG_ERR("Failed to create UDP socket %d", errno);
 		return -errno;
@@ -61,8 +100,21 @@ int create_coap_socket(void) {
 	return 0;
 }
 
-int connect_coap_socket(void)
+int connect_coap_socket(char* ipv4Addr, uint16_t port)
 {
+    addr6.sin6_family = AF_INET6;
+	addr6.sin6_port = htons(port);
+	addr6.sin6_scope_id = 0U;
+
+    bool s = convert_ipv4_ipv6(ipv4Addr, ipv6Addr);
+	if(!s) {
+		LOG_ERR("Error converting ipv4 Address");
+		return -1;
+	}
+
+	inet_pton(AF_INET6, ipv6Addr,
+		  &addr6.sin6_addr);
+
 	int ret = 0;
 	ret = connect(sock, (struct sockaddr *)&addr6, sizeof(addr6));
 	if (ret < 0) {
@@ -75,14 +127,14 @@ int connect_coap_socket(void)
 	return 0;
 }
 
-int process_coap_reply(uint8_t* return_code, uint8_t* recv_payload, uint16_t* recv_len)
+int process_coap_reply(uint32_t timeout_ms, uint8_t* return_code, uint8_t* recv_payload, uint16_t* recv_len)
 {
 	struct coap_packet reply;
 	uint8_t* data;
 	int rcvd;
 	int ret;
 
-	wait();
+	wait(timeout_ms);
 
 	//allocate data for the entire packet
 	data = (uint8_t *)k_malloc(MAX_COAP_MSG_LEN);
@@ -125,7 +177,9 @@ int process_coap_reply(uint8_t* return_code, uint8_t* recv_payload, uint16_t* re
 	uint8_t* dummy = coap_packet_get_payload(&reply, recv_len);
 
 	//copy the data into recv_payload buffer
-	memcpy(recv_payload, dummy, *recv_len);
+	if(recv_payload) {
+		memcpy(recv_payload, dummy, *recv_len);
+	}
 
 end:
 	k_free(data);
@@ -133,7 +187,7 @@ end:
 	return ret;
 }
 
-int send_coap_request(uint8_t* data, uint32_t len)
+int send_coap_request(char* ipv4Addr, uint16_t port, char* path, uint8_t* data, uint32_t len)
 {
 
 	//If the socket isn't created then create it
@@ -147,7 +201,7 @@ int send_coap_request(uint8_t* data, uint32_t len)
 	}
 
 	//Create a connection using the socket
-	ret = connect_coap_socket();
+	ret = connect_coap_socket(ipv4Addr, port);
 	if (ret < 0) {
 		LOG_ERR("Error connecting to socket");
 		return ret;
@@ -182,13 +236,12 @@ int send_coap_request(uint8_t* data, uint32_t len)
 		goto end;
 	}
 
-	for (p = path; p && *p; p++) {
-		r = coap_packet_append_option(&request, COAP_OPTION_URI_PATH,
-					      *p, strlen(*p));
-		if (r < 0) {
-			LOG_ERR("Unable add option to request");
-			goto end;
-		}
+	// Append path
+	r = coap_packet_append_option(&request, COAP_OPTION_URI_PATH,
+				      path, strlen(path));
+	if (r < 0) {
+		LOG_ERR("Unable add option to request");
+		goto end;
 	}
 
 	//append the octetstream content type option

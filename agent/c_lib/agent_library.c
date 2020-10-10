@@ -19,7 +19,7 @@ static uint32_t ping_rate;
 #define FRAMEWORK_NAME_LEN 40
 #define ENVIRONMENT_KEY_LEN 40
 #define ENVIRONMENT_VALUE_LEN 40
-#define NUM_ENVIRONMENT_VARIABLES 4
+#define NUM_ENVIRONMENT_VARIABLES 10
 typedef struct _agent_task {
     char task_name[TASK_NAME_LEN];
     char framework_name[FRAMEWORK_NAME_LEN];
@@ -541,7 +541,7 @@ void agent_ping(void) {
 
     //send ping through port layer
     agent_port_print("Sending packet\n");
-    agent_port_coap_send(master_domain, wrapper_message_buffer, wrapper_message_buffer_size);
+    agent_port_coap_send(master_domain, 5683, "ping", wrapper_message_buffer, wrapper_message_buffer_size);
     agent_port_print("Done sending packet\n");
 
     agent_port_free(wrapper_message_buffer);
