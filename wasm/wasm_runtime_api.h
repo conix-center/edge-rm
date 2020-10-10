@@ -12,7 +12,7 @@ void waMQTTSNSub(int qos, char *topicName);
 int waMQTTSNReg(char *topicName);
 
 // Sends coap data - Fills out rcvBuf - Returns bytes rcv
-int waCoapPost(char* ipv4Address, char* sendBuf, int sendBufLen, char* rcvBuf, int rcvBufLen, int timeout);
+int waCoapPost(char* ipv4Address, int port, char* path, char* sendBuf, int sendBufLen);
 
 // Sensor read functions
 float waReadSensor(char* attr);
