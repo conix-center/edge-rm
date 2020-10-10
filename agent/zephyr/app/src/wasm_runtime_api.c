@@ -211,6 +211,12 @@ void waMQTTSNDisconnect(wasm_exec_env_t exec_env)
 }*/
 
 int waCoapPost(wasm_exec_env_t exec_env, char* ipv4Address, int port, char* path, char* sendBuf, int sendBufLen) {
+   printk("WASM sending to %s:%d/%s\n",ipv4Address,port,path);
+
+   if(port == 0) {
+      port = 5683;
+   }
+
    return send_coap_request(ipv4Address, port, path, sendBuf, sendBufLen);
 
    //For now just drop the response
@@ -263,6 +269,7 @@ float waReadSensor(wasm_exec_env_t exec_env, char* attr)
 	 dev = (struct device*)device_get_binding("BME280");
 	 if (dev == NULL) {
 	    printk("No device \"%s\" found; did initialization fail?\n", BME280_LABEL);
+	    return -1;
 	 } else {
 	    printk("Found device \"%s\"\n", BME280_LABEL);
 	 }
