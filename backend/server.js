@@ -152,9 +152,23 @@ app.get('/agents', function(req, res) {
 })
 
 app.get('/predictions', function(req, res) {
-	log.info("GET /agents")
-	request('http://128.97.92.77:3003/results.json').on('error', (e) => {res.status(500).send([])}).pipe(res);
+	var clientID = req.cookies['client']
+	if(!clientID) {
+		return res.status(500).send([]);
+	}
+	log.info("GET /predictions")
+	request(`http://128.97.92.77:3003/${clientID}-results.json`).on('error', (e) => {res.status(500).send([])}).pipe(res);
 })
+
+app.get('/clientID', function(req, res) {
+	if(req.cookies['client']) {
+		res.send(req.cookies['client'])
+	} else {
+		var cValue = Math.floor(Math.random() * 10000000000)
+		res.cookie('client', cValue)
+		res.send(cValue)
+	}
+});
 
 app.get('/', function(req,res) {
 

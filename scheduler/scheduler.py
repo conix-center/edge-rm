@@ -7,6 +7,7 @@ import time
 import argparse
 import uuid
 import json
+from random import randint
 sys.path.insert(1, '../support/CoAPthon3')
 
 from coapthon.client.helperclient import HelperClient
@@ -47,7 +48,7 @@ def dumpTasks():
             'tasks': tasks
         }))
 
-def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings, env_variables):
+def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings, env_variables, domain_to_store=''):
     print("Submitting task to agent " + agent_to_use + "...")
     # construct message
     wrapper = messages_pb2.WrapperMessage()
@@ -85,7 +86,8 @@ def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings
         tasks.append({
             'name': name,
             'task_id': task_id,
-            'agent_id': agent_to_use
+            'agent_id': agent_to_use,
+            'domain': domain_to_store
         })
         dumpTasks()
         #TODO: Generate confirmation protobuf message
@@ -220,10 +222,16 @@ def printOffer(offers):
         return
 
 def taskAlreadyRunning(name):
-    for i in len(tasks):
+    for i in range(len(tasks)):
         if tasks[i]['name'] == name:
             return True
     return False
+
+def getDomainForTask(name):
+    for i in range(len(tasks)):
+        if tasks[i]['name'] == name:
+            return tasks[i]['domain']
+    return ''
 
 def submitTasks(offers, clientID):
     print("Searching for a good server offer...")
@@ -231,23 +239,34 @@ def submitTasks(offers, clientID):
 
     (camera_agent, camera_resources) = getCamTask(offers)
     print("Got a camera!")
+
     if not taskAlreadyRunning("HTTP endpoint"):
         (server_agent, server_resources, server_domain) = getServerTask(offers)
         print("Got a server!")
+    else:
+        server_domain = getDomainForTask("HTTP endpoint")
+        print("HTTP Server is already running! Reusing...")
+    
     if not taskAlreadyRunning("CoAP endpoint"):
         (coap_agent, coap_resources, coap_domain) = getCoAPTask(offers)
         print("Got a CoAP server!")
+    else:
+        coap_domain = getDomainForTask("CoAP endpoint")
+        print("CoAP Server is already running! Reusing...")
+    
     (classify_agent, classify_resources, classify_domain) = getClassifyTask(offers)
     print("Got a classify instance!")
 
     # return
     # print("Submitting task to agent " + agent_to_use + "...")
     if not taskAlreadyRunning("HTTP endpoint"):
-        submitRunTask("HTTP endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'])
+        submitRunTask("HTTP endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'], server_domain)
     if not taskAlreadyRunning("CoAP endpoint"):
-        submitRunTask("CoAP endpoint", coap_agent, coap_resources, "jnoor/coapserver:v1", {3002:3002}, ['SERVER_PORT=3002'])
-    submitRunTask(clientID + ": image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/latest.jpg", 'OUTPUT_URL=http://' + server_domain + ":3003/predictions.jpg", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/results.json"])
-    submitRunTask(clientID + ": camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/latest.jpg"])
+        submitRunTask("CoAP endpoint", coap_agent, coap_resources, "jnoor/coapserver:v1", {3002:3002}, ['SERVER_PORT=3002'], coap_domain)
+
+    unique_key = clientID + '-' + str(randint(0, 1000000))
+    submitRunTask(clientID + ": image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/" + unique_key + "-latest.jpg", 'OUTPUT_URL=http://' + server_domain + ":3003/" + clientID + "-predictions.jpg", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/" + clientID + "-results.json"])
+    submitRunTask(clientID + ": camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/" + unique_key + "-latest.jpg"])
     
 
 def getOffer():

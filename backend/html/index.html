@@ -399,7 +399,7 @@ function loadTasks(){
         var cnt = 0;
         for(var i =0; i<resp.length;i++) {
           var task = resp[i];
-          if (task.state != "KILLED") {
+          if (task.state != "KILLED" && task.state != "COMPLETED") {
             tableHTML += `<tr><td>${task.taskId}</td><td>${task.name}</td><td>${task.agentId}</td><td>${task.framework.name}</td><td>${task.container.type}</td><td>${task.container.docker ? task.container.docker.image : ""}</td><td>${task.state}</td></tr>`
             cnt += 1
           }
@@ -414,6 +414,19 @@ function loadTasks(){
   xmlHttp.send(null);
 }
 loadTasks();
+
+var clientID = ''
+function loadID() {
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function () {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      clientID = xmlHttp.responseText;
+    } 
+  }
+  xmlHttp.open("GET", '/clientID', true);
+  xmlHttp.send(null);
+}
+loadID();
 
 function loadPredictions(){
   var xmlHttp = new XMLHttpRequest();
@@ -436,7 +449,7 @@ function loadPredictions(){
         }
         tableHTML += "</table>"
         document.getElementById('predictions').innerHTML = resp[0].objects.length > 0 ? tableHTML : ''
-        document.getElementById('predictions').innerHTML += '<img src="http://conixdb.com:3003/predictions.jpg" alt="Latest image" height="300">'
+        document.getElementById('predictions').innerHTML += `<img src="http://conixdb.com:3003/${clientID}-predictions.jpg" alt="Latest image" height="300">`
       }
     } 
   }
