@@ -225,7 +225,7 @@ def taskAlreadyRunning(name):
             return True
     return False
 
-def submitTasks(offers, client):
+def submitTasks(offers, clientID):
     print("Searching for a good server offer...")
     printOffer(offers)
 
@@ -246,8 +246,8 @@ def submitTasks(offers, client):
         submitRunTask("HTTP endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'])
     if not taskAlreadyRunning("CoAP endpoint"):
         submitRunTask("CoAP endpoint", coap_agent, coap_resources, "jnoor/coapserver:v1", {3002:3002}, ['SERVER_PORT=3002'])
-    submitRunTask(client + ": image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/latest.jpg", 'OUTPUT_URL=http://' + server_domain + ":3003/predictions.jpg", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/results.json"])
-    submitRunTask(client + ": camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/latest.jpg"])
+    submitRunTask(clientID + ": image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/latest.jpg", 'OUTPUT_URL=http://' + server_domain + ":3003/predictions.jpg", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/results.json"])
+    submitRunTask(clientID + ": camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/latest.jpg"])
     
 
 def getOffer():
@@ -271,7 +271,7 @@ def getOffer():
         sys.exit(1)
 
 
-def main(host, port, tasks, client):  # pragma: no cover
+def main(host, port, tasks, clientID):  # pragma: no cover
     global client
     global tasksfile
 
@@ -288,7 +288,7 @@ def main(host, port, tasks, client):  # pragma: no cover
     # TODO: Should we register the framework first?
 
     offers = getOffer()
-    submitTasks(offers, client)
+    submitTasks(offers, clientID)
 
     client.stop()
 
