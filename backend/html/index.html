@@ -22,6 +22,10 @@ tr:nth-child(even) {
   background-color: #dddddd;
 }
 
+.mytask {
+  background-color: #ddffdd !important;
+}
+
 /* D3 styles */
 svg {
   /*flex-basis: 100%;*/
@@ -400,7 +404,10 @@ function loadTasks(){
         for(var i =0; i<resp.length;i++) {
           var task = resp[i];
           if (task.state != "KILLED" && task.state != "COMPLETED") {
-            tableHTML += `<tr><td>${task.taskId}</td><td>${task.name}</td><td>${task.agentId}</td><td>${task.framework.name}</td><td>${task.container.type}</td><td>${task.container.docker ? task.container.docker.image : ""}</td><td>${task.state}</td></tr>`
+
+            var tr_case = task.name.startsWith(clientID) ? '<tr class="mytask">' : "<tr>"
+
+            tableHTML += `${tr_case}<td>${task.taskId}</td><td>${task.name}</td><td>${task.agentId}</td><td>${task.framework.name}</td><td>${task.container.type}</td><td>${task.container.docker ? task.container.docker.image : ""}</td><td>${task.state}</td></tr>`
             cnt += 1
           }
         }
