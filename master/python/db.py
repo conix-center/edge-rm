@@ -77,6 +77,8 @@ def get_next_unissued_task_by_agent(agent_id):
         if task.agent_id == agent_id and task.state == messages_pb2.TaskInfo.TaskState.UNISSUED:
             task.state = messages_pb2.TaskInfo.TaskState.ISSUED
             return task
+        if task.agent_id == agent_id and task.state == messages_pb2.TaskInfo.TaskState.ISSUED:
+            return task
 
 def get_next_unissued_kill_by_agent(agent_id):
     for task_id, killtaskmsg in killtasks.items():
