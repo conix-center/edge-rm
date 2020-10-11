@@ -1,37 +1,48 @@
 var coap        = require('coap')
   , server      = coap.createServer()
 
+var fs = require('fs')
+var path = require('path')
+
 var latestValue = 'default value'
  
 server.on('request', function(req, res) {
-  var path = req.url.split('/')[1];
-  console.log(path)
-  if (path == 'post') {
-    console.log(req.payload)
-    latestValue = req.payload.toString()
-    res.end("Got it!")
-  } else if (path == 'latest') {
-    res.end(latestValue)
-  } else {
-    res.end('Hello World')
+  var pathName = req.url.split('/')[1];
+  var pathToFile = path.join(__dirname + "/files/" + pathName);
+  console.log("HERE", pathName)
+  if(pathName == '') {
+    console.log("GET /")
+    return res.end("Hello World!")
+  }
+
+  if(req.method == "GET") {
+    console.log("GET " + pathName)
+    if(fs.existsSync(pathToFile)) {
+      res.code = 200
+      fs.readFile(pathToFile, 'utf8', function(err, data) {
+        if(err) res.end(err);
+        else res.end(data);
+      })
+    } else {
+      res.code = 404;
+      res.end('');
+    }
+  } else if (req.method == "POST") {
+    console.log("POST " + pathName)
+    var value = req.payload.toString()
+    fs.writeFile(pathToFile, value, function(err) {
+      if(err) console.log(err)
+      res.end("Got it!")
+    })
   }
 })
  
-const port = process.env.SERVER_PORT;
+var port = process.env.SERVER_PORT;
 if (!port) {
   // the default CoAP port is 5683
   port = 5683
 }
 
 server.listen(port, function() {
-  // var req = coap.request('coap://localhost:3000/post')
- 
-  // req.on('response', function(res) {
-  //   res.pipe(process.stdout)
-  //   res.on('end', function() {
-  //     process.exit(0)
-  //   })
-  // })
- 
-  // req.end()
+  console.log("CoAP server launched on port " + port.toString())
 })

@@ -247,12 +247,12 @@ def submitTasks(offers, clientID):
         server_domain = getDomainForTask("HTTP endpoint")
         print("HTTP Server is already running! Reusing...")
     
-    if not taskAlreadyRunning("CoAP endpoint"):
-        (coap_agent, coap_resources, coap_domain) = getCoAPTask(offers)
-        print("Got a CoAP server!")
-    else:
-        coap_domain = getDomainForTask("CoAP endpoint")
-        print("CoAP Server is already running! Reusing...")
+    # if not taskAlreadyRunning("CoAP endpoint"):
+    #     (coap_agent, coap_resources, coap_domain) = getCoAPTask(offers)
+    #     print("Got a CoAP server!")
+    # else:
+    #     coap_domain = getDomainForTask("CoAP endpoint")
+    #     print("CoAP Server is already running! Reusing...")
     
     (classify_agent, classify_resources, classify_domain) = getClassifyTask(offers)
     print("Got a classify instance!")
@@ -261,8 +261,8 @@ def submitTasks(offers, clientID):
     # print("Submitting task to agent " + agent_to_use + "...")
     if not taskAlreadyRunning("HTTP endpoint"):
         submitRunTask("HTTP endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'], server_domain)
-    if not taskAlreadyRunning("CoAP endpoint"):
-        submitRunTask("CoAP endpoint", coap_agent, coap_resources, "jnoor/coapserver:v1", {3002:3002}, ['SERVER_PORT=3002'], coap_domain)
+    # if not taskAlreadyRunning("CoAP endpoint"):
+    #     submitRunTask("CoAP endpoint", coap_agent, coap_resources, "jnoor/coapserver:v1", {3002:3002}, ['SERVER_PORT=3002'], coap_domain)
 
     unique_key = clientID + '-' + str(randint(0, 1000000))
     submitRunTask(clientID + ": image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/" + unique_key + "-latest.jpg", 'OUTPUT_URL=http://' + server_domain + ":3003/" + clientID + "-predictions.jpg", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/" + clientID + "-results.json"])
