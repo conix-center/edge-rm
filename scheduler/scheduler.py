@@ -36,10 +36,6 @@ def loadTasks():
                 tasks = data['tasks']
     except:
         pass
-    if len(tasks) > 0:
-        print("Kill your tasks first!!!")
-        client.stop()
-        sys.exit(1)
 
 def dumpTasks():
     with open(tasksfile, 'w') as file:
@@ -87,7 +83,7 @@ def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings
         wrapper.ParseFromString(response.payload)
         print("Task Running!")
         tasks.append({
-            'name': 'test task',
+            'name': name,
             'task_id': task_id,
             'agent_id': agent_to_use
         })
@@ -223,25 +219,35 @@ def printOffer(offers):
         print("No available agents...")
         return
 
-def submitTasks(offers):
+def taskAlreadyRunning(name):
+    for i in len(tasks):
+        if tasks[i]['name'] == name:
+            return True
+    return False
+
+def submitTasks(offers, client):
     print("Searching for a good server offer...")
     printOffer(offers)
 
     (camera_agent, camera_resources) = getCamTask(offers)
     print("Got a camera!")
-    (server_agent, server_resources, server_domain) = getServerTask(offers)
-    print("Got a server!")
-    (coap_agent, coap_resources, coap_domain) = getCoAPTask(offers)
-    print("Got a CoAP server!")
+    if not taskAlreadyRunning("HTTP endpoint"):
+        (server_agent, server_resources, server_domain) = getServerTask(offers)
+        print("Got a server!")
+    if not taskAlreadyRunning("CoAP endpoint"):
+        (coap_agent, coap_resources, coap_domain) = getCoAPTask(offers)
+        print("Got a CoAP server!")
     (classify_agent, classify_resources, classify_domain) = getClassifyTask(offers)
     print("Got a classify instance!")
 
     # return
     # print("Submitting task to agent " + agent_to_use + "...")
-    submitRunTask("HTTP endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'])
-    submitRunTask("CoAP endpoint", coap_agent, coap_resources, "jnoor/coapserver:v1", {3002:3002}, ['SERVER_PORT=3002'])
-    submitRunTask("image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/latest.jpg", 'OUTPUT_URL=http://' + server_domain + ":3003/predictions.jpg", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/results.json"])
-    submitRunTask("camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/latest.jpg"])
+    if not taskAlreadyRunning("HTTP endpoint"):
+        submitRunTask("HTTP endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'])
+    if not taskAlreadyRunning("CoAP endpoint"):
+        submitRunTask("CoAP endpoint", coap_agent, coap_resources, "jnoor/coapserver:v1", {3002:3002}, ['SERVER_PORT=3002'])
+    submitRunTask(client + ": image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/latest.jpg", 'OUTPUT_URL=http://' + server_domain + ":3003/predictions.jpg", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/results.json"])
+    submitRunTask(client + ": camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/latest.jpg"])
     
 
 def getOffer():
@@ -265,7 +271,7 @@ def getOffer():
         sys.exit(1)
 
 
-def main(host, port, tasks):  # pragma: no cover
+def main(host, port, tasks, client):  # pragma: no cover
     global client
     global tasksfile
 
@@ -282,7 +288,7 @@ def main(host, port, tasks):  # pragma: no cover
     # TODO: Should we register the framework first?
 
     offers = getOffer()
-    submitTasks(offers)
+    submitTasks(offers, client)
 
     client.stop()
 
@@ -308,5 +314,6 @@ if __name__ == '__main__':  # pragma: no cover
     parser.add_argument('--host', required=True, help='the Edge RM Master IP to register with.')
     parser.add_argument('--port', required=False, default=5683, help='the Edge RM Master port to register on.')
     parser.add_argument('--tasks', required=True, help='the file containing the scheduler tasks.')
+    parser.add_argument('--client', help='the client ID that submitted this task')
     args = parser.parse_args()
-    main(args.host, args.port, args.tasks)
+    main(args.host, args.port, args.tasks, args.client)
