@@ -1,82 +1,35 @@
-const http = require('http');
+// const http = require('http');
 const fs = require('fs');
-const url = require('url');
-const { parse } = require('querystring');
-const { exec } = require('child_process');
 
-//const hostname = '127.0.0.1';
-const hostname = '0.0.0.0';
-// const port = 3000;
-//const hostname = '172.17.40.64';
-const port = process.env.SERVER_PORT;
-//const port = 80;
+const express = require('express');
+var app = express();
+var path = require('path')
 
-const server = http.createServer((req, res) => {
-    // res.statusCode = 200;
+var port = process.env.SERVER_PORT;
+if(!port) {
+    port = 3000;
+}
 
-    var requestURL = url.parse(req.url, true);
+app.get('/', function(req,res) {
+    res.status(200).send({'hello':'world'});
+})
 
-    console.log(requestURL.pathname)
-
-    if(requestURL.pathname.startsWith('/latest')) {
-        fs.createReadStream('./latest.jpg').pipe(res);
-    } else if(requestURL.pathname.startsWith('/pushprediction')) {
-        let body = [];
-        req.on('data', (chunk) => {
-                body.push(chunk);
-        }).on('end', () => {
-            body = Buffer.concat(body);
-            fs.writeFile('./predictions.jpg',body, function(err, result) {
-                if (err) return res.end(err.toString());
-                res.end("received predictions!");
-            });
-        });
-    } else if(requestURL.pathname.startsWith('/pushresults')) {
-        let body = [];
-        req.on('data', (chunk) => {
-                body.push(chunk);
-        }).on('end', () => {
-            body = Buffer.concat(body);
-            fs.writeFile('./results.json',body, function(err, result) {
-                if (err) return res.end(err.toString());
-                res.end("received results!");
-            });
-        });
-    } else if(requestURL.pathname.startsWith('/image')){
-        let body = [];
-        req.on('data', (chunk) => {
-                body.push(chunk);
-        }).on('end', () => {
-            body = Buffer.concat(body);
-            fs.writeFile('./latest.jpg',body, function(err, result) {
-                if (err) return res.end(err.toString());
-                res.end("received image!");
-            });
-        });
-    } else if(requestURL.pathname.startsWith('/predictions')) {
-        try {
-            if (fs.existsSync('./predictions.jpg')) {
-                return fs.createReadStream('./predictions.jpg').pipe(res);
-            }
-        } catch(err) {
-        }
-        return res.end("Predictions not available yet");
-    } else if(requestURL.pathname.startsWith('/results')) {
-        try {
-            if (fs.existsSync('./results.json')) {
-                return fs.createReadStream('./results.json').pipe(res);
-            }
-        } catch(err) {
-        }
-        return res.end("Predictions not available yet");
+app.get('/:filename', function(req, res) {
+    var pathToFile = path.join(__dirname + "/files/" + req.params.filename);
+    if(fs.existsSync(pathToFile)) {
+        return res.status(200).sendFile(pathToFile);
     } else {
-        res.writeHead(404);
-        res.end("How'd you get here?");
+        return res.status(404).send('');
     }
+})
 
-});
+app.post('/:filename', function(req, res) {
+    var pathToFile = path.join(__dirname + "/files/" + req.params.filename);
+    var stream = req.pipe(fs.createWriteStream(pathToFile))
+    stream.on('finish', function() {
+        res.status(200).send("Got it!")
+    })
+})
 
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
-});
+app.listen(port, () => console.log("Listening on port " + port));
 

@@ -104,7 +104,7 @@ app.get('/network.json', function(req, res) {
 		}
 		var framework = {
 			id: 'Framework',
-			name: 'Framework (This)',
+			name: 'Framework (this)',
 			group:3
 		}
 		var client = {
@@ -145,7 +145,7 @@ app.get('/agents', function(req, res) {
 
 app.get('/predictions', function(req, res) {
 	log.info("GET /agents")
-	request('http://128.97.92.77:3003/results').on('error', (e) => {res.status(500).send([])}).pipe(res);
+	request('http://128.97.92.77:3003/results.json').on('error', (e) => {res.status(500).send([])}).pipe(res);
 })
 
 app.get('/', function(req,res) {

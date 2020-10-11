@@ -240,8 +240,8 @@ def submitTasks(offers):
     # print("Submitting task to agent " + agent_to_use + "...")
     submitRunTask("HTTP endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'])
     submitRunTask("CoAP endpoint", coap_agent, coap_resources, "jnoor/coapserver:v1", {3002:3002}, ['SERVER_PORT=3002'])
-    submitRunTask("image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/latest", 'OUTPUT_URL=http://' + server_domain + ":3003/pushprediction", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/pushresults"])
-    submitRunTask("camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/image"])
+    submitRunTask("image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/latest.jpg", 'OUTPUT_URL=http://' + server_domain + ":3003/predictions.jpg", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/results.json"])
+    submitRunTask("camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/latest.jpg"])
     
 
 def getOffer():
