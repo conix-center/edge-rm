@@ -406,8 +406,12 @@ function loadTasks(){
           if ((task.state != "KILLED" && task.state != "COMPLETED") || task.name.startsWith(clientID)) {
 
             var tr_case = task.name.startsWith(clientID) ? '<tr class="mytask">' : "<tr>"
+            var task_name = task.name
+            if(task.name.startsWith(clientID)) {
+              task_name = task_name.replace(clientID, "Me")
+            }
 
-            tableHTML += `${tr_case}<td>${task.taskId}</td><td>${task.name}</td><td>${task.agentId}</td><td>${task.framework.name}</td><td>${task.container.type}</td><td>${task.container.docker ? task.container.docker.image : ""}</td><td>${task.state}</td></tr>`
+            tableHTML += `${tr_case}<td>${task.taskId}</td><td>${task_name}</td><td>${task.agentId}</td><td>${task.framework.name}</td><td>${task.container.type}</td><td>${task.container.docker ? task.container.docker.image : ""}</td><td>${task.state}</td></tr>`
             cnt += 1
           }
         }
