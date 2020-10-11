@@ -73,10 +73,13 @@ def get_tasks_by_agent(agent_id):
     return tasks_by_agent
     
 def get_next_unissued_task_by_agent(agent_id):
+    # first, focus on unissued tasks
     for task_id, task in tasks.items():
         if task.agent_id == agent_id and task.state == messages_pb2.TaskInfo.TaskState.UNISSUED:
             task.state = messages_pb2.TaskInfo.TaskState.ISSUED
             return task
+    # then, make sure issued tasks are re-sent if necessary
+    for task_id, task in tasks.items():
         if task.agent_id == agent_id and task.state == messages_pb2.TaskInfo.TaskState.ISSUED:
             return task
 

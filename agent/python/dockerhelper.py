@@ -99,6 +99,10 @@ def runImageFromRunTask(run_task, devices):
     frameworkName = run_task.task.framework.name
     taskID = run_task.task.task_id
 
+    # make sure this is not a duplicate request (i.e the container is already running)
+    if containers[taskID]:
+        return
+
     #setup cpu shared and memory limit
     cpu_shares = None
     mem_limit = None
