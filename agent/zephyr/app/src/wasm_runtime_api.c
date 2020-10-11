@@ -283,6 +283,7 @@ float waReadSensor(wasm_exec_env_t exec_env, char* attr)
 
 	 h=humidity.val1+humidity.val2/1000000.0;
 	 k_sleep(K_MSEC(50));
+	 printk("Got humidity: %d\n",(int)h);
 
 	 return h;
       } else if(strcmp(attr, "press") == 0) {
@@ -290,6 +291,7 @@ float waReadSensor(wasm_exec_env_t exec_env, char* attr)
 
 	 p=press.val1+press.val2/1000000.0;
 	 k_sleep(K_MSEC(50));
+	 printk("Got pressure: %d\n",(int)p);
 
 	 return p;
      } else if(strcmp(attr, "temp") == 0) {
@@ -297,6 +299,7 @@ float waReadSensor(wasm_exec_env_t exec_env, char* attr)
 
 	 t=temp.val1+temp.val2/1000000.0;
 	 k_sleep(K_MSEC(50));
+	 printk("Got temperature: %d\n",(int)t);
 
 	 return t;
      } else {
