@@ -83,7 +83,7 @@ def get_next_unissued_kill_by_agent(agent_id):
         if task_id not in tasks:
             continue
         task = tasks[task_id]
-        if task.agent_id == agent_id and task.state != messages_pb2.TaskInfo.TaskState.KILLED:
+        if task.agent_id == agent_id and task.state == messages_pb2.TaskInfo.TaskState.RUNNING:
             return killtaskmsg
 
 def get_all_tasks():
