@@ -89,6 +89,12 @@ app.get('/network.json', function(req, res) {
 		var agents = JSON.parse(body);
 		//for every agent
 		for (var i = 0; i < agents.length; i++) {
+
+			if ((new Date()).getTime() - agents[i].lastPing > 60000) {
+				//device has been offline for a minute. Ignore
+				continue
+			}
+
 			//add links to every other agent
 			for (var j = 0; j < result['nodes'].length; j++) {
 				result['links'].push({
