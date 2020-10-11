@@ -8,7 +8,7 @@ int main(int argc, char *argv[]){
     int port;
     waGetEnvironmentInt("PORT", &port, 1);
 
-    char path[10];
+    char path[20];
     waGetEnvironmentString("PATH", path, 10);
 
     char sensor[10];
