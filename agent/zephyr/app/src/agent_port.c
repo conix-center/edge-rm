@@ -130,7 +130,12 @@ bool agent_port_get_device(uint8_t device_number, agent_device_t* device) {
         break;
    case 1:
         device->name = "humidity_sensor";
-        device->reference = "hum";
+        device->reference = "humidity";
+        return true;
+        break;
+   case 2:
+        device->name = "pressure_sensor";
+        device->reference = "press";
         return true;
         break;
    }
