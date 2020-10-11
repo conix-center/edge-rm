@@ -100,7 +100,7 @@ def runImageFromRunTask(run_task, devices):
     taskID = run_task.task.task_id
 
     # make sure this is not a duplicate request (i.e the container is already running)
-    if containers[taskID]:
+    if taskID in containers:
         return
 
     #setup cpu shared and memory limit
