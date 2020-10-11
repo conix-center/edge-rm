@@ -403,7 +403,7 @@ function loadTasks(){
         var cnt = 0;
         for(var i =0; i<resp.length;i++) {
           var task = resp[i];
-          if (task.state != "KILLED" && task.state != "COMPLETED") {
+          if ((task.state != "KILLED" && task.state != "COMPLETED") || task.name.startsWith(clientID)) {
 
             var tr_case = task.name.startsWith(clientID) ? '<tr class="mytask">' : "<tr>"
 
