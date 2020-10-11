@@ -46,12 +46,34 @@ class Framework:
     for task in tasks:
       if task['state'] == 'RUNNING' and task['framework']['frameworkId'] == self.framework_id and task['name'] == taskName:
         agent_id_of_running_task = task['agentId']
-
-    for agent in agents:
-      if agent['id'] == agent_id_of_running_task:
-        return agent
+        return task['agentId']
 
     return None
+
+  def getAgentProperty(self, agent_id, prop):
+    agents = self.getAgents()
+    for agent in agents:
+      if agent['id'] == agent_id:
+        for r in agent['resources']:
+          if r['name'] == prop:
+            if 'text' in r:
+              return r['text']['value']
+            if 'scalar' in r:
+              return r['scalar']['value']
+            if 'device' in r:
+              return r['device']['device']
+
+        for att in agent['attributes']:
+          if att['name'] == prop:
+            if 'text' in att:
+              return att['text']['value']
+            if 'scalar' in att:
+              return att['scalar']['value']
+            if 'device' in att:
+              return att['device']['device']
+
+    return None
+
 
   def getOffers(self):
     # get offers
@@ -86,28 +108,28 @@ class Framework:
           found_resource = False
           for resource in offer.resources:
             if resource.name == fkey:
-              if resource.scalar:
+              if offer_filters[fkey] is None:
+                found_resource = True
+                break
+              elif resource.scalar.value:
                 if resource.scalar.value >= offer_filters[fkey]:
                   found_resource = True
                   break
-              if resources.device:
+              elif resource.device:
                 found_resource = True
                 break
 
           for attribute in offer.attributes:
             if attribute.name == fkey:
-              if attribute.text:
-                if offer_filters[fkey] is None:
+              if offer_filters[fkey] is None:
+                found_resource = True
+                break
+              elif attribute.text.value:
+                if attribute.text.value == offer_filters[fkey] or attribute.text.value in offer_filters[fkey]:
                   found_resource = True
                   break
-                elif attribute.text.value == offer_filters[fkey] or attribute.text.value in offer_filters[fkey]:
-                  found_resource = True
-                  break
-              if attribute.set:
-                if offer_filters[fkey] is None:
-                  found_resource = True
-                  break
-                elif offer_filters[fkey] in attribute.set.item:
+              elif attribute.set.item:
+                if offer_filters[fkey] in attribute.set.item:
                   found_resource = True
                   break
 
@@ -163,9 +185,9 @@ class Framework:
       wrapper.run_task.task.container.wasm.wasm_binary = wasm_binary
       for env in environment:
         e = wrapper.run_task.task.container.wasm.environment.add()
-        e.key = "PERIOD"
+        e.key = env
         if isinstance(environment[env], int):
-          e.value = environment[key]
+          e.value = environment[env]
         elif isinstance(environment[env], str):
           e.str_value = environment[env]
         else:
