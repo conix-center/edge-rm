@@ -391,6 +391,10 @@ function updateAll() {
 </script>
 
 <script>
+
+
+var agentName = {};
+
 function loadTasks(){
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function () {
@@ -399,7 +403,7 @@ function loadTasks(){
       if(resp.error) {
         document.getElementById('tasks').innerHTML = resp.error.toString();
       } else {
-        var tableHTML = "<table><tr><th>Task ID</th><th>Name</th><th>Agent Assigned</th><th>Framework</th><th>Type</th><th>Image</th><th>State</th></tr>"
+        var tableHTML = "<table><tr><th>Task Name</th><th>Assigned Agent</th><th>Framework</th><th>Type</th><th>Image</th><th>State</th></tr>"
         var cnt = 0;
         for(var i =0; i<resp.length;i++) {
           var task = resp[i];
@@ -411,7 +415,7 @@ function loadTasks(){
               task_name = task_name.replace(clientID, "@me")
             }
 
-            tableHTML += `${tr_case}<td>${task.taskId}</td><td>${task_name}</td><td>${task.agentId}</td><td>${task.framework.name}</td><td>${task.container.type}</td><td>${task.container.docker ? task.container.docker.image : ""}</td><td>${task.state}</td></tr>`
+            tableHTML += `${tr_case}<td>${task_name}</td><td>${agentName[task.agentId]}</td><td>${task.framework.name}</td><td>${task.container.type}</td><td>${task.container.docker ? task.container.docker.image : ""}</td><td>${task.state}</td></tr>`
             cnt += 1
           }
         }
@@ -496,10 +500,14 @@ function loadAgents() {
       if(resp.error) {
         document.getElementById('agents').innerHTML = resp.error.toString();
       } else {
-        var tableHTML = "<table><tr><th>Agent ID</th><th>Name</th><th>Last Ping</th></tr>"
+        var tableHTML = "<table><tr><th>Agent ID</th><th>Agent Name</th><th>Time Since Last Ping</th></tr>"
         for(var i =0; i<resp.length;i++) {
           var agent = resp[i];
-          tableHTML += `<tr><td>${agent.id}</td><td>${agent.name}</td><td>${agent.lastPing}</td></tr>`
+          if(((Date.now() - agent.lastPing)/1000) < (agent.pingRate/1000)*5) {
+            tableHTML += `<tr><td>${agent.id}</td><td>${agent.name}</td><td>${((Date.now() - agent.lastPing)/1000).toFixed(0)}s</td></tr>`
+          }
+
+          agentName[agent.id] = agent.name;
 
           //check if there's a new ping
           if (lastPing[agent.id] != agent.lastPing) {
