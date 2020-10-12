@@ -3,6 +3,7 @@
 var express = require('express')
 var app = express()
 var async = require('async');
+var coap        = require('coap');
 
 var bodyParser = require('body-parser')
 var jsonParser = bodyParser.json()
@@ -210,33 +211,67 @@ app.get('/sensorPredictions', function(req, res) {
 	if(!clientID) {
 		return res.status(500).send([]);
 	}
-	log.info("GET /predictions")
+	log.info("GET /sensorPredictions")
 
-	function getRequestData(url, data, callback) {
-		request(url,function(error, response, body) {
-			if(error {
-				callback("error");
+	function getCoapData(pathExt, data, callback) {
+		var req2 = coap.request({
+			host: '128.97.92.77',
+			//host: 'localhost',
+		  	port: 3002,
+		  	pathname: clientID + '-' + pathExt,
+		  	//pathname: 'test',
+		  	method: "GET"
+		});
+
+		req2.on('response', function(res) {
+			jData = JSON.parse(String(res.payload))
+			prefix = ""
+
+			if(pathExt == 't') {
+				prefix="Temperature: "
+			} else if(pathExt == 'p') {
+				prefix="Pressure "
+			} else if(pathExt =='h') {
+				prefix="Humidity "
 			}
+
+			for(var i =0; i < jData.length; i++) {
+				jData[i].value = prefix + jData[i].value;
+			}
+
 			if(data) {
-				data.append(body);
+				data.push(...jData);
+				callback(null, data);
 			} else {
-				callback(null, body);
+				callback(null, jData);
 			}
-		})
+		});
+		req2.end();
 	}
 
 	async.waterfall([
-		async.apply(getRequestData('http://128.97.92.77:3002/${clientID}-t')),
-		async.apply(getRequestData('http://128.97.92.77:3002/${clientID}-p')),
-		async.apply(getRequestData('http://128.97.92.77:3002/${clientID}-h'))
+		async.apply(getCoapData,'t',[]),
+		async.apply(getCoapData,'p'),
+		async.apply(getCoapData,'h')
 	], function(error, data){
 		if(error) {
 			res.status(500).send([]);
 		} else {
 			//order the data by time
+			function custom_sort(a, b) {
+			    return Number(a.time) - Number(b.time);
+			}
+			data.sort(custom_sort);
+
+			//convert it into the final strings
+			fStrings = []
+			for(var i =0; i < data.length; i++) {
+				var newDate = new Date(Number(data[i].time));
+				fStrings.push(newDate.toLocaleTimeString()+ ': ' + data[i].value);
+			}
 
 			//send it back as an array of strings
-			res.status(200).send(data);
+			res.status(200).send(JSON.stringify(fStrings));
 		}
 	})
 })

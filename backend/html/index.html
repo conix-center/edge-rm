@@ -631,9 +631,9 @@ function loadSensorPredictions(){
         //document.getElementById('sensordata').innerHTML = 'Not ready yet'
       } else {
         var cnt = 0;
-        var pText = "<p>";
-        for(var i =0; i < resp[0].objects.length;i++) {
-          pText += resp[0].objects[i];
+        var pText = "<p style='font-size:40%;font-family:monospace;margin-left:3px'>";
+        for(var i =0; i < resp.length; i++) {
+          pText += resp[i];
           pText += "<br>";
         }
         pText += "</p>"
