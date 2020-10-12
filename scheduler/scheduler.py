@@ -16,7 +16,7 @@ from coapthon import defines
 import messages_pb2
 
 client = None
-framework_name = "Test Framework"
+framework_name = "Camera Framework"
 framework_id = "TEST ID"
 
 tasks = []
@@ -93,7 +93,7 @@ def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings
         #TODO: Generate confirmation protobuf message
         
     else:
-        print("Failed to submit task...")
+        print("Failed to submit task.",file=sys.stderr)
         client.stop()
         sys.exit(1)
 
@@ -121,7 +121,7 @@ def getCamTask(offers):
             for attribute in offer.attributes:
                 if good_cpu and good_mem and got_cam and attribute.name == "OS" and attribute.text.value == "debian-10.1-armv6l":
                     return (offer.agent_id, resources_to_use)
-    print("Failed to find a good camera...")
+    print("Failed to find a node with a camera.",file=sys.stderr)
     client.stop()
     sys.exit(1)
 
@@ -145,7 +145,7 @@ def getServerTask(offers):
             for attribute in offer.attributes:
                 if good_cpu and good_mem and attribute.name == "domain":
                     return (offer.agent_id, resources_to_use, attribute.text.value)
-    print("Failed to find a server...")
+    print("Failed to find a server.",file=sys.stderr)
     client.stop()
     sys.exit(1)
 

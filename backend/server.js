@@ -2,6 +2,7 @@
 
 var express = require('express')
 var app = express()
+var async = require('async');
 
 var bodyParser = require('body-parser')
 var jsonParser = bodyParser.json()
@@ -27,6 +28,45 @@ const log = winston.createLogger({
 	]
 });
 
+app.post('/startSensor', jsonParser, function(req, res) {
+
+	if(!req.cookies['client']) {
+		return res.send("We couldn't find your client id... please go back and reload!");
+	}
+
+	log.info("starting tasks")
+
+	var python;
+	if(req.body.ffunc) {
+		python = spawn('python3', ['../scheduler/sensor-scheduler.py', 
+			'--host', '128.97.92.77', 
+			'--client', req.cookies['client'], 
+			'--sensor', req.body.sensor,
+			'--period', req.body.period,
+			'--ffunc', req.body.ffunc,
+			'--fval', req.body.fval])
+	} else {
+		python = spawn('python3', ['../scheduler/sensor-scheduler.py', 
+			'--host', '128.97.92.77', 
+			'--client', req.cookies['client'], 
+			'--sensor', req.body.sensor,
+			'--period', req.body.period])
+	}
+
+	var dataToSend = '';
+	python.stdout.on('data', function(data) {
+		log.info(data.toString());
+	});
+	python.stderr.on('data', function(data) {
+		dataToSend += data.toString();
+		log.info(dataToSend);
+	});
+	python.on('close', (code) => {
+		log.info(code);
+		res.status(200).send(dataToSend)
+	})
+})
+
 app.get('/start', jsonParser, function(req, res) {
 
 	if(!req.cookies['client']) {
@@ -38,7 +78,7 @@ app.get('/start', jsonParser, function(req, res) {
 	const python = spawn('python3', ['../scheduler/scheduler.py', '--host', '128.97.92.77', '--tasks', 'tasks.json', '--client', req.cookies['client']])
 	var dataToSend = '';
 	python.stdout.on('data', function(data) {
-		dataToSend += data.toString();
+		//dataToSend += data.toString();
 	});
 	python.stderr.on('data', function(data) {
 		dataToSend += data.toString();
@@ -46,7 +86,8 @@ app.get('/start', jsonParser, function(req, res) {
 	});
 	python.on('close', (code) => {
 		log.info(code);
-		res.status(200).send(`<!DOCTYPE html><html><body><p>${dataToSend}</p><form action="/"><input type="submit" value="OK" /></form></body></html>`)
+		//res.status(200).send(`<!DOCTYPE html><html><body><p>${dataToSend}</p><form action="/"><input type="submit" value="OK" /></form></body></html>`)
+		res.status(200).send(dataToSend)
 	})
 })
 
@@ -162,6 +203,42 @@ app.get('/network.json', function(req, res) {
 app.get('/agents', function(req, res) {
 	log.info("GET /agents")
 	request('http://128.97.92.77/').on('error', (e) => {res.status(500).send({})}).pipe(res);
+})
+
+app.get('/sensorPredictions', function(req, res) {
+	var clientID = req.cookies['client']
+	if(!clientID) {
+		return res.status(500).send([]);
+	}
+	log.info("GET /predictions")
+
+	function getRequestData(url, data, callback) {
+		request(url,function(error, response, body) {
+			if(error {
+				callback("error");
+			}
+			if(data) {
+				data.append(body);
+			} else {
+				callback(null, body);
+			}
+		})
+	}
+
+	async.waterfall([
+		async.apply(getRequestData('http://128.97.92.77:3002/${clientID}-t')),
+		async.apply(getRequestData('http://128.97.92.77:3002/${clientID}-p')),
+		async.apply(getRequestData('http://128.97.92.77:3002/${clientID}-h'))
+	], function(error, data){
+		if(error) {
+			res.status(500).send([]);
+		} else {
+			//order the data by time
+
+			//send it back as an array of strings
+			res.status(200).send(data);
+		}
+	})
 })
 
 app.get('/predictions', function(req, res) {

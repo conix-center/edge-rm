@@ -152,7 +152,8 @@ svg {
     When you submit
     a job you will see your tasks (highlighted in green) starting in the task list
     below, and eventually you will see the image and predictions to the right.</p>
-    <button onclick="submitCamera()" id="camerasubmit" style="margin-left:7px" >Submit Job</>
+    <button onclick="submitCamera()" id="camerasubmit" style="margin-left:7px" >Submit Job</button>
+    <p id="cameraError" style="margin-left:7px;color:red;"></p>
   </div>
 
   <div class="innerrightclass">
@@ -193,11 +194,16 @@ svg {
     </select>
     <input type="text" id="filtervalue" name="filtervalue" style="width:30px;visibility:hidden;">
     <label for="filtervalue" id="units" style="visibility:hidden;">&deg;C</label>
-
     </div>
 
-    <button onclick="submitSensor()" id="sensorsubmit" style="margin-left:7px;margin-top:20px" >Submit Job</button>
-      <p id='sensorStateError'></p>
+    <div style="margin-left:7px;margin-top:15px;height:35px">
+      <div style="width:25%;float:left;">
+        <button onclick="submitSensor()" id="sensorsubmit">Submit Job</button>
+      </div>
+      <div style="width:74%;float:right;margin-left:7px;height:100%;position:relative;top:-28px;">
+        <p id='sensorError' style="color:red;padding:0px;margin:0px;font-size:80%;"></p>
+      </div>
+    </div>
   </div>
 
   <div class="innerrightclass">
@@ -613,6 +619,33 @@ function loadID() {
 }
 loadID();
 
+function loadSensorPredictions(){
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function () {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      var resp = JSON.parse(xmlHttp.responseText);
+      if(resp.error) {
+        //Leave it
+        //document.getElementById('sensordata').innerHTML = ''
+      } else if(resp.length < 0) {
+        //document.getElementById('sensordata').innerHTML = 'Not ready yet'
+      } else {
+        var cnt = 0;
+        var pText = "<p>";
+        for(var i =0; i < resp[0].objects.length;i++) {
+          pText += resp[0].objects[i];
+          pText += "<br>";
+        }
+        pText += "</p>"
+        document.getElementById('sensordata').innerHTML = pText;
+      }
+    } 
+  }
+  xmlHttp.open("GET", '/sensorPredictions', true);
+  xmlHttp.send(null);
+}
+loadSensorPredictions();
+
 function loadPredictions(){
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function () {
@@ -646,7 +679,8 @@ function submitCamera() {
   xmlHttp.onreadystatechange = function () {
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
       console.log(xmlHttp.responseText)
-      var resp = JSON.parse(xmlHttp.responseText);
+      var resp = xmlHttp.responseText;
+      document.getElementById('cameraError').innerHTML = resp;
     } 
   }
   xmlHttp.open("GET", '/start', true);
@@ -654,7 +688,41 @@ function submitCamera() {
 
 }
 
-function loadFramework() {
+function submitSensor() {
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function () {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      console.log(xmlHttp.responseText)
+      var resp = xmlHttp.responseText;
+      document.getElementById('sensorError').innerHTML = resp;
+    } 
+  }
+  
+  //parse the values
+  var sensor = document.getElementById('sensorselect').value
+  var period = document.getElementById('period').value
+  var ffunc = document.getElementById('filterfunction').value
+  var fval = document.getElementById('filtervalue').value
+  if(period == '') {
+      document.getElementById('sensorError').innerHTML = 'You must specify a sampling period.';
+      return;
+  } else if(ffunc != 'all' && fval == '') {
+      document.getElementById('sensorError').innerHTML = 'You must specify a filter value if you specify a filter.';
+      return;
+  } else {
+      document.getElementById('sensorError').innerHTML = '';
+  }
+
+  var sdata = {'period':period,'sensor': sensor,'ffunc':ffunc,'fval':fval};
+  console.log(sdata);
+
+  xmlHttp.open("POST", '/startSensor', true);
+  xmlHttp.setRequestHeader('Content-Type', 'application/json');
+  xmlHttp.send(JSON.stringify(sdata));
+
+}
+
+/*function loadFramework() {
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function () {
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
@@ -669,7 +737,7 @@ function loadFramework() {
   xmlHttp.open("GET", '/framework', true);
   xmlHttp.send(null);
 }
-loadFramework();
+loadFramework();*/
 
 var lastPing = {};
 
@@ -718,6 +786,7 @@ setInterval(function() {
   sendMessage("Framework", "Me", 0);
   loadAgents();
   loadPredictions();
+  loadSensorPredictions();
   loadTasks();
 }, 1000)
 
