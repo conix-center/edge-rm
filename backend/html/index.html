@@ -273,7 +273,7 @@ function updateForces() {
     simulation.force("forceX")
         .strength(forceProperties.forceX.strength * forceProperties.forceX.enabled)
         .x(function(d) {
-          if (d.group == 1) return width * forceProperties.forceX.x;
+          if (d.group != 2 && d.group != 3 && d.group != 4) return width * forceProperties.forceX.x;
           if (d.group == 4) return -width * forceProperties.forceX.x; 
           return 0;
         });
@@ -333,7 +333,7 @@ function getColorForGroup(g) {
   if (g == '1') return '#305F72';
   if (g == '2') return '#568EA6';
   if (g == '3') return '#F1D1B5';
-  if (g == '4') return '#F18C8E'
+  if (g == '4') return '#F18C8E';
   return 'orange';
 }
 
