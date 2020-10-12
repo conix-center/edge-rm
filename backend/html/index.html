@@ -136,6 +136,7 @@ svg {
 
   <div class="innerrightclass">
     <div id='predictions' class='predictions'>
+    </div>
   </div>
 
 </div>
@@ -143,7 +144,21 @@ svg {
 </div>
 <!-- Div for sensor framework UI --!>
 <div class="toprightclass">
-<h3 class='frameworkheaders'>Sensor Framework</h2>
+  <div class="innerleftclass">
+    <h3 class='frameworkheaders'>Sensor Framework</h2>
+
+    <p style='font-size:80%;margin-left:7px;margin-top:10px;margin-bottom:15px'>When a job is submitted to the sensor framework it
+    sends one WASM task to the sensor which runs for three minutes, sampling results as specified below. Another
+    task is hosted on a server with a public IP to store the results.
+    When you submit a job you will see your tasks (highlighted in green) starting in the task list
+    below, and eventually you will see sensor results to the right.</p>
+    <button onclick="submitSensor()" id="sensorsubmit" style="margin-left:7px" >Submit Job</>
+  </div>
+
+  <div class="innerrightclass">
+    <div id='predictions' class='predictions'>
+    </div>
+  </div>
 </div>
 
 <!-- <br/> -->
