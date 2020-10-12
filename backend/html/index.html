@@ -43,7 +43,7 @@ tr:nth-child(even) {
 
 .topleftclass {
   float: left;
-  height: 240px;
+  height: 280px;
   border-width:1px;
   border-style:solid;
   border-color:grey;
@@ -56,7 +56,7 @@ tr:nth-child(even) {
 }
 .toprightclass {
   float: left;
-  height: 240px;
+  height: 280px;
   border-width:1px;
   border-style:solid;
   border-color:grey;
@@ -145,13 +145,19 @@ svg {
   <div class="innerleftclass">
     <h3 class='frameworkheaders'>Camera Framework</h2>
 
-    <p style='font-size:80%;margin-left:7px;margin-top:10px;margin-bottom:15px'>When a job is submitted to the camera framework, it runs three tasks: 
-    1) a task to fetch an image from a sensor with a camera, 2) a task to 
-    receive and classify objects in that image, and 3) a server operating on
-    a public IP address which hosts the image and object classifications for this webpage to fetch. 
-    When you submit
-    a job you will see your tasks (highlighted in green) starting in the task list
-    below, and eventually you will see the image and predictions to the right.</p>
+    <p style='font-size:75%;margin-left:7px;margin-top:10px;margin-bottom:15px'>
+    1) User clicks submit job<br>
+    2) Framework sends server task to host with public IP if not running<br>
+    3) Framework configures and sends classification task to any Docker agent<br>
+    4) Framework configures and sends fetch task to agent with a camera<br>
+    5) Image task fetches image and posts it to your unique path on the server<br>
+    6) Classification task polls server for image, then posts results<br>
+    7) This webpage polls the server for image and classification results<br>
+    <br> 
+    This demonstrates: <br>
+    - Ability to coordinate resources across NATs<br>
+    - Ability to aggregate and use device resources<br></p>
+
     <button onclick="submitCamera()" id="camerasubmit" style="margin-left:7px" >Submit Job</button>
     <p id="cameraError" style="margin-left:7px;color:red;"></p>
   </div>
@@ -171,11 +177,17 @@ svg {
   <div class="innerleftclass">
     <h3 class='frameworkheaders'>Sensor Framework</h2>
 
-    <p style='font-size:80%;margin-left:7px;margin-top:10px;margin-bottom:15px'>When a job is submitted to the sensor framework it
-    sends one WASM task to the sensor which samples results for three minutes. Another
-    task is launched on a server with a public IP to store these results.
-    When you submit a job, you will see your tasks (highlighted in green) starting in the task list
-    below, and eventually you will see sensor results to the right.</p>
+    <p style='font-size:75%;margin-left:7px;margin-top:10px;margin-bottom:15px'>
+    1) User configures and submits job<br>
+    2) Framework sends Coap Server task to host with public IP if not running<br>
+    3) Framework configures and sends sensor task to a WASM agent with the sensor<br>
+    4) The sensor samples, filters, and sends results to server as configured<br>
+    5) This webpage polls the server for sensor results<br>
+    <br> 
+    This demonstrates: <br>
+    - Ability to execute portable code on constrained devices<br>
+    - Ability to aggregate and coordinate resources on constrained devices<br>
+    - Ability to share sensor resources<br>
     <div style="margin-left:7px">
     <label for="sensor">Sense </label>
     <select name="sensor" id="sensorselect">
