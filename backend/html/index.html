@@ -787,7 +787,7 @@ function loadAgents() {
           //check if there's a new ping
           if (lastPing[agent.id] != agent.lastPing) {
             lastPing[agent.id] = agent.lastPing;
-            sendMessage(agent.id, "Master", i+1); //circle 0 is reserved for client => master => client
+            sendMessage(agent.id, "Master", i+2); //circle 0+1 is reserved for client => master => client
           }
         }
         tableHTML += "</table>"
@@ -802,10 +802,14 @@ function loadAgents() {
 loadAgents();
 
 setInterval(function() {
-  sendMessage("Me", "Framework", 0);
-  sendMessage("Framework", "Master", 0);
-  sendMessage("Master", "Framework", 0);
-  sendMessage("Framework", "Me", 0);
+  sendMessage("Me", "CameraFramework", 0);
+  sendMessage("CameraFramework", "Master", 0);
+  sendMessage("Master", "CameraFramework", 0);
+  sendMessage("CameraFramework", "Me", 0);
+  sendMessage("Me", "SensorFramework", 1);
+  sendMessage("SensorFramework", "Master", 1);
+  sendMessage("Master", "SensorFramework", 1);
+  sendMessage("SensorFramework", "Me", 1);
   loadAgents();
   loadPredictions();
   loadSensorPredictions();

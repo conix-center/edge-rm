@@ -176,8 +176,13 @@ app.get('/network.json', function(req, res) {
 			group:2
 		}
 		var framework = {
-			id: 'Framework',
-			name: 'Framework (this)',
+			id: 'CameraFramework',
+			name: 'Camera Framework',
+			group:3
+		}
+		var framework2 = {
+			id: 'SensorFramework',
+			name: 'Sensor Framework',
 			group:3
 		}
 		var client = {
@@ -195,6 +200,7 @@ app.get('/network.json', function(req, res) {
 		}
 		result['nodes'].push(master)
 		result['nodes'].push(framework)
+		result['nodes'].push(framework2)
 		result['nodes'].push(client)
 		//connect framework to master
 		result['links'].push({
@@ -203,8 +209,18 @@ app.get('/network.json', function(req, res) {
 			value:3
 		})
 		result['links'].push({
+			source:framework2.id,
+			target:master.id,
+			value:3
+		})
+		result['links'].push({
 			source:client.id,
 			target:framework.id,
+			value:4
+		})
+		result['links'].push({
+			source:client.id,
+			target:framework2.id,
 			value:4
 		})
 		res.send(result);
@@ -238,7 +254,7 @@ app.get('/sensorPredictions', function(req, res) {
 		req2.on('response', function(res) {
 			try {
 				jData = JSON.parse(String(res.payload))
-			} catch {
+			} catch (error) {
 				callback(null,data);
 				return;
 			}
