@@ -92,24 +92,29 @@ app.get('/network.json', function(req, res) {
 		//for every agent
 		for (var i = 0; i < agents.length; i++) {
 
-			if ((new Date()).getTime() - agents[i].lastPing > 60000) {
-				//device has been offline for a minute. Ignore
+			if ((new Date()).getTime() - agents[i].lastPing > 300000) {
+				//device has been offline for 5 minutes. Ignore
 				continue
 			}
 
+			var group_num = (agents[i].name == "jet" || agents[i].name == "raspberrypi") ? 1 : 5
+
 			//add links to every other agent
 			for (var j = 0; j < result['nodes'].length; j++) {
-				result['links'].push({
-					'source':result['nodes'][j].id,
-					'target':agents[i].id,
-					'value':1
-				})
+				//only if it's in the same group, or if it's connecting to jet
+				if(group_num == result['nodes'][j].group || agents[i].name == "jet" || result['nodes'][j].name == "jet") {
+					result['links'].push({
+						'source':result['nodes'][j].id,
+						'target':agents[i].id,
+						'value':1
+					})
+				}
 			}
 			//add the agent to the list of nodes
 			result['nodes'].push({
 				id: agents[i].id,
 				name: agents[i].name,
-				group: 1
+				group: group_num
 			})
 		}
 		//add the master, framework, and client
