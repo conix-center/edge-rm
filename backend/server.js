@@ -92,25 +92,25 @@ app.get('/start', jsonParser, function(req, res) {
 	})
 })
 
-// app.get('/stop', jsonParser, function(req, res) {
-// 	// log.info(req.body);
-// 	log.info("stopping tasks")
+app.get('/stop/all', function(req, res) {
+	// log.info(req.body);
+	log.info("stopping all tasks")
 
-// 	const python = spawn('python3', ['../scheduler/scheduler_kill.py', '--host', '128.97.92.77', '--tasks', 'tasks.json'])
-// 	var dataToSend = '';
-// 	python.stdout.on('data', function(data) {
-// 		dataToSend += data.toString();
-// 		log.info(dataToSend);
-// 	});
-// 	python.stderr.on('data', function(data) {
-// 		dataToSend += data.toString();
-// 		log.info(dataToSend);
-// 	});
-// 	python.on('close', (code) => {
-// 		log.info(code);
-// 		res.status(200).send(`<!DOCTYPE html><html><body><p>${dataToSend}</p><form action="/"><input type="submit" value="OK" /></form></body></html>`)
-// 	})
-// })
+	const python = spawn('python3', ['../scheduler/kill-task.py', '--host', '128.97.92.77', '--all'])
+	var dataToSend = '';
+	python.stdout.on('data', function(data) {
+		dataToSend += data.toString();
+		log.info(dataToSend);
+	});
+	python.stderr.on('data', function(data) {
+		dataToSend += data.toString();
+		log.info(dataToSend);
+	});
+	python.on('close', (code) => {
+		log.info(code);
+		res.status(200).send(`<!DOCTYPE html><html><body><p>${dataToSend}</p><form action="/"><input type="submit" value="OK" /></form></body></html>`)
+	})
+})
 
 app.get('/tasks', function(req, res) {
 	log.info("GET /tasks")
