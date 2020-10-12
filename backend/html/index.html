@@ -316,7 +316,18 @@ var startY = 0;
 var endX = 0;
 var endY = 0;
 var circleQueue = []
+focus = false;
 function circleTick() {
+
+  if(document.hasFocus()) {
+    if(!focus) {
+      circleQueue = [];
+    }
+
+    focus = true;
+  } else {
+    focus = false;
+  }
 
   for(var i = 0; i < circleQueue.length; i++) {
     var circle = circles[i];
@@ -356,7 +367,11 @@ function circleTick() {
 
       if(cnt < 100) {
         //increment the count
-        cQ[0][0] += 5
+        if(focus) {
+          cQ[0][0] += 5
+        } else {
+          cQ[0][0] += 100
+        }
       } else {
         cQ[0][2] = -10
         cQ[0][3] = -10
@@ -557,9 +572,9 @@ setInterval(function() {
   sendMessage("Framework", "Master", 0);
   sendMessage("Master", "Framework", 0);
   sendMessage("Framework", "Me", 0);
-  loadAgents()
-  loadPredictions()
-  loadTasks()
+  loadAgents();
+  loadPredictions();
+  loadTasks();
 }, 1000)
 </script>
 
