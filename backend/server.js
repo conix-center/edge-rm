@@ -224,7 +224,13 @@ app.get('/sensorPredictions', function(req, res) {
 		});
 
 		req2.on('response', function(res) {
-			jData = JSON.parse(String(res.payload))
+			try {
+				jData = JSON.parse(String(res.payload))
+			} catch {
+				callback("parsing error");
+				return;
+			}
+
 			prefix = ""
 
 			if(pathExt == 't') {
