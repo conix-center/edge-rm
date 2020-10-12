@@ -34,11 +34,60 @@ tr:nth-child(even) {
   background-color: #f7a9a3 !important;
 }
 
+.frameworkheaders {
+  margin-left:5px;
+  margin-top:5px;
+  margin-bottom:5px;
+  font-family:Arial;
+}
+
 .leftclass {
   float: left;
 }
+.topleftclass {
+  float: left;
+  height: 200px;
+  border-width:1px;
+  border-style:solid;
+  border-color:grey;
+  border-radius:10px;
+  margin-left:7px;
+  width: 49%;
+}
+.toprightclass {
+  float: right;
+  height: 200px;
+  border-width:1px;
+  border-style:solid;
+  border-color:grey;
+  border-radius:10px;
+  margin-right:7px;
+  margin-bottom:20px;
+  width: 49%;
+}
 .rightclass {
   float: right;
+  margin-right:7px;
+}
+
+.innerleftclass {
+  float: left;
+  width: 65%;
+}
+.innerrightclass {
+  float: right;
+  width: 35%;
+}
+
+.predictions {
+  margin: 0 auto;
+  margin-top:10px;
+  height: 180px;
+  width: 180px;
+  border-width:0.5px;
+  border-style:dotted;
+  border-color:grey;
+  border-radius:5px;
 }
 
 /* D3 styles */
@@ -56,27 +105,47 @@ svg {
   pointer-events: all;
 }
 
+
 </style>
 </head>
 <body>
 
-<h1>Edge Resource Manager Demo</h1>
+<!---<h1>Edge Resource Manager Demo</h1>--!>
+<!-- Div for camera framework UI --!>
+<div class="topleftclass">
 
-<h2 id='framework'></h2>
+  <div class="innerleftclass">
+    <h3 class='frameworkheaders'>Camera Framework</h2>
 
-<h3> Send Commands </h3>
+    <p style='font-size:80%;margin-left:7px;margin-top:10px;margin-bottom:15px'>When a job is submitted to the camera framework, it runs three tasks: 
+    1) a task to fetch an image from a sensor with a camera, 2) a task to 
+    receive and classify objects in that image, and 3) a server operating on
+    a public IP address which hosts the image and object classifications for this webpage to fetch. 
+    When you submit
+    a job you will see your tasks (highlighted in green) starting in the task list
+    below, and eventually you will see the image and predictions to the right.</p>
+    <button onclick="submitCamera()" id="camerasubmit" style="margin-left:7px" >Submit Job</>
+  </div>
 
-<form action="/start">
-    <input type="submit" value="Start Tasks"/>
-</form>
+  <div class="innerrightclass">
+    <div id='predictions' class='predictions'>
+  </div>
+
+</div>
+
+</div>
+<!-- Div for sensor framework UI --!>
+<div class="toprightclass">
+<h3 class='frameworkheaders'>Sensor Framework</h2>
+</div>
+
 <!-- <br/> -->
 <!-- <form action="/stop">
     <input type="submit" value="Stop Tasks"/>
 </form> -->
 
-<h3 id='numtasks'></h3>
-
-<p id='tasks'></p>
+<div id='tasks' style='margin-top:20px;margin-left:0.5%;margin-right:0.5%;width:99%;overflow-y:scroll;max-height:193px'>
+</div>
 
 <!---<h3 id='numagents'></h3> -->
 <!-- I think these would look better side to side -->
@@ -90,9 +159,6 @@ svg {
 </div>
 
 
-<h3 id='appoutput'></h3>
-<div id='predictions'>
-</div>
 
 <!-- D3 Script -->
 <script>
@@ -440,7 +506,7 @@ function loadTasks(){
       if(resp.error) {
         document.getElementById('tasks').innerHTML = resp.error.toString();
       } else {
-        var tableHTML = "<table style='font-size:85%'><tr><th>Task Name</th><th>Task ID</th><th>Assigned Agent</th><th>Framework</th><th>Type</th><th>Image</th><th>State</th></tr>"
+        var tableHTML = "<table style='font-size:85%;'><tr><th>Task Name</th><th>Task ID</th><th>Assigned Agent</th><th>Framework</th><th>Type</th><th>Image</th><th>State</th></tr>"
         var cnt = 0;
         for(var i =0; i<resp.length;i++) {
           var task = resp[i];
@@ -501,7 +567,7 @@ function loadPredictions(){
         }
         tableHTML += "</table>"
         document.getElementById('predictions').innerHTML = resp[0].objects.length > 0 ? tableHTML : ''
-        document.getElementById('predictions').innerHTML += `<img src="http://conixdb.com:3003/${clientID}-predictions.jpg" alt="Latest image" height="300">`
+        document.getElementById('predictions').innerHTML += `<img src="http://conixdb.com:3003/${clientID}-predictions.jpg" alt="Latest image">`
       }
     } 
   }
@@ -509,6 +575,18 @@ function loadPredictions(){
   xmlHttp.send(null);
 }
 loadPredictions();
+
+function submitCamera() {
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function () {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      var resp = JSON.parse(xmlHttp.responseText);
+    } 
+  }
+  xmlHttp.open("GET", '/start', true);
+  xmlHttp.send(null);
+
+}
 
 function loadFramework() {
   var xmlHttp = new XMLHttpRequest();
@@ -558,7 +636,7 @@ function loadAgents() {
         }
         tableHTML += "</table>"
         document.getElementById('agents').innerHTML = tableHTML
-        document.getElementById('numagents').innerHTML = `${resp.length} Agents`
+        //document.getElementById('numagents').innerHTML = `${resp.length} Agents`
       }
     } 
   }
