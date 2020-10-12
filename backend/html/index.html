@@ -147,19 +147,26 @@ svg {
 
     <p style='font-size:75%;margin-left:7px;margin-top:10px;margin-bottom:15px'>
     1) User clicks submit job<br>
-    2) Framework sends server task to host with public IP if not running<br>
-    3) Framework configures and sends classification task to any Docker agent<br>
-    4) Framework configures and sends fetch task to agent with a camera<br>
-    5) Image task fetches image and posts it to your unique path on the server<br>
+    2) Framework sends server task to agent with public IP if not running<br>
+    3) Framework configures and sends classification task to available Docker agent<br>
+    4) Framework configures and sends camera task to agent with a camera<br>
+    5) Camera task fetches image and posts it to your unique path on the server<br>
     6) Classification task polls server for image, then posts results<br>
     7) This webpage polls the server for image and classification results<br>
     <br> 
     This demonstrates: <br>
     - Ability to coordinate resources across NATs<br>
-    - Ability to aggregate and use device resources<br></p>
+    - Ability to aggregate and use device resources<br>
+    - Ability to share sensor resources<br></p>
+    <div style="margin-left:7px">
+      <label for="camera">Access </label>
+      <select name="camera" id="cameraselect">
+        <option value="202481596976831">raspberrypi</option>
+      </select>
 
-    <button onclick="submitCamera()" id="camerasubmit" style="margin-left:7px" >Submit Job</button>
-    <p id="cameraError" style="margin-left:7px;color:red;"></p>
+      <button onclick="submitCamera()" id="camerasubmit" style="margin-left:7px" >Submit Job</button>
+      <p id="cameraError" style="color:red;"></p>
+    </div>
   </div>
 
   <div class="innerrightclass">
@@ -705,7 +712,10 @@ function submitCamera() {
       document.getElementById('cameraError').innerHTML = resp;
     } 
   }
-  xmlHttp.open("GET", '/start', true);
+
+  var camera = document.getElementById('cameraselect').value
+
+  xmlHttp.open("GET", `/start?cam=${camera}`, true);
   xmlHttp.send(null);
 
 }

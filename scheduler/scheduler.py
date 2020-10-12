@@ -97,7 +97,7 @@ def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings
         client.stop()
         sys.exit(1)
 
-def getCamTask(offers):
+def getCamTask(offers, cameraToUse):
     print("Searching for a good camera...")
     agent_to_use = None
     resources_to_use = {
@@ -118,9 +118,13 @@ def getCamTask(offers):
                     good_mem = True
                 if resource.name == "picam":
                     got_cam = True
-            for attribute in offer.attributes:
-                if good_cpu and good_mem and got_cam and attribute.name == "OS" and attribute.text.value == "debian-10.1-armv6l":
+            if cameraToUse:
+                if offer.agent_id == cameraToUse:
                     return (offer.agent_id, resources_to_use)
+            else:
+                for attribute in offer.attributes:
+                    if good_cpu and good_mem and got_cam and attribute.name == "OS" and attribute.text.value == "debian-10.1-armv6l":
+                        return (offer.agent_id, resources_to_use)
     print("Failed to find a node with a camera.",file=sys.stderr)
     client.stop()
     sys.exit(1)
@@ -233,11 +237,11 @@ def getDomainForTask(name):
             return tasks[i]['domain']
     return ''
 
-def submitTasks(offers, clientID):
+def submitTasks(offers, clientID, cameraToUse):
     print("Searching for a good server offer...")
     printOffer(offers)
 
-    (camera_agent, camera_resources) = getCamTask(offers)
+    (camera_agent, camera_resources) = getCamTask(offers, cameraToUse)
     print("Got a camera!")
 
     if not taskAlreadyRunning("HTTP endpoint"):
@@ -290,7 +294,7 @@ def getOffer():
         sys.exit(1)
 
 
-def main(host, port, tasks, clientID):  # pragma: no cover
+def main(host, port, tasks, clientID, cameraToUse):  # pragma: no cover
     global client
     global tasksfile
 
@@ -307,7 +311,7 @@ def main(host, port, tasks, clientID):  # pragma: no cover
     # TODO: Should we register the framework first?
 
     offers = getOffer()
-    submitTasks(offers, clientID)
+    submitTasks(offers, clientID, cameraToUse)
 
     client.stop()
 
@@ -334,5 +338,6 @@ if __name__ == '__main__':  # pragma: no cover
     parser.add_argument('--port', required=False, default=5683, help='the Edge RM Master port to register on.')
     parser.add_argument('--tasks', required=True, help='the file containing the scheduler tasks.')
     parser.add_argument('--client', help='the client ID that submitted this task')
+    parser.add_argument('--camera', help='the camera to use')
     args = parser.parse_args()
-    main(args.host, args.port, args.tasks, args.client)
+    main(args.host, args.port, args.tasks, args.client, args.camera)
