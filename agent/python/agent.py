@@ -184,7 +184,7 @@ def main(host, port, configPath):  # pragma: no cover
             print("Ping!")
             ct = {'content_type': defines.Content_types["application/octet-stream"]}
             response = client.post('ping', wrapper.SerializeToString(), timeout=2, **ct)
-            if response:
+            if response and response.payload:
                 print("Pong!")
                 wrapper = messages_pb2.WrapperMessage()
                 wrapper.ParseFromString(response.payload)
