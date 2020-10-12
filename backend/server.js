@@ -190,6 +190,7 @@ app.get('/network.json', function(req, res) {
 		}
 		result['nodes'].push(master)
 		result['nodes'].push(framework)
+		result['nodes'].push(framework2)
 		result['nodes'].push(client)
 		//connect framework to master
 		result['links'].push({
