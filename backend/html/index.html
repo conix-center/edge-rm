@@ -26,6 +26,14 @@ tr:nth-child(even) {
   background-color: #ddffdd !important;
 }
 
+.goodagent {
+  background-color: #ddffdd !important;
+}
+
+.badagent {
+  background-color: #f7a9a3 !important;
+}
+
 /* D3 styles */
 svg {
   /*flex-basis: 100%;*/
@@ -500,12 +508,16 @@ function loadAgents() {
       if(resp.error) {
         document.getElementById('agents').innerHTML = resp.error.toString();
       } else {
-        var tableHTML = "<table><tr><th>Agent ID</th><th>Agent Name</th><th>Time Since Last Ping</th></tr>"
+        var tableHTML = "<table><tr><th>Agent Name</th><th>Agent ID</th><th>Time Since Last Ping</th></tr>"
         for(var i =0; i<resp.length;i++) {
           var agent = resp[i];
-          if(((Date.now() - agent.lastPing)/1000) < (agent.pingRate/1000)*5) {
-            tableHTML += `<tr><td>${agent.id}</td><td>${agent.name}</td><td>${((Date.now() - agent.lastPing)/1000).toFixed(0)}s</td></tr>`
+          if(((Date.now() - agent.lastPing)/1000) < (agent.pingRate/1000)*3) {
+            tableHTML += `<tr class="goodagent" ><td>${agent.name}</td><td>${agent.id}</td><td>${((Date.now() - agent.lastPing)/1000).toFixed(0)}s</td></tr>`
+          } else if(((Date.now() - agent.lastPing)/1000) < (agent.pingRate/1000)*10) {
+            tableHTML += `<tr class="badagent" ><td>${agent.name}</td><td>${agent.id}</td><td>${((Date.now() - agent.lastPing)/1000).toFixed(0)}s</td></tr>`
           }
+
+
 
           agentName[agent.id] = agent.name;
 
