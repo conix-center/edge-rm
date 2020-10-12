@@ -166,8 +166,13 @@ app.get('/network.json', function(req, res) {
 			group:2
 		}
 		var framework = {
-			id: 'Framework',
-			name: 'Framework (this)',
+			id: 'CameraFramework',
+			name: 'Camera Framework',
+			group:3
+		}
+		var framework2 = {
+			id: 'SensorFramework',
+			name: 'Sensor Framework',
 			group:3
 		}
 		var client = {
@@ -193,8 +198,18 @@ app.get('/network.json', function(req, res) {
 			value:3
 		})
 		result['links'].push({
+			source:framework2.id,
+			target:master.id,
+			value:3
+		})
+		result['links'].push({
 			source:client.id,
 			target:framework.id,
+			value:4
+		})
+		result['links'].push({
+			source:client.id,
+			target:framework2.id,
 			value:4
 		})
 		res.send(result);
