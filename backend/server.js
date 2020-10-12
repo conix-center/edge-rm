@@ -223,11 +223,13 @@ app.get('/sensorPredictions', function(req, res) {
 		  	method: "GET"
 		});
 
+		console.log("Fetching predictions from: ",clientID+'-'+pathExt);
+
 		req2.on('response', function(res) {
 			try {
 				jData = JSON.parse(String(res.payload))
 			} catch {
-				callback("parsing error");
+				callback(null,data);
 				return;
 			}
 
