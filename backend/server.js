@@ -5,6 +5,16 @@ var app = express()
 var async = require('async');
 var coap        = require('coap');
 
+var coapTiming = {
+  ackTimeout: 1,
+  ackRandomFactor: 1.0,
+  maxRetransmit: 3,
+  maxLatency: 2,
+  piggybackReplyMs: 10
+};
+
+coap.updateTiming(coapTiming);
+
 var bodyParser = require('body-parser')
 var jsonParser = bodyParser.json()
 
@@ -254,6 +264,12 @@ app.get('/sensorPredictions', function(req, res) {
 				callback(null, jData);
 			}
 		});
+
+		req2.on('error', function(err) { 
+			console.log("Message error");
+			callback(err);
+		});
+
 		req2.end();
 	}
 

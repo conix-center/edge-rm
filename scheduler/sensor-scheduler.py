@@ -43,7 +43,6 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
     env = {}
     env['IP'] = ip
     env['PORT'] = 3002
-    env['PATH'] = args.client
     env['PERIOD'] = int(args.period)
 
     #Filters
@@ -56,15 +55,18 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
 
     #Sensor
     sensor_name = None
-    if args.sensor == "temp": 
-        env['SENSOR'] = args.sensor
+    if args.sensor == "temperature": 
+        env['PATH'] = args.client+'-t'
+        env['SENSOR'] = 'temp'
         sensor_name = "temperature_sensor"
-    elif args.sensor == "press": 
-        env['SENSOR'] = args.sensor
+    elif args.sensor == "pressure": 
+        env['PATH'] = args.client+'-p'
+        env['SENSOR'] = 'press'
         sensor_name = "pressure_sensor"
     elif args.sensor == "humidity":
+        env['PATH'] = args.client+'-h'
+        env['SENSOR'] = 'humidity'
         sensor_name = "humidity_sensor"
-        env['SENSOR'] = args.sensor
     else:
         print("Not a valid sensor")
         return
@@ -77,7 +79,9 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
 
     # Run the WASM task
     wasm_file = open('../wasm/wasm-send/out.wasm','rb')
-    framework.runTask("SensorSample",wasm_agents[0][0],{'cpus':1.0},wasm_binary=wasm_file.read(),environment=env)
+    print("Running task with environment:")
+    print(env)
+    framework.runTask(args.client + ':' + "SensorSample",wasm_agents[0][0],{'cpus':1.0},wasm_binary=wasm_file.read(),environment=env)
     print("Started sensor task on agent: {}".format(wasm_agents[0][0]))
 
 if __name__ == '__main__':  # pragma: no cover

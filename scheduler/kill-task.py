@@ -6,7 +6,7 @@ import pydig
 from scheduler_library import Framework
 
 def main(host, port, taskId, all):  # pragma: no cover
-	framework = Framework("Kill Framework", host, port)
+    framework = Framework("Kill Framework", host, port)
     if all == True:
     	framework.killAllTasks()
     else:

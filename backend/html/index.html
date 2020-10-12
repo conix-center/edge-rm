@@ -583,6 +583,7 @@ function updateAll() {
 
 
 var agentName = {};
+var sensor_server_running = false;
 
 function loadTasks(){
   var xmlHttp = new XMLHttpRequest();
@@ -594,6 +595,7 @@ function loadTasks(){
       } else {
         var tableHTML = "<table style='font-size:85%;'><tr><th>Task Name</th><th>Task ID</th><th>Assigned Agent</th><th>Framework</th><th>Type</th><th>Image</th><th>State</th></tr>"
         var cnt = 0;
+        sensor_server_running = false;
         for(var i =0; i<resp.length;i++) {
           var task = resp[i];
           if ((task.state != "KILLED" && task.state != "COMPLETED") || task.name.startsWith(clientID)) {
@@ -602,6 +604,10 @@ function loadTasks(){
             var task_name = task.name
             if(task.name.startsWith(clientID)) {
               task_name = task_name.replace(clientID, "@me")
+            }
+            
+            if(task.name.endsWith("SensorServer") && task.state == "RUNNING") {
+              sensor_server_running = true;
             }
 
             tableHTML += `${tr_case}<td>${task_name}</td><td>${task.taskId}</td><td>${agentName[task.agentId]}</td><td>${task.framework.name}</td><td>${task.container.type}</td><td>${task.container.docker ? task.container.docker.image : ""}</td><td>${task.state}</td></tr>`
@@ -632,29 +638,33 @@ function loadID() {
 loadID();
 
 function loadSensorPredictions(){
-  var xmlHttp = new XMLHttpRequest();
-  xmlHttp.onreadystatechange = function () {
-    if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-      var resp = JSON.parse(xmlHttp.responseText);
-      if(resp.error) {
-        //Leave it
-        //document.getElementById('sensordata').innerHTML = ''
-      } else if(resp.length < 0) {
-        //document.getElementById('sensordata').innerHTML = 'Not ready yet'
-      } else {
-        var cnt = 0;
-        var pText = "<p style='font-size:40%;font-family:monospace;margin-left:3px'>";
-        for(var i =0; i < resp.length; i++) {
-          pText += resp[i];
-          pText += "<br>";
+  if(sensor_server_running) {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function () {
+      if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+        var resp = JSON.parse(xmlHttp.responseText);
+        if(resp.error) {
+          //Leave it
+          //document.getElementById('sensordata').innerHTML = ''
+        } else if(resp.length < 0) {
+          //document.getElementById('sensordata').innerHTML = 'Not ready yet'
+        } else {
+          var cnt = 0;
+          var pText = "<p style='font-size:40%;font-family:monospace;margin-left:3px'>";
+          for(var i =0; i < resp.length; i++) {
+            pText += resp[i];
+            pText += "<br>";
+          }
+          pText += "</p>"
+          document.getElementById('sensordata').innerHTML = pText;
         }
-        pText += "</p>"
-        document.getElementById('sensordata').innerHTML = pText;
-      }
-    } 
+      } 
+    }
+    xmlHttp.open("GET", '/sensorPredictions', true);
+    xmlHttp.send(null);
+  } else {
+    console.log("Sensor server not running");
   }
-  xmlHttp.open("GET", '/sensorPredictions', true);
-  xmlHttp.send(null);
 }
 loadSensorPredictions();
 
