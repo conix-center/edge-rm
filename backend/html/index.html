@@ -41,36 +41,44 @@ tr:nth-child(even) {
   font-family:Arial;
 }
 
-.leftclass {
-  float: left;
-  width: 70%;
-}
 .topleftclass {
   float: left;
-  height: 220px;
+  height: 240px;
   border-width:1px;
   border-style:solid;
   border-color:grey;
   border-radius:10px;
+  margin-top:10px;
   margin-left:0.5%;
   margin-right:0.3%;
+  min-width:560px;
   width: 49%;
 }
 .toprightclass {
-  float: right;
-  height: 220px;
+  float: left;
+  height: 240px;
   border-width:1px;
   border-style:solid;
   border-color:grey;
   border-radius:10px;
+  margin-top:10px;
   margin-left:0.3%;
   margin-right:0.5%;
   margin-bottom:20px;
+  min-width:560px;
   width: 49%;
 }
+
+.leftclass {
+  float: left;
+  width: 70%;
+  min-width:700px;
+}
+
 .rightclass {
-  float: right;
+  float: left;
   margin-right:7px;
+  min-width:350px;
   width: 29%;
 }
 
@@ -87,14 +95,27 @@ tr:nth-child(even) {
 .predictions {
   margin: 0 auto;
   margin-top:10px;
+  margin-bottom:10px;
   height: 100%;
   width: 90%;
-  max-height: 200px;
+  max-height: 220px;
   max-width: 200px;
-  border-width:0.5px;
-  border-style:dotted;
+  overflow: auto;
+}
+
+.predictionsSensor {
+  margin: 0 auto;
+  margin-top:10px;
+  margin-bottom:10px;
+  height: 100%;
+  width: 90%;
   border-color:grey;
-  border-radius:5px;
+  border-style:dotted;
+  border-width:1px;
+  border-radius:3px;
+  max-height: 220px;
+  max-width: 200px;
+  overflow: auto;
 }
 
 /* D3 styles */
@@ -119,7 +140,6 @@ svg {
 
 <!---<h1>Edge Resource Manager Demo</h1>-->
 <!-- Div for camera framework UI -->
-<div style='min-width: 1120px;'>
 <div class="topleftclass">
 
   <div class="innerleftclass">
@@ -137,6 +157,8 @@ svg {
 
   <div class="innerrightclass">
     <div id='predictions' class='predictions'>
+      <div id='predictionsImage'></div>
+      <div id='predictionsTable' style=width:100%"></div>
     </div>
   </div>
 
@@ -149,15 +171,37 @@ svg {
     <h3 class='frameworkheaders'>Sensor Framework</h2>
 
     <p style='font-size:80%;margin-left:7px;margin-top:10px;margin-bottom:15px'>When a job is submitted to the sensor framework it
-    sends one WASM task to the sensor which runs for three minutes, sampling results as specified below. Another
-    task is hosted on a server with a public IP to store the results.
-    When you submit a job you will see your tasks (highlighted in green) starting in the task list
+    sends one WASM task to the sensor which samples results for three minutes. Another
+    task is launched on a server with a public IP to store these results.
+    When you submit a job, you will see your tasks (highlighted in green) starting in the task list
     below, and eventually you will see sensor results to the right.</p>
-    <button onclick="submitSensor()" id="sensorsubmit" style="margin-left:7px" >Submit Job</>
+    <div style="margin-left:7px">
+    <label for="sensor">Sense </label>
+    <select name="sensor" id="sensorselect">
+      <option value="temperature">Temperature</option>
+      <option value="humidity">Humidity</option>
+      <option value="pressure">Pressure</option>
+    </select>
+    <label for="period"> every </label>
+    <input type="text" id="period" name="period" style="width:30px">
+    <label for="period"> seconds</label>
+    <label for="period">and send back</label>
+    <select name="filter" id="filterfunction" style="margin-top:7px">
+      <option value="all">all values</option>
+      <option value="greater">values greater than</option>
+      <option value="less">values less than</option>
+    </select>
+    <input type="text" id="filtervalue" name="filtervalue" style="width:30px;visibility:hidden;">
+    <label for="filtervalue" id="units" style="visibility:hidden;">&deg;C</label>
+
+    </div>
+
+    <button onclick="submitSensor()" id="sensorsubmit" style="margin-left:7px;margin-top:20px" >Submit Job</button>
+      <p id='sensorStateError'></p>
   </div>
 
   <div class="innerrightclass">
-    <div id='predictions' class='predictions'>
+    <div id='sensordata' class='predictionsSensor'>
     </div>
   </div>
 </div>
@@ -548,7 +592,6 @@ function loadTasks(){
         }
         tableHTML += "</table>"
         document.getElementById('tasks').innerHTML = tableHTML
-        document.getElementById('numtasks').innerHTML = `${cnt} Tasks`
       }
     } 
   }
@@ -576,22 +619,20 @@ function loadPredictions(){
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
       var resp = JSON.parse(xmlHttp.responseText);
       if(resp.error) {
-        document.getElementById('predictions').innerHTML = ''
-        document.getElementById('appoutput').innerHTML = ''
+        document.getElementById('predictionsTable').innerHTML = ''
+        document.getElementById('predictionsImage').innerHTML = ''
       } else if(resp.length < 0) {
-        document.getElementById('appoutput').innerHTML = 'Latest Camera Frame Prediction'
-        document.getElementById('predictions').innerHTML = 'not ready yet'
+        document.getElementById('predictionsImage').innerHTML = 'Not ready yet'
       } else {
-        document.getElementById('appoutput').innerHTML = 'Latest Camera Frame Prediction'
-        var tableHTML = "<table><tr><th>Prediction</th><th>Confidence</th></tr>"
+        document.getElementById('predictionsImage').innerHTML = `<img src="http://conixdb.com:3003/${clientID}-predictions.jpg" alt="Latest image" width=100%>`
+        var tableHTML = "<table style='font-size:10px'><tr style='padding:2px'><th style='padding:2px'>Prediction</th><th style='padding:2px'>Confidence</th></tr>"
         var cnt = 0;
         for(var i =0; i<resp[0].objects.length;i++) {
           var prediction = resp[0].objects[i];
-            tableHTML += `<tr><td>${prediction.name}</td><td>${prediction.confidence}</td></tr>`
+            tableHTML += `<tr><td style='padding:2px'>${prediction.name}</td><td style='padding:2px'>${prediction.confidence}</td></tr>`
         }
         tableHTML += "</table>"
-        document.getElementById('predictions').innerHTML = resp[0].objects.length > 0 ? tableHTML : ''
-        document.getElementById('predictions').innerHTML += `<img src="http://conixdb.com:3003/${clientID}-predictions.jpg" alt="Latest image">`
+        document.getElementById('predictionsTable').innerHTML = resp[0].objects.length > 0 ? tableHTML : ''
       }
     } 
   }
@@ -604,6 +645,7 @@ function submitCamera() {
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function () {
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      console.log(xmlHttp.responseText)
       var resp = JSON.parse(xmlHttp.responseText);
     } 
   }
@@ -678,6 +720,26 @@ setInterval(function() {
   loadPredictions();
   loadTasks();
 }, 1000)
+
+document.getElementById('filterfunction').onchange = function() {
+  if(this.value == "all"){
+    document.getElementById('filtervalue').style.visibility='hidden';
+    document.getElementById('units').style.visibility='hidden';
+  } else {
+    document.getElementById('filtervalue').style.visibility='visible';
+    document.getElementById('units').style.visibility='visible';
+  }
+};
+
+document.getElementById('sensorselect').onchange = function() {
+  if(this.value == "temperature"){
+    document.getElementById('units').innerHTML='&deg;C'
+  } else if (this.value =='humidity') {
+    document.getElementById('units').innerHTML='% RH'
+  } else if (this.value =='pressure') {
+    document.getElementById('units').innerHTML='Kpa'
+  }
+};
 </script>
 
 </body>
