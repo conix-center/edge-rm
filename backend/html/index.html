@@ -34,13 +34,20 @@ tr:nth-child(even) {
   background-color: #f7a9a3 !important;
 }
 
+.leftclass {
+  float: left;
+}
+.rightclass {
+  float: right;
+}
+
 /* D3 styles */
 svg {
   /*flex-basis: 100%;*/
   /*min-width: 400px;*/
   /*width: 100%;*/
-  width: 800px;
-  height: 250px;
+  width: 900px;
+  height: 300px;
 }
 .links line {
   stroke: #aaa;
@@ -71,9 +78,16 @@ svg {
 
 <p id='tasks'></p>
 
-<h3 id='numagents'></h3>
+<!---<h3 id='numagents'></h3> -->
+<!-- I think these would look better side to side -->
+<div>
+<div class="leftclass">
 <svg></svg>
+</div>
+<div class="rightclass">
 <p id='agents'></p>
+</div>
+</div>
 
 
 <h3 id='appoutput'></h3>
@@ -361,7 +375,7 @@ function sendMessage(from, to, circleToUse) {
   //add a new message to the circleQueue for this particular circle
   circleQueue[circleToUse].push([0,from,-10,-10,to,-10,-10])
   if(!circleTickInterval) {
-    circleTickInterval = setInterval(circleTick, 10)
+    circleTickInterval = setInterval(circleTick, 20)
   }
 }
 
@@ -411,7 +425,7 @@ function loadTasks(){
       if(resp.error) {
         document.getElementById('tasks').innerHTML = resp.error.toString();
       } else {
-        var tableHTML = "<table><tr><th>Task Name</th><th>Assigned Agent</th><th>Framework</th><th>Type</th><th>Image</th><th>State</th></tr>"
+        var tableHTML = "<table style='font-size:85%'><tr><th>Task Name</th><th>Task ID</th><th>Assigned Agent</th><th>Framework</th><th>Type</th><th>Image</th><th>State</th></tr>"
         var cnt = 0;
         for(var i =0; i<resp.length;i++) {
           var task = resp[i];
@@ -423,7 +437,7 @@ function loadTasks(){
               task_name = task_name.replace(clientID, "@me")
             }
 
-            tableHTML += `${tr_case}<td>${task_name}</td><td>${agentName[task.agentId]}</td><td>${task.framework.name}</td><td>${task.container.type}</td><td>${task.container.docker ? task.container.docker.image : ""}</td><td>${task.state}</td></tr>`
+            tableHTML += `${tr_case}<td>${task_name}</td><td>${task.taskId}</td><td>${agentName[task.agentId]}</td><td>${task.framework.name}</td><td>${task.container.type}</td><td>${task.container.docker ? task.container.docker.image : ""}</td><td>${task.state}</td></tr>`
             cnt += 1
           }
         }
@@ -508,7 +522,7 @@ function loadAgents() {
       if(resp.error) {
         document.getElementById('agents').innerHTML = resp.error.toString();
       } else {
-        var tableHTML = "<table><tr><th>Agent Name</th><th>Agent ID</th><th>Time Since Last Ping</th></tr>"
+        var tableHTML = "<table style='font-size:75%'><tr><th>Agent Name</th><th>Agent ID</th><th>Time Since<br/>Last Ping</th></tr>"
         for(var i =0; i<resp.length;i++) {
           var agent = resp[i];
           if(((Date.now() - agent.lastPing)/1000) < (agent.pingRate/1000)*3) {
