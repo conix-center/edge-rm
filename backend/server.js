@@ -243,7 +243,7 @@ app.get('/sensorPredictions', function(req, res) {
 		req2.on('response', function(res) {
 			try {
 				jData = JSON.parse(String(res.payload))
-			} catch {
+			} catch (error) {
 				callback(null,data);
 				return;
 			}
