@@ -145,6 +145,33 @@ class Framework:
       r.append((offer.agent_id,offer))
     return r
 
+  def killTask(self, taskId):
+    tasks = self.getTasks()
+    for task in tasks:
+      if task['taskId'] == taskId and taskId is not None:
+        # construct message
+        wrapper = messages_pb2.WrapperMessage()
+        wrapper.type = messages_pb2.WrapperMessage.Type.KILL_TASK
+        wrapper.kill_task.name = task['name']
+        wrapper.kill_task.task_id = task['taskId']
+        wrapper.kill_task.agent_id = task['agentId']
+        wrapper.kill_task.framework.name = task['framework']['name']
+        wrapper.kill_task.framework.framework_id = task['framework']['frameworkId']
+        print(wrapper)
+        request_payload = wrapper.SerializeToString()
+        ct = {'content_type': defines.Content_types["application/octet-stream"]}
+        response = self.client.post('kill', request_payload, timeout=2, **ct)
+        if response:
+            wrapper = messages_pb2.WrapperMessage()
+            wrapper.ParseFromString(response.payload)
+            print("Kill task issued!")
+            return
+        else:
+            print("Couldn't issue kill task... ?")
+            return
+
+    print("Did not find task")
+
   def runTask(self, taskName, agent, resources, docker_image=None, wasm_binary=None, docker_port_mappings=None, environment=None):
     # construct message
     wrapper = messages_pb2.WrapperMessage()
