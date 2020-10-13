@@ -19,7 +19,7 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
         server_agents = framework.findAgents({'domain':None,'cpus':0.5,'mem':100000})
 
         if len(server_agents) == 0:
-            print("Could not find a valid agent for sensor server")
+            print("No available server agents.", file=sys.stderr)
             return
 
 
@@ -68,13 +68,13 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
         env['SENSOR'] = 'humidity'
         sensor_name = "humidity_sensor"
     else:
-        print("Not a valid sensor")
+        print("Not a valid sensor.",file=sys.stderr)
         return
 
     #Find a wasm agent
     wasm_agents = framework.findAgents({'executors':'WASM','cpus':1.0,sensor_name:None})
     if(len(wasm_agents) == 0):
-        print("Could not find wasm agent")
+        print("No available sensor agents.",file=sys.stderr)
         return
 
     # Run the WASM task

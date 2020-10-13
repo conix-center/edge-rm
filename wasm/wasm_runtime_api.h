@@ -15,7 +15,7 @@ int waMQTTSNReg(char *topicName);
 int waCoapPost(char* ipv4Address, int port, char* path, char* sendBuf, int sendBufLen);
 
 // Sensor read functions
-float waReadSensor(char* attr);
+float waReadSensor(char* attr, char* result, int len);
 
 // Timing functions
 int waGetCycles(void);

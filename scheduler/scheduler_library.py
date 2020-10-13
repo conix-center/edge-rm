@@ -115,9 +115,10 @@ class Framework:
                 if resource.scalar.value >= offer_filters[fkey]:
                   found_resource = True
                   break
-              elif resource.device:
+              elif resource.device.device:
                 found_resource = True
                 break
+
 
           for attribute in offer.attributes:
             if attribute.name == fkey:
