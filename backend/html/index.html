@@ -226,7 +226,7 @@ svg {
   </div>
 
   <div class="innerrightclass">
-    <div id='sensordata' class='predictionsSensor'>
+    <div id='sensordata' class='predictionsSensor' onscroll="onScrolled()">
     </div>
   </div>
 </div>
@@ -643,6 +643,30 @@ function loadID() {
   xmlHttp.send(null);
 }
 loadID();
+
+var scrolled = false;
+function updateScroll() {
+
+  if(!scrolled) {
+    var element = document.getElementById("sensordata");
+    element.scrollTop = element.scrollHeight;
+  }
+
+}
+
+function onScrolled() {
+    console.log("scrolled:");
+    var element = document.getElementById("sensordata");
+    if(element.scrollTop == element.scrollHeight) {
+      console.log("true");
+      scrolled = false;
+    } else {
+      scrolled = true;
+    }
+}
+
+//once a second
+setInterval(updateScroll,300);
 
 function loadSensorPredictions(){
   if(sensor_server_running) {
