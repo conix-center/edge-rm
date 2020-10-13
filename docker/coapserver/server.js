@@ -41,7 +41,16 @@ server.on('request', function(req, res) {
           }
         }
 
-        res.end(JSON.stringify(r));
+
+        //Only return the last 30 items to stay below the packet limit
+        var f;
+        if(r.length > 30) {
+          f = r.slice(r.length-30);
+        } else {
+          f = r;
+        }
+
+        res.end(JSON.stringify(f));
 
       })
     } else {
