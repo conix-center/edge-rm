@@ -259,7 +259,7 @@ void printFloat(wasm_exec_env_t exec_env, float f)
 	k_sleep(Z_TIMEOUT_MS(50));
 }
 
-float waReadSensor(wasm_exec_env_t exec_env, char* attr)
+float waReadSensor(wasm_exec_env_t exec_env, char* attr, char* result, int len)
 {
       struct sensor_value temp, press, humidity;
       float t,p,h;
@@ -284,7 +284,7 @@ float waReadSensor(wasm_exec_env_t exec_env, char* attr)
 	 h=humidity.val1+humidity.val2/1000000.0;
 	 k_sleep(K_MSEC(50));
 	 printk("Got humidity: %d\n",(int)h);
-
+	 sprintf(result,"%d",(int)h);
 	 return h;
       } else if(strcmp(attr, "press") == 0) {
 	 sensor_channel_get(dev, SENSOR_CHAN_PRESS, &press);
@@ -292,7 +292,7 @@ float waReadSensor(wasm_exec_env_t exec_env, char* attr)
 	 p=press.val1+press.val2/1000000.0;
 	 k_sleep(K_MSEC(50));
 	 printk("Got pressure: %d\n",(int)p);
-
+	 sprintf(result,"%d",(int)p);
 	 return p;
      } else if(strcmp(attr, "temp") == 0) {
 	 sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &temp);
@@ -300,7 +300,7 @@ float waReadSensor(wasm_exec_env_t exec_env, char* attr)
 	 t=temp.val1+temp.val2/1000000.0;
 	 k_sleep(K_MSEC(50));
 	 printk("Got temperature: %d\n",(int)t);
-
+	 sprintf(result,"%d",(int)t);
 	 return t;
      } else {
 	return -1.0;

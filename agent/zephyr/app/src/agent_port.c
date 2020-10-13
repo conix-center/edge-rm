@@ -43,7 +43,11 @@ void agent_port_coap_send(const char* destination, uint16_t port, char* path, ui
    //Clear the receive buffer
    uint8_t ret_code = 0;
    uint16_t ret_len = 0;
-   process_coap_reply(100, &ret_code, NULL, &ret_len);
+
+   int ret = 1;
+   for(uint8_t i = 0; i < 100 && ret >= 0; i++) {
+      ret = process_coap_reply(100, &ret_code, NULL, &ret_len);
+   } 
 
    //Send the packet
    send_coap_request(destination, port, path, payload, len);
@@ -56,7 +60,7 @@ void agent_port_coap_send(const char* destination, uint16_t port, char* path, ui
    }
 
    //Wait for the response
-   int ret = process_coap_reply(10000, &ret_code, recv_payload, &ret_len);
+   ret = process_coap_reply(10000, &ret_code, recv_payload, &ret_len);
    if (ret < 0) {
       LOG_ERR("Got error return code %d", ret);
       k_free(recv_payload);

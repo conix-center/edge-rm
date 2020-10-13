@@ -117,7 +117,7 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
         //EXPORT_WASM_API_WITH_SIG(waMQTTSNReg,"($)i"),
         //EXPORT_WASM_API_WITH_SIG(waMQTTSNPub,"($ii)"),
         //EXPORT_WASM_API_WITH_SIG(waMQTTSNSub,"(i$)"),
-        EXPORT_WASM_API_WITH_SIG(waReadSensor,"($)f"),
+        EXPORT_WASM_API_WITH_SIG(waReadSensor,"($*~)f"),
         EXPORT_WASM_API_WITH_SIG(printString,"($)"),
         EXPORT_WASM_API_WITH_SIG(printInt,"(i)"),
         EXPORT_WASM_API_WITH_SIG(printFloat,"(f)"),

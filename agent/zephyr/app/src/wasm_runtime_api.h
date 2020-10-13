@@ -16,7 +16,7 @@ int waMQTTSNReg(wasm_exec_env_t exec_env, char *topicName);
 int waCoapPost(wasm_exec_env_t exec_env, char* ipv4Address, int port, char* path, char* sendBuf, int sendBufLen);
 
 // Sensor read functions
-float waReadSensor(wasm_exec_env_t exec_env, char* attr);
+float waReadSensor(wasm_exec_env_t exec_env, char* attr, char* result, int len);
 
 // Timing functions
 int waGetCycles(wasm_exec_env_t exec_env);

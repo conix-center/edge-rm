@@ -153,7 +153,7 @@ int process_coap_reply(uint32_t timeout_ms, uint8_t* return_code, uint8_t* recv_
 	if (rcvd < 0) {
 		if (errno == EAGAIN || errno == EWOULDBLOCK) {
 			LOG_ERR("EAGAIN/EWOULDBLOCK");
-			ret = 0;
+			ret = -errno;
 		} else {
 			ret = -errno;
 		}

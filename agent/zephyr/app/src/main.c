@@ -46,6 +46,7 @@ LOG_MODULE_REGISTER(net_echo_client_sample, LOG_LEVEL_DBG);
 #include "bh_log.h"
 #include "test_wasm.h"
 
+#include "config.h"
 #include "agent_library.h"
 
 /*static void on_thread_state_changed(uint32_t flags, void *context)
@@ -86,6 +87,6 @@ void main(void)
     //openthread_start(openthread_get_default_context());
 
     // Initialize the  agent code
-    agent_init("128.97.92.77");
+    agent_init(MASTER_IP);
     agent_start(60);
 }

@@ -9,7 +9,7 @@ int main(int argc, char *argv[]){
     waGetEnvironmentInt("PORT", &port, 1);
 
     char path[20];
-    waGetEnvironmentString("PATH", path, 10);
+    waGetEnvironmentString("PATH", path, 20);
 
     char sensor[10];
     waGetEnvironmentString("SENSOR", sensor, 10);
@@ -24,19 +24,22 @@ int main(int argc, char *argv[]){
     waGetEnvironmentInt("FILT_VAL", &fval, 1);
 
     int m = waGetMs();
-    while(waGetMs() - m < 180000) {
+    char sResult[20];
+    int l;
+    float f;
+    while(waGetMs() - m < 120000) {
         waDelayMs(period*1000);
-        float f = waReadSensor(sensor);
+        f = waReadSensor(sensor, sResult, 20);
         if(filt[0] == 'G') {
             if(f > fval) {
-                waCoapPost(ip, port, path, (char*)&f, 4);
+                waCoapPost(ip, port, path, sResult, 20);
             }
         } else if (filt[0] == 'L') {
             if(f < fval) {
-                waCoapPost(ip, port, path, (char*)&f, 4);
+                waCoapPost(ip, port, path, sResult, 20);
             }
         } else {
-            waCoapPost(ip, port, path, (char*)&f, 4);
+            waCoapPost(ip, port, path, sResult, 20);
         }
     }
 
