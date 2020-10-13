@@ -676,10 +676,15 @@ function loadSensorPredictions(){
 }
 loadSensorPredictions();
 
+var previousPredictions = "";
 function loadPredictions(){
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function () {
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      if(previousPredictions == xmlHttp.responseText) {
+        return;
+      }
+      previousPredictions = xmlHttp.responseText;
       var resp = JSON.parse(xmlHttp.responseText);
       if(resp.error) {
         document.getElementById('predictionsTable').innerHTML = ''
