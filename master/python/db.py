@@ -71,6 +71,15 @@ def get_tasks_by_agent(agent_id):
             tasks_by_agent.append(task)
 
     return tasks_by_agent
+
+def get_all_pending_tasks_by_agent(agent_id):
+    tasks_by_agent = []
+    for task_id, task in tasks.items():
+        if task.agent_id == agent_id and (task.state == messages_pb2.TaskInfo.TaskState.UNISSUED or task.state == messages_pb2.TaskInfo.TaskState.ISSUED):
+            tasks_by_agent.append(task)
+
+    return tasks_by_agent
+ 
     
 def get_next_unissued_task_by_agent(agent_id):
     # first, focus on unissued tasks

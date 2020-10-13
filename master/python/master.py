@@ -71,8 +71,9 @@ class RequestOfferResource(Resource):
         #first, clear any agents that have dropped off
         db.clear_stale_agents()
 
-        #construct resource offer
+        #construct resource offer subtracting the resources of any tasks in the task queue
         print("\nGot resource offer request! Framework \"" + framework_id + "\"\n")
+
         #currently just giving the framework everything we got
         wrapper = messages_pb2.WrapperMessage()
         wrapper.type = messages_pb2.WrapperMessage.Type.RESOURCE_OFFER
@@ -82,8 +83,21 @@ class RequestOfferResource(Resource):
             offer.id = db.get_offer_id()
             offer.framework_id = framework_id
             offer.agent_id = agent.id
-            offer.resources.extend(agent.resources)
             offer.attributes.extend(agent.attributes)
+            
+            offer.resources.extend(agent.resources)
+
+            #get pending tasks for agent to subract pending resources
+            pending = db.get_all_pending_tasks_by_agent(agent.id)
+
+            #currently only do this for scalars
+            for resource in offer.resources:
+                for task in pending:
+                    for tresource in task.resources:
+                        if resource.name == tresource.name:
+                            if resource.scalar.value and tresource.scalar.value:
+                                resource.scalar.value -= tresource.scalar.value
+
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
         response.content_type = defines.Content_types["application/octet-stream"]
