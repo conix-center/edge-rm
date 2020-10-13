@@ -476,19 +476,7 @@ var startY = 0;
 var endX = 0;
 var endY = 0;
 var circleQueue = []
-focus = false;
 function circleTick() {
-
-  if(document.hasFocus()) {
-    if(!focus) {
-      circleQueue = [];
-    }
-
-    focus = true;
-  } else {
-    focus = false;
-  }
-
   for(var i = 0; i < circleQueue.length; i++) {
     var circle = circles[i];
     var cQ = circleQueue[i];
@@ -504,16 +492,24 @@ function circleTick() {
       var toID = cQ[0][4]
 
       //update start and end coords
-      node.attr("cx", function(d) {
-        if(d.id == fromID) {
-          cQ[0][2] = d.x;
-          cQ[0][3] = d.y;
-        } else if (d.id == toID) {
-          cQ[0][5] = d.x;
-          cQ[0][6] = d.y;
-        }
-        return d.x;
-      })
+      //only if we're focused on screen, otherwise just leave it off screen
+      if(document.hasFocus()) {
+        node.attr("cx", function(d) {
+          if(d.id == fromID) {
+            cQ[0][2] = d.x;
+            cQ[0][3] = d.y;
+          } else if (d.id == toID) {
+            cQ[0][5] = d.x;
+            cQ[0][6] = d.y;
+          }
+          return d.x;
+        })
+      } else {
+        cQ[0][2] = -10
+        cQ[0][3] = -10
+        cQ[0][5] = -10
+        cQ[0][6] = -10
+      }
 
       //extract update start/end coords
       var startX = cQ[0][2]
@@ -526,15 +522,12 @@ function circleTick() {
       circle.attr('cy', Math.abs(100 - cnt) * startY / 100 + (100 - Math.abs(100 - cnt)) * endY / 100);
 
       if(cnt < 100) {
-        //increment the count
-        if(focus) {
-          cQ[0][0] += 5
-        } else {
-          cQ[0][0] += 100
-        }
+        cQ[0][0] += document.hasFocus() ? 6 : 100
       } else {
         cQ[0][2] = -10
         cQ[0][3] = -10
+        cQ[0][5] = -10
+        cQ[0][6] = -10
       }
     }
   }
@@ -811,6 +804,12 @@ function loadAgents() {
   xmlHttp.onreadystatechange = function () {
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
       var resp = JSON.parse(xmlHttp.responseText);
+      sendMessage("CameraFramework", "Master", 0);
+      sendMessage("Master", "CameraFramework", 0);
+      sendMessage("CameraFramework", "Me", 0);
+      sendMessage("SensorFramework", "Master", 1);
+      sendMessage("Master", "SensorFramework", 1);
+      sendMessage("SensorFramework", "Me", 1);
       if(resp.error) {
         document.getElementById('agents').innerHTML = resp.error.toString();
       } else {
@@ -822,9 +821,6 @@ function loadAgents() {
           } else if(((Date.now() - agent.lastPing)/1000) < (agent.pingRate/1000)*10) {
             tableHTML += `<tr class="badagent" ><td>${agent.name}</td><td>${agent.id}</td><td>${((Date.now() - agent.lastPing)/1000).toFixed(0)}s</td></tr>`
           }
-
-
-
           agentName[agent.id] = agent.name;
 
           //check if there's a new ping
@@ -846,13 +842,7 @@ loadAgents();
 
 setInterval(function() {
   sendMessage("Me", "CameraFramework", 0);
-  sendMessage("CameraFramework", "Master", 0);
-  sendMessage("Master", "CameraFramework", 0);
-  sendMessage("CameraFramework", "Me", 0);
   sendMessage("Me", "SensorFramework", 1);
-  sendMessage("SensorFramework", "Master", 1);
-  sendMessage("Master", "SensorFramework", 1);
-  sendMessage("SensorFramework", "Me", 1);
   loadAgents();
   loadPredictions();
   loadSensorPredictions();
