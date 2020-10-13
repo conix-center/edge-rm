@@ -146,14 +146,16 @@ svg {
     <h3 class='frameworkheaders'>Camera Framework</h2>
 
     <p style='font-size:75%;margin-left:7px;margin-top:10px;margin-bottom:15px'>
-    1) User clicks submit job<br>
-    2) Framework sends server task to agent with public IP if not running<br>
-    3) Framework configures and sends classification task to available Docker agent<br>
-    4) Framework configures and sends camera task to agent with a camera<br>
-    5) Camera task fetches image and posts it to your unique path on the server<br>
-    6) Classification task polls server for image, then posts results<br>
-    7) This webpage polls the server for image and classification results<br>
-    <br> 
+    1) User specifies camera and clicks submit job<br>
+    2) Framework configures and launches three tasks:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;1. Server task (if not already running)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;2. Camera task on specified device<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;3. Classification task on available agent<br>
+    3) These tasks perform the following actions:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;1. Camera task fetches image and uploads to server<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;2. Classification task performs object detection on image<br>
+    4) The object detection results are then displayed on the right -><br>
+    <br>
     This demonstrates: <br>
     - Ability to coordinate resources across NATs<br>
     - Ability to aggregate and use device resources<br>
@@ -163,9 +165,7 @@ svg {
       <select name="camera" id="cameraselect">
         <option value="202481596976831">raspberrypi</option>
       </select> camera
-      <div style="margin-top: 7px;">
         <button onclick="submitCamera()" id="camerasubmit" style="margin-left:7px" >Submit Job</button>
-      </div>
       <p id="cameraError" style="color:red;"></p>
     </div>
   </div>
