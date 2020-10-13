@@ -720,7 +720,8 @@ function loadPredictions(){
       } else if(resp.length < 0) {
         document.getElementById('predictionsImage').innerHTML = 'Not ready yet'
       } else {
-        document.getElementById('predictionsImage').innerHTML = `<img src="http://conixdb.com:3003/${clientID}-predictions.jpg" alt="Latest image" width=100%>`
+        var randEnd = Math.floor(Math.random() * 10000000000)
+        document.getElementById('predictionsImage').innerHTML = `<img src="http://conixdb.com:3003/${clientID}-predictions.jpg?${randEnd}" alt="Latest image" width=100%>`
         var tableHTML = "<table style='font-size:10px'><tr style='padding:2px'><th style='padding:2px'>Prediction</th><th style='padding:2px'>Confidence</th></tr>"
         var cnt = 0;
         for(var i =0; i<resp[0].objects.length;i++) {
