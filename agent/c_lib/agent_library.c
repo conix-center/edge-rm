@@ -40,6 +40,8 @@ static agent_task_t new_task;
 static uint8_t environment_idx = 0;
 static agent_task_t running_task;
 
+void agent_ping(void);
+
 void set_running_task_to_new_task(void) {
     //Does the current running task have some wasm allocated?
     if(running_task.wasm_binary != NULL) {
@@ -433,27 +435,38 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
                             if(success) {
                                 // Set the task state in the task struct
                                 running_task.state = TaskInfo_TaskState_RUNNING;
+
+                                //Send a ping immediately
+                                agent_ping();
                             } else {
                                 agent_port_print("RUNNING WASM task failed\n");
                                 running_task.state = TaskInfo_TaskState_ERRORED;
                                 running_task.error_message = "Failed to start WASM";
+                                //Send a ping immediately
+                                agent_ping();
                             }
                         } else {
                             agent_port_print("WASM task invalid\n");
                             new_task.state = TaskInfo_TaskState_ERRORED;
                             new_task.error_message = "Task Protobuf Invalid";
+                            //Send a ping immediately
+                            agent_ping();
                         }
                     } else {
                         // Set the task state and error message in the task struct
                         agent_port_print("Can't run task - task already running\n");
                         new_task.state = TaskInfo_TaskState_ERRORED;
                         new_task.error_message = "Insufficient Resources";
+                        //Send a ping immediately
+                        agent_ping();
                     }
                 } else {
                     // Set the task state and error message in the task struct
                     agent_port_print("Got docker task\n");
                     new_task.state = TaskInfo_TaskState_ERRORED;
                     new_task.error_message = "Invalid Executor";
+                    //Send a ping immediately
+                    agent_ping();
                 }
 
 
