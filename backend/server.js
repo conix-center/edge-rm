@@ -83,10 +83,14 @@ app.get('/start', jsonParser, function(req, res) {
 	if(!req.cookies['client']) {
 		return res.send("We couldn't find your client id... please go back and reload!");
 	}
+	var camera_to_use = "202481596976831"
+	if(req.query.cam) {
+		camera_to_use = req.query.cam
+	}
 
 	log.info("starting tasks")
 
-	const python = spawn('python3', ['../scheduler/scheduler.py', '--host', '128.97.92.77', '--tasks', 'tasks.json', '--client', req.cookies['client']])
+	const python = spawn('python3', ['../scheduler/scheduler.py', '--host', '128.97.92.77', '--tasks', 'tasks.json', '--client', req.cookies['client'], '--camera', camera_to_use])
 	var dataToSend = '';
 	python.stdout.on('data', function(data) {
 		//dataToSend += data.toString();
