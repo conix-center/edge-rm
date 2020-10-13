@@ -22,6 +22,11 @@ server.on('request', function(req, res) {
     if(fs.existsSync(pathToFile)) {
       res.code = 200
       res.setOption("Content-Format", "application/json");
+
+      res.on('error', function(error) {
+        console.log("response error!");
+      });
+
       fs.readFile(pathToFile, 'utf8', function(err, data) {
         if(err) {
           console.log("Error reading file");
