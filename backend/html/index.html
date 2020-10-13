@@ -418,7 +418,7 @@ function initializeDisplay() {
 
   // node tooltip
   node.append("title")
-      .text(function(d) { return d.name; });
+      .text(function(d) { return d.name + (d.resources ? "\n" + d.resources : ""); });
   // visualize the graph
   updateDisplay();
 }

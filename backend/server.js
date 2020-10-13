@@ -166,11 +166,23 @@ app.get('/network.json', function(req, res) {
 					})
 				}
 			}
+
+			var resources = ""
+			for (var j = 0; agents[i].resources && j < agents[i].resources.length; j++) {
+				var resource = agents[i].resources[j]
+				if (resource.scalar) {
+					resources += "\nResource: " + resource.name + " = " + resource.scalar.value 
+				} else if (resource.type == "DEVICE") {
+					resources += "\nDevice: " + resource.name 
+				}
+			}
+
 			//add the agent to the list of nodes
 			result['nodes'].push({
 				id: agents[i].id,
 				name: agents[i].name,
-				group: group_num
+				group: group_num,
+				resources: resources
 			})
 		}
 		//add the master, framework, and client
