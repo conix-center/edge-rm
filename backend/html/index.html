@@ -599,7 +599,7 @@ function loadTasks(){
         sensor_server_running = false;
         for(var i =0; i<resp.length;i++) {
           var task = resp[i];
-          if ((task.state != "KILLED" && task.state != "COMPLETED") || task.name.startsWith(clientID)) {
+          if ((task.state != "KILLED" && task.state != "COMPLETED" && task.state != "ERRORED") || task.name.startsWith(clientID)) {
 
             var tr_case = task.name.startsWith(clientID) ? '<tr class="mytask">' : "<tr>"
             var task_name = task.name
