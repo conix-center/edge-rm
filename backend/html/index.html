@@ -743,6 +743,7 @@ function submitCamera() {
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function () {
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      alert("Tasks submitted! Look for your tasks at the bottom of the page.")
       console.log(xmlHttp.responseText)
       var resp = xmlHttp.responseText;
       document.getElementById('cameraError').innerHTML = resp;
@@ -760,6 +761,7 @@ function submitSensor() {
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function () {
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      alert("Tasks submitted! Look for your tasks at the bottom of the page.")
       console.log(xmlHttp.responseText)
       var resp = xmlHttp.responseText;
       document.getElementById('sensorError').innerHTML = resp;
