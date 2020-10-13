@@ -707,7 +707,7 @@ function loadPredictions(){
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function () {
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-      if(previousPredictions == xmlHttp.responseText && predictionLoopCount >= 0 && predictionLoopCount < 15) {
+      if(previousPredictions == xmlHttp.responseText && predictionLoopCount >= 0 && predictionLoopCount < 60) {
         predictionLoopCount += 1;
         return;
       }
