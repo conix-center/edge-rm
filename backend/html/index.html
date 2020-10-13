@@ -677,14 +677,17 @@ function loadSensorPredictions(){
 loadSensorPredictions();
 
 var previousPredictions = "";
+var predictionLoopCount = -3;
 function loadPredictions(){
   var xmlHttp = new XMLHttpRequest();
   xmlHttp.onreadystatechange = function () {
     if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
-      if(previousPredictions == xmlHttp.responseText) {
+      if(previousPredictions == xmlHttp.responseText && predictionLoopCount >= 0 && predictionLoopCount < 15) {
+        predictionLoopCount += 1;
         return;
       }
       previousPredictions = xmlHttp.responseText;
+      predictionLoopCount = Math.min(0, predictionLoopCount+1);
       var resp = JSON.parse(xmlHttp.responseText);
       if(resp.error) {
         document.getElementById('predictionsTable').innerHTML = ''
