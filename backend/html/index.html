@@ -825,9 +825,9 @@ function loadAgents() {
         var tableHTML = "<table style='font-size:75%'><tr><th>Agent Name</th><th>Agent ID</th><th>Time Since<br/>Last Ping</th></tr>"
         for(var i =0; i<resp.length;i++) {
           var agent = resp[i];
-          if(((Date.now() - agent.lastPing)/1000) < (agent.pingRate/1000)*3) {
+          if(((Date.now() - agent.lastPing)/1000) < (agent.pingRate/1000)*3 + 10) {
             tableHTML += `<tr class="goodagent" ><td>${agent.name}</td><td>${agent.id}</td><td>${((Date.now() - agent.lastPing)/1000).toFixed(0)}s</td></tr>`
-          } else if(((Date.now() - agent.lastPing)/1000) < (agent.pingRate/1000)*10) {
+          } else if(((Date.now() - agent.lastPing)/1000) < (agent.pingRate/1000)*10 + 10) {
             tableHTML += `<tr class="badagent" ><td>${agent.name}</td><td>${agent.id}</td><td>${((Date.now() - agent.lastPing)/1000).toFixed(0)}s</td></tr>`
           }
           agentName[agent.id] = agent.name;
