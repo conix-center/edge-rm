@@ -28,7 +28,6 @@ int main(int argc, char *argv[]){
     int l;
     float f;
     while(waGetMs() - m < 120000) {
-        waDelayMs(period*1000);
         f = waReadSensor(sensor, sResult, 20);
         if(filt[0] == 'G') {
             if(f > fval) {
@@ -41,6 +40,8 @@ int main(int argc, char *argv[]){
         } else {
             waCoapPost(ip, port, path, sResult, 20);
         }
+
+        waDelayMs(period*1000);
     }
 
     return 0;
