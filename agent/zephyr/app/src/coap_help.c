@@ -40,8 +40,10 @@ static void wait(uint32_t timeout_ms)
 
 static void prepare_fds(void)
 {
+	nfds = 0;
 	fds[nfds].fd = sock;
 	fds[nfds].events = POLLIN;
+	nfds = 1;
 }
 
 bool convert_ipv4_ipv6(char* ipv4, char* ipv6) {

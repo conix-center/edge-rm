@@ -88,5 +88,5 @@ void main(void)
 
     // Initialize the  agent code
     agent_init(MASTER_IP);
-    agent_start(60);
+    agent_start(20);
 }
