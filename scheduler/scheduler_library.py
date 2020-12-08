@@ -95,7 +95,7 @@ class Framework:
   # offer filters is a dictionary of name:value or name:list of values
   def findAgents(self, offer_filters):
     offers = self.getOffers()
-   
+    print("Find Agents", offers)
     valid_offers = []
     for offer in offers:
       offer_valid = True
@@ -173,29 +173,13 @@ class Framework:
 
     print("Did not find task")
 
-  def killAllTask(self):
+  def killAllTasks(self):
     tasks = self.getTasks()
+    print(tasks)
     for task in tasks:
-        # construct message
-        wrapper = messages_pb2.WrapperMessage()
-        wrapper.type = messages_pb2.WrapperMessage.Type.KILL_TASK
-        wrapper.kill_task.name = task['name']
-        wrapper.kill_task.task_id = task['taskId']
-        wrapper.kill_task.agent_id = task['agentId']
-        wrapper.kill_task.framework.name = task['framework']['name']
-        wrapper.kill_task.framework.framework_id = task['framework']['frameworkId']
-        print(wrapper)
-        request_payload = wrapper.SerializeToString()
-        ct = {'content_type': defines.Content_types["application/octet-stream"]}
-        response = self.client.post('kill', request_payload, timeout=2, **ct)
-        if response:
-            wrapper = messages_pb2.WrapperMessage()
-            wrapper.ParseFromString(response.payload)
-            print("Kill task issued!")
-            return
-        else:
-            print("Couldn't issue kill task... ?")
-            return
+      if task['state'] != "KILLED":
+        print("Kill", task['taskId'])
+        self.killTask(task['taskId'])
 
   def runTask(self, taskName, agent, resources, docker_image=None, wasm_binary=None, docker_port_mappings=None, environment=None):
     # construct message
@@ -224,7 +208,7 @@ class Framework:
       # wrapper.run_task.task.resources.extend(resources_to_use)
       wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.DOCKER
       wrapper.run_task.task.container.docker.image = docker_image
-      wrapper.run_task.task.container.docker.network = messages_pb2.ContainerInfo.DockerInfo.Network.HOST
+      wrapper.run_task.task.container.docker.network = messages_pb2.ContainerInfo.DockerInfo.Network.BRIDGE
       for host_port, container_port in docker_port_mappings.items():
           port_mapping = wrapper.run_task.task.container.docker.port_mappings.add()
           port_mapping.host_port = host_port
