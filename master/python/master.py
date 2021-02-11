@@ -15,8 +15,9 @@ from coapthon import defines
 from coapthon.resources.resource import Resource
 
 import messages_pb2
-
 import db
+
+offer_timeout = None
 
 # TODO + NOTES:
 # Issue: What if the agent never pings to receive their task?
@@ -79,25 +80,61 @@ class RequestOfferResource(Resource):
         wrapper.type = messages_pb2.WrapperMessage.Type.RESOURCE_OFFER
         wrapper.offermsg.framework_id = framework_id
         for agent in db.get_all_agents():
-            offer = wrapper.offermsg.offers.add()
+            offer = messages_pb2.Offer()
             offer.id = db.get_offer_id()
             offer.framework_id = framework_id
             offer.agent_id = agent.id
             offer.attributes.extend(agent.attributes)
-            
             offer.resources.extend(agent.resources)
 
-            #get pending tasks for agent to subract pending resources
-            pending = db.get_all_pending_tasks_by_agent(agent.id)
+            #What are free resources?
+                # The amount of resources that are free
+                # plus the amount of resources currently being used <- how do we collect this one? for now ignore
+                # minus the amount of resources dedicated running or pending tasks
+                # minus the amount of resources that are currently in valid offers
 
-            #currently only do this for scalars
+            #get pending tasks for agent to subract pending resources
+            pending_tasks = db.get_all_pending_tasks_by_agent(agent.id)
+
+            #currently only do subtraction for scalars
             for resource in offer.resources:
-                for task in pending:
+                for task in pending_tasks:
                     for tresource in task.resources:
                         if resource.name == tresource.name:
                             if resource.scalar.value and tresource.scalar.value:
                                 resource.scalar.value -= tresource.scalar.value
 
+            pending_offers = db.get_offers_by_agent_id(agent.id)
+            
+            for resource in offer.resources:
+                for off in pending_offers:
+                    if time.time() < off.expiration_time:
+                        for tresource in off.resources:
+                            if resource.name == tresource.name:
+                                if resource.scalar.value and tresource.scalar.value:
+                                    resource.scalar.value -= tresource.scalar.value
+           
+            removal_indexes = []
+            for i, r in enumerate(offer.resources):
+                if r.scalar.value is not None and r.scalar.value <= 0.001:
+                    removal_indexes.append(i)
+
+            #removal_list
+            for index in sorted(removal_indexes, reverse=True):
+                del offer.resources[index]
+
+            #set the offer time
+            offer.offer_time = time.time()
+
+            #set the offer expiration
+            offer.expiration_time = time.time() + offer_timeout
+
+            #add the offer to the db
+            db.add_offer(offer.id, agent.id, offer)
+            
+            if len(offer.resources) > 0:
+                wrapper.offermsg.offers.append(offer)
+                
         response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
         response.content_type = defines.Content_types["application/octet-stream"]
@@ -134,6 +171,45 @@ class RunTaskResource(Resource):
             resource = wrapper.run_task.task.resources[i]
             print("        Resource: (" + resource.name + ") type: " + str(resource.type) + " amt: " + str(resource.scalar).strip())
 
+        # Verify that the RunTaskRequest is on an unexpired offer of the right resources and 
+        try:
+            offer = db.get_offer_by_offer_id(wrapper.run_task.offer_id)
+        except ValueError:
+            #offer_id invalid - send back bad response
+            response.payload = "Not a valid offer ID"
+            response.code = defines.Codes.BAD_REQUEST.number
+            response.content_type = defines.Content_types["application/octet-stream"]
+            return self, response
+
+        #unexpired
+        if time.time() > offer.expiration_time:
+            response.payload = "Offer expired"
+            response.code = defines.Codes.BAD_REQUEST.number
+            response.content_type = defines.Content_types["application/octet-stream"]
+            return self, response
+
+        #check for valid resources - just scalars for now
+        for tresource in wrapper.run_task.task.resources:
+            r = {x.name: (x.type, x.scalar,x.ranges,x.set,x.text,x.devic) for x in offer.resources}
+            if tresource.name not in r:
+                #resource doesn't exist - send error response
+                response.payload = "Resource not in offer"
+                response.code = defines.Codes.BAD_REQUEST.number
+                response.content_type = defines.Content_types["application/octet-stream"]
+                return self, response
+            elif tresource.type != r[tresource.name][0]:
+                #resource not the same type
+                response.payload = "Resource type doesn't match offer"
+                response.code = defines.Codes.BAD_REQUEST.number
+                response.content_type = defines.Content_types["application/octet-stream"]
+                return self, response
+            elif tresource.scalar.value and r[tresource.name][1].value and tresource.scalar.value > r[tresource.name][1].value:
+                #resource not the same type
+                response.payload = "Resource value exceeds offered value"
+                response.code = defines.Codes.BAD_REQUEST.number
+                response.content_type = defines.Content_types["application/octet-stream"]
+                return self, response
+                
         # TODO: Forward the request onto the particular device through a ping/pong
         db.add_task(wrapper.run_task)
 
@@ -290,7 +366,10 @@ if __name__ == "__main__":  # pragma: no cover
     parser.add_argument('--host', required=True, help='the LAN IP to bind to.')
     parser.add_argument('--port', required=False, default=5683, help='the local machine port to bind to.')
     parser.add_argument('--api-port', required=False, default=8080, help='the local machine port to bind to.')
+    parser.add_argument('--offer-timeout', required=False, default=10, help='Seconds after offer until the offer expires')
     args = parser.parse_args()
+
+    offer_timeout = args.offer_timeout
 
     #start API server in a thread
     api_server_thread = threading.Thread(target=start_api_server,args=(args.host,args.api_port,), daemon = True)
