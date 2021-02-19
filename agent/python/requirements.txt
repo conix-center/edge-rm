@@ -4,3 +4,4 @@ docker
 setuptools<=49.3.0
 humanfriendly
 pyyaml
+requests

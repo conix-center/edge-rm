@@ -14,15 +14,10 @@ import yaml
 import dockerhelper
 import socket
 import db
-coapPath = os.path.abspath("../../support/CoAPthon3")
-sys.path.insert(1, coapPath)
-
-from coapthon.client.helperclient import HelperClient
-from coapthon import defines
+import requests
 
 import messages_pb2
 
-client = None
 agent_id = str(uuid.getnode())
 agent_name = socket.gethostname()
 ping_rate = 1000 #ping every 1000ms
@@ -116,29 +111,30 @@ def updateTasks():
                 task.error_message = dockerhelper.getContainerLogs(task_id)
     db.save()
 
-def constructPing(wrapper, config):
+def constructPing(wrapper, config, verbose):
     wrapper.type = messages_pb2.WrapperMessage.Type.PING
     wrapper.ping.agent.ping_rate = ping_rate
     wrapper.ping.agent.id = agent_id
     wrapper.ping.agent.name = agent_name
 
     constructResources(wrapper.ping.agent.resources, config)
-    print("Resources")
-    print(wrapper.ping.agent.resources)
 
     #print all attributes
     constructAttributes(wrapper.ping.agent.attributes, config)
-    print("Attributes")
-    print(wrapper.ping.agent.attributes)
 
     # add the state of tasks to the ping
     updateTasks()
     wrapper.ping.tasks.extend(db.tasks().values())
-    print("Tasks")
-    print(wrapper.ping.tasks)
 
-def main(host, port, configPath):  # pragma: no cover
-    global client
+    if verbose:
+        print("Resources")
+        print(wrapper.ping.agent.resources)
+        print("Attributes")
+        print(wrapper.ping.agent.attributes)
+        print("Tasks")
+        print(wrapper.ping.tasks)
+
+def main(host, port, configPath, verbose):  # pragma: no cover
     global agent_name
     global ping_rate
 
@@ -147,8 +143,6 @@ def main(host, port, configPath):  # pragma: no cover
         host = tmp
     except socket.gaierror:
         pass
-    
-    client = HelperClient(server=(host, int(port)))
 
     db.load()
     dockerhelper.load()
@@ -159,12 +153,6 @@ def main(host, port, configPath):  # pragma: no cover
         config = parseConfig(configPath)
         print(config)
 
-    # construct message
-    wrapper = messages_pb2.WrapperMessage()
-    constructPing(wrapper, config)
-    register_payload = wrapper.SerializeToString()
-
-    print("Registering with master...")
     print("My Agent ID is " + agent_id)
 
     if 'name' in config:
@@ -177,42 +165,44 @@ def main(host, port, configPath):  # pragma: no cover
     # loop ping/pong
     try:
         while True:
-            time.sleep(ping_rate / 1000)
             wrapper = messages_pb2.WrapperMessage()
-            constructPing(wrapper, config)
+            constructPing(wrapper, config, verbose)
             print("")
             print("Ping!")
-            ct = {'content_type': defines.Content_types["application/octet-stream"]}
-            response = client.post('ping', wrapper.SerializeToString(), timeout=2, **ct)
-            if response and response.payload:
-                print("Pong!")
-                wrapper = messages_pb2.WrapperMessage()
-                wrapper.ParseFromString(response.payload)
-                if wrapper.pong.kill_task.task_id:
-                    print("Received kill task request!")
-                    dockerhelper.killContainer(wrapper.pong.kill_task.task_id)
-                if wrapper.pong.run_task.task.name:
-                    if wrapper.pong.run_task.task.container.type == messages_pb2.ContainerInfo.Type.DOCKER:
-                        print("Received Docker Task!!")
+            try:
+                response = requests.post("http://" + host + ":" + port + '/ping', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
+                if response and response.content:
+                    print("Pong!")
+                    wrapper = messages_pb2.WrapperMessage()
+                    wrapper.ParseFromString(response.content)
+                    if wrapper.pong.kill_task.task_id:
+                        print("Received kill task request!")
+                        dockerhelper.killContainer(wrapper.pong.kill_task.task_id)
+                    if wrapper.pong.run_task.task.name:
+                        if wrapper.pong.run_task.task.container.type == messages_pb2.ContainerInfo.Type.DOCKER:
+                            print("Received Docker Task!!")
 
-                        print("Storing task")
-                        db.set_task(wrapper.pong.run_task.task.task_id, wrapper.pong.run_task.task)
+                            print("Storing task")
+                            db.set_task(wrapper.pong.run_task.task.task_id, wrapper.pong.run_task.task)
 
-                        print("Launching task")
-                        #for now just grab the container info. Let ping check the state on the next run
-                        containerInfo = dockerhelper.runImageFromRunTask(wrapper.pong.run_task, config.get('devices', []))
-                    else:
-                        print("Agent cannot run this type of task")
+                            print("Launching task")
+                            #for now just grab the container info. Let ping check the state on the next run
+                            containerInfo = dockerhelper.runImageFromRunTask(wrapper.pong.run_task, config.get('devices', []))
+                        else:
+                            print("Agent cannot run this type of task")
+            except requests.exceptions.ConnectionError:
+                print("Connection Error")
+            time.sleep(ping_rate / 1000)
 
     except KeyboardInterrupt:
-        print("Client Shutdown")
+        print("Shutting down...")
         # TODO: Deregister
-        client.stop()
 
 if __name__ == '__main__':  # pragma: no cover
-    parser = argparse.ArgumentParser(description='Launch the CoAP Resource Manager Agent')
-    parser.add_argument('--host', required=True, help='the Master IP to register with.')
-    parser.add_argument('--port', required=False, default=5683, help='the Master port to register on.')
+    parser = argparse.ArgumentParser(description='Launch the Resource Manager Agent')
+    parser.add_argument('--host', required=True, help='The Master IP to register with.')
+    parser.add_argument('--port', required=False, default=80, help='The Master port to register on.')
     parser.add_argument('--config', required=True, help='The path of the configuration file.')
+    parser.add_argument('--verbose', action='store_true', help='Enable verbose console logging.')
     args = parser.parse_args()
-    main(args.host, args.port, args.config)
+    main(args.host, args.port, args.config, args.verbose)

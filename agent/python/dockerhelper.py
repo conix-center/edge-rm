@@ -1,7 +1,12 @@
 import docker
 import time
 import messages_pb2
-client = docker.from_env()
+print("Loading docker runtime...")
+try:
+    client = docker.from_env()
+except:
+    print("===\n===\n===\nTHIS USUALLY MEANS DOCKER IS NOT RUNNING\n===\n===\n===")
+    raise
 
 containers = {}
 

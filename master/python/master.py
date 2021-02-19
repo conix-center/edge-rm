@@ -24,29 +24,115 @@ import db
 # Todo: De-register agent when they dont ping for a while
 # Todo: Keep track of available resources
 
-class BasicResource(Resource):
-    def __init__(self, name="BasicResource", coap_server=None):
-        super(BasicResource, self).__init__(name, coap_server, visible=True,
-                                            observable=True, allow_children=True)
-        self.payload = "Hello World"
-        self.resource_type = "rt1"
-        self.content_type = "text/plain"
-        self.interface_type = "if1"
+lock = threading.Lock()
 
-    def render_GET(self, request):
+def GetResourceOffer(wrapper):
+    lock.acquire()
+    framework_id = wrapper.request.framework_id
+
+    #first, clear any agents that have dropped off
+    db.clear_stale_agents()
+
+    #construct resource offer subtracting the resources of any tasks in the task queue
+    print("\nGot resource offer request! Framework \"" + framework_id + "\"\n")
+
+    #currently just giving the framework everything we got
+    wrapper = messages_pb2.WrapperMessage()
+    wrapper.type = messages_pb2.WrapperMessage.Type.RESOURCE_OFFER
+    wrapper.offermsg.framework_id = framework_id
+    for agent in db.get_all_agents():
+        offer = wrapper.offermsg.offers.add()
+        offer.id = db.get_offer_id()
+        offer.framework_id = framework_id
+        offer.agent_id = agent.id
+        offer.attributes.extend(agent.attributes)
+        
+        offer.resources.extend(agent.resources)
+
+        #get pending tasks for agent to subract pending resources
+        pending = db.get_all_pending_tasks_by_agent(agent.id)
+
+        #currently only do this for scalars
+        for resource in offer.resources:
+            for task in pending:
+                for tresource in task.resources:
+                    if resource.name == tresource.name:
+                        if resource.scalar.value and tresource.scalar.value:
+                            resource.scalar.value -= tresource.scalar.value
+
+    lock.release()
+    return wrapper.SerializeToString()
+
+def RunTask(wrapper):
+    lock.acquire()
+    # print request (do nothing right now)
+    print("    Framework Name: " + wrapper.run_task.task.framework.name)
+    print("    Framework ID:   " + wrapper.run_task.task.framework.framework_id)
+    print("    Task Name:      " + wrapper.run_task.task.name)
+    print("    Task ID:        " + wrapper.run_task.task.task_id)
+    print("    Selected Agent: " + wrapper.run_task.task.agent_id)
+    for i in range(len(wrapper.run_task.task.resources)):
+        resource = wrapper.run_task.task.resources[i]
+        print("        Resource: (" + resource.name + ") type: " + str(resource.type) + " amt: " + str(resource.scalar).strip())
+
+    # TODO: Forward the request onto the particular device through a ping/pong
+    db.add_task(wrapper.run_task)
+
+    # construct response
+    wrapper = messages_pb2.WrapperMessage()
+    wrapper.type = messages_pb2.WrapperMessage.Type.PONG
+    wrapper.pong.agent_id = wrapper.run_task.task.agent_id
+    lock.release()
+    return wrapper.SerializeToString()
+
+def KillTask(wrapper):
+    lock.acquire()
+    # print request (do nothing right now)
+    print("    Framework Name: " + wrapper.kill_task.framework.name)
+    print("    Framework ID:   " + wrapper.kill_task.framework.framework_id)
+    print("    Task Name:      " + wrapper.kill_task.name)
+    print("    Task ID:        " + wrapper.kill_task.task_id)
+    print("    Selected Agent: " + wrapper.kill_task.agent_id)
+
+    # TODO: Forward the request onto the particular device through a ping/pong
+    db.add_kill_task(wrapper.kill_task)
+
+    # construct response
+    wrapper = messages_pb2.WrapperMessage()
+    wrapper.type = messages_pb2.WrapperMessage.Type.PONG
+    wrapper.pong.agent_id = wrapper.kill_task.agent_id
+    lock.release()
+    return wrapper.SerializeToString()
+
+def GetPing(wrapper):
+    lock.acquire()
+    agent_id = wrapper.ping.agent.id
+    agent_name = wrapper.ping.agent.name
+    if not agent_id:
         return self
+    print("Ping! Agent ID:(" + str(agent_id) + ") Name:(" + str(agent_name) + ")")
 
-    def render_PUT(self, request):
-        self.edit_resource(request)
-        return self
+    #refresh the agent timing
+    db.refresh_agent(agent_id, wrapper.ping.agent)
 
-    def render_POST(self, request):
-        print(request);
-        res = self.init_resource(request, BasicResource())
-        return res
+    #update the state of any tasks it may have sent
+    db.refresh_tasks(wrapper.ping.tasks)
 
-    def render_DELETE(self, request):
-        return True
+    task_to_run = db.get_next_unissued_task_by_agent(agent_id)
+    task_to_kill = db.get_next_unissued_kill_by_agent(agent_id)
+
+    # construct response
+    wrapper = messages_pb2.WrapperMessage()
+    wrapper.type = messages_pb2.WrapperMessage.Type.PONG
+    wrapper.pong.agent_id = str(agent_id)
+    if task_to_run:
+        print("Got a task to schedule!!!")
+        wrapper.pong.run_task.task.CopyFrom(task_to_run)
+    if task_to_kill:
+        print("Got a task to kill!")
+        wrapper.pong.kill_task.CopyFrom(task_to_kill)
+    lock.release()
+    return wrapper.SerializeToString()
 
 class RequestOfferResource(Resource):
     def __init__(self, name="RequestResource", coap_server=None):
@@ -66,39 +152,8 @@ class RequestOfferResource(Resource):
             response.code = defines.Codes.BAD_REQUEST.number
             return self, response
 
-        framework_id = wrapper.request.framework_id
+        response.payload = GetResourceOffer(wrapper)
 
-        #first, clear any agents that have dropped off
-        db.clear_stale_agents()
-
-        #construct resource offer subtracting the resources of any tasks in the task queue
-        print("\nGot resource offer request! Framework \"" + framework_id + "\"\n")
-
-        #currently just giving the framework everything we got
-        wrapper = messages_pb2.WrapperMessage()
-        wrapper.type = messages_pb2.WrapperMessage.Type.RESOURCE_OFFER
-        wrapper.offermsg.framework_id = framework_id
-        for agent in db.get_all_agents():
-            offer = wrapper.offermsg.offers.add()
-            offer.id = db.get_offer_id()
-            offer.framework_id = framework_id
-            offer.agent_id = agent.id
-            offer.attributes.extend(agent.attributes)
-            
-            offer.resources.extend(agent.resources)
-
-            #get pending tasks for agent to subract pending resources
-            pending = db.get_all_pending_tasks_by_agent(agent.id)
-
-            #currently only do this for scalars
-            for resource in offer.resources:
-                for task in pending:
-                    for tresource in task.resources:
-                        if resource.name == tresource.name:
-                            if resource.scalar.value and tresource.scalar.value:
-                                resource.scalar.value -= tresource.scalar.value
-
-        response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
         response.content_type = defines.Content_types["application/octet-stream"]
         return self, response
@@ -124,24 +179,8 @@ class RunTaskResource(Resource):
             response.code = defines.Codes.BAD_REQUEST.number
             return self, response
 
-        # print request (do nothing right now)
-        print("    Framework Name: " + wrapper.run_task.task.framework.name)
-        print("    Framework ID:   " + wrapper.run_task.task.framework.framework_id)
-        print("    Task Name:      " + wrapper.run_task.task.name)
-        print("    Task ID:        " + wrapper.run_task.task.task_id)
-        print("    Selected Agent: " + wrapper.run_task.task.agent_id)
-        for i in range(len(wrapper.run_task.task.resources)):
-            resource = wrapper.run_task.task.resources[i]
-            print("        Resource: (" + resource.name + ") type: " + str(resource.type) + " amt: " + str(resource.scalar).strip())
+        response.payload = RunTask(wrapper)
 
-        # TODO: Forward the request onto the particular device through a ping/pong
-        db.add_task(wrapper.run_task)
-
-        # construct response
-        wrapper = messages_pb2.WrapperMessage()
-        wrapper.type = messages_pb2.WrapperMessage.Type.PONG
-        wrapper.pong.agent_id = wrapper.run_task.task.agent_id
-        response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CHANGED.number
         response.content_type = defines.Content_types["application/octet-stream"]
         return self, response
@@ -167,18 +206,9 @@ class KillTaskResource(Resource):
             response.code = defines.Codes.BAD_REQUEST.number
             return self, response
 
-        # print request (do nothing right now)
-        print("    Framework Name: " + wrapper.kill_task.framework.name)
-        print("    Framework ID:   " + wrapper.kill_task.framework.framework_id)
-        print("    Task Name:      " + wrapper.kill_task.name)
-        print("    Task ID:        " + wrapper.kill_task.task_id)
-        print("    Selected Agent: " + wrapper.kill_task.agent_id)
-
-        # TODO: Forward the request onto the particular device through a ping/pong
-        db.add_kill_task(wrapper.kill_task)
-
         # construct response
-        wrapper = messages_pb2.WrapperMessage()
+        wrapper = KillTask(wrapper)
+
         wrapper.type = messages_pb2.WrapperMessage.Type.PONG
         wrapper.pong.agent_id = wrapper.kill_task.agent_id
         response.payload = wrapper.SerializeToString()
@@ -199,7 +229,7 @@ class PingResource(Resource):
     def render_POST_advanced(self, request, response):
         #unpack request
         
-        print("Recevied ping request: " + str(request))
+        print("Recevied CoAP ping request: " + str(request))
 
         wrapper = messages_pb2.WrapperMessage()
 
@@ -210,32 +240,8 @@ class PingResource(Resource):
             response.code = defines.Codes.BAD_REQUEST.number
             return self, response
 
-        agent_id = wrapper.ping.agent.id
-        agent_name = wrapper.ping.agent.name
-        if not agent_id:
-            return self
-        print("Ping! Agent ID:(" + str(agent_id) + ") Name:(" + str(agent_name) + ")")
+        response.payload = GetPing(wrapper)
 
-        #refresh the agent timing
-        db.refresh_agent(agent_id, wrapper.ping.agent)
-
-        #update the state of any tasks it may have sent
-        db.refresh_tasks(wrapper.ping.tasks)
-
-        task_to_run = db.get_next_unissued_task_by_agent(agent_id)
-        task_to_kill = db.get_next_unissued_kill_by_agent(agent_id)
-
-        # construct response
-        wrapper = messages_pb2.WrapperMessage()
-        wrapper.type = messages_pb2.WrapperMessage.Type.PONG
-        wrapper.pong.agent_id = str(agent_id)
-        if task_to_run:
-            print("Got a task to schedule!!!")
-            wrapper.pong.run_task.task.CopyFrom(task_to_run)
-        if task_to_kill:
-            print("Got a task to kill!")
-            wrapper.pong.kill_task.CopyFrom(task_to_kill)
-        response.payload = wrapper.SerializeToString()
         response.code = defines.Codes.CONTENT.number
         # response.code = defines.Codes.CHANGED.number
         response.content_type = defines.Content_types["application/octet-stream"]
@@ -244,8 +250,6 @@ class PingResource(Resource):
 class CoAPServer(CoAP):
     def __init__(self, host, port, multicast=False):
         CoAP.__init__(self, (host, port), multicast)
-        self.add_resource('basic/', BasicResource())
-        # self.add_resource('register/', RegisterResource())
         self.add_resource('request/', RequestOfferResource())
         self.add_resource('task/', RunTaskResource())
         self.add_resource('kill/', KillTaskResource())
@@ -265,7 +269,7 @@ def start_coap_server(ip, port):  # pragma: no cover
         print("Exiting...")
 
 
-### This section is responsible for the api server
+### This section is responsible for the HTTP server
 @app.route('/agents', methods=['GET'])
 @app.route('/', methods=['GET'])
 def get_agents():
@@ -278,6 +282,46 @@ def get_frameworks():
 @app.route('/tasks', methods=['GET'])
 def get_tasks():
     return flask.jsonify(list(db.get_all_tasks_as_dict()))
+
+@app.route('/request', methods=['POST'])
+def post_request_resource_offer():
+    wrapper = messages_pb2.WrapperMessage()
+    try:
+        wrapper.ParseFromString(flask.request.get_data())
+    except:
+        print("Error parsing protobuf.")
+        return "Error parsing protobuf."
+    return GetResourceOffer(wrapper)
+
+@app.route('/task', methods=['POST'])
+def post_run_task():
+    wrapper = messages_pb2.WrapperMessage()
+    try:
+        wrapper.ParseFromString(flask.request.get_data())
+    except:
+        print("Error parsing protobuf.")
+        return "Error parsing protobuf."
+    return RunTask(wrapper)
+
+@app.route('/kill', methods=['POST'])
+def post_kill_task():
+    wrapper = messages_pb2.WrapperMessage()
+    try:
+        wrapper.ParseFromString(flask.request.get_data())
+    except:
+        print("Error parsing protobuf.")
+        return "Error parsing protobuf."
+    return KillTask(wrapper)
+
+@app.route('/ping', methods=['POST'])
+def post_ping():
+    wrapper = messages_pb2.WrapperMessage()
+    try:
+        wrapper.ParseFromString(flask.request.get_data())
+    except:
+        print("Error parsing protobuf.")
+        return "Error parsing protobuf."
+    return GetPing(wrapper)
 
 def start_api_server(host, port):
     app.run(host=host,port=port)

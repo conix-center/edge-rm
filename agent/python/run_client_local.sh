@@ -1,1 +1,1 @@
-python3 agent.py --host 127.0.0.1 --port 3000 --config config.yaml
+python3 agent.py --host 127.0.0.1 --port 8080 --config config.yaml
