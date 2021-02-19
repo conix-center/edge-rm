@@ -116,12 +116,12 @@ def RunTask(wrapper):
     try:
         offer = db.get_offer_by_offer_id(wrapper.run_task.offer_id)
     except ValueError:
-        print "Not a valid offer ID"
+        print("Not a valid offer ID")
         return "Not a valid offer ID"
 
     #unexpired
     if time.time() > offer.expiration_time:
-        print "Offer expired"
+        print("Offer expired")
         return "Offer expired"
 
     #check for valid resources - just scalars for now
@@ -387,8 +387,8 @@ def start_api_server(host, port):
 
 
 if __name__ == "__main__":  # pragma: no cover
-    # if sys.version_info[0] >= 3:
-    #     raise Exception("Must be using Python 2 (yeah...)")
+    if sys.version_info[0] < 3:
+        raise Exception("Must be using Python 3")
     parser = argparse.ArgumentParser(description='Launch the CoAP Resource Manager Master')
     parser.add_argument('--host', required=True, help='the LAN IP to bind to.')
     parser.add_argument('--port', required=False, default=5683, help='the local machine port to bind to.')
