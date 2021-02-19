@@ -8,10 +8,6 @@ import uuid
 import json
 import requests
 import hashlib
-sys.path.insert(1, '../support/CoAPthon3')
-
-from coapthon.client.helperclient import HelperClient
-from coapthon import defines
 
 import messages_pb2
 
@@ -24,9 +20,6 @@ class Framework:
     self.master = master
     self.master_port = master_port
     self.master_api_port = master_api_port
-
-    #connect to the client
-    self.client = HelperClient(server=(master, int(master_port)))
 
   def getTasks(self):
     r = requests.get('http://' + self.master + ':' + str(self.master_api_port) + '/tasks')
@@ -80,12 +73,10 @@ class Framework:
     wrapper = messages_pb2.WrapperMessage()
     wrapper.type = messages_pb2.WrapperMessage.Type.RESOURCE_REQUEST
     wrapper.request.framework_id = self.framework_id
-    request_payload = wrapper.SerializeToString()
-    ct = {'content_type': defines.Content_types["application/octet-stream"]}
-    response = self.client.post('request', request_payload, timeout=2, **ct)
+    response = requests.post("http://" + host + ":" + port + '/request', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
     if response:
       wrapper = messages_pb2.WrapperMessage()
-      wrapper.ParseFromString(response.payload)
+      wrapper.ParseFromString(response.content)
       offers = wrapper.offermsg.offers
       return offers
     else:
@@ -160,11 +151,10 @@ class Framework:
         wrapper.kill_task.framework.framework_id = task['framework']['frameworkId']
         print(wrapper)
         request_payload = wrapper.SerializeToString()
-        ct = {'content_type': defines.Content_types["application/octet-stream"]}
-        response = self.client.post('kill', request_payload, timeout=2, **ct)
+        response = requests.post("http://" + host + ":" + port + '/kill', data=request_payload, timeout=2, headers={'Content-Type':'application/protobuf'})
         if response:
             wrapper = messages_pb2.WrapperMessage()
-            wrapper.ParseFromString(response.payload)
+            wrapper.ParseFromString(response.content)
             print("Kill task issued!")
             return
         else:
@@ -231,12 +221,10 @@ class Framework:
     else:
       raise Exception("Must specify either docker or wasm task")
 
-    runtask_payload = wrapper.SerializeToString()
-    ct = {'content_type': defines.Content_types["application/octet-stream"]}
-    response = self.client.post('task', runtask_payload, timeout=2, **ct)
+    response = requests.post("http://" + host + ":" + port + '/task', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
     if response:
         wrapper = messages_pb2.WrapperMessage()
-        wrapper.ParseFromString(response.payload)
+        wrapper.ParseFromString(response.content)
         return task_id
     else:
       raise Exception("Failed to receive resource offers")

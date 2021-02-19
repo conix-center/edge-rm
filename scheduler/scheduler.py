@@ -8,14 +8,9 @@ import argparse
 import uuid
 import json
 from random import randint
-sys.path.insert(1, '../support/CoAPthon3')
-
-from coapthon.client.helperclient import HelperClient
-from coapthon import defines
 
 import messages_pb2
 
-client = None
 framework_name = "Camera Framework"
 framework_id = "TEST ID"
 
@@ -76,12 +71,10 @@ def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings
         port_mapping.host_port = host_port
         port_mapping.container_port = container_port
     wrapper.run_task.task.container.docker.environment_variables.extend(env_variables)
-    runtask_payload = wrapper.SerializeToString()
-    ct = {'content_type': defines.Content_types["application/octet-stream"]}
-    response = client.post('task', runtask_payload, timeout=2, **ct)
+    response = requests.post("http://" + host + ":" + port + '/task', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
     if response:
         wrapper = messages_pb2.WrapperMessage()
-        wrapper.ParseFromString(response.payload)
+        wrapper.ParseFromString(response.content)
         print("Task Running!")
         tasks.append({
             'name': name,
@@ -94,7 +87,6 @@ def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings
         
     else:
         print("Failed to submit task.",file=sys.stderr)
-        client.stop()
         sys.exit(1)
 
 def getCamTask(offers, cameraToUse):
@@ -126,7 +118,6 @@ def getCamTask(offers, cameraToUse):
                     if good_cpu and good_mem and got_cam and attribute.name == "OS" and attribute.text.value == "debian-10.1-armv6l":
                         return (offer.agent_id, resources_to_use)
     print("Failed to find a node with a camera.",file=sys.stderr)
-    client.stop()
     sys.exit(1)
 
 def getServerTask(offers):
@@ -150,7 +141,6 @@ def getServerTask(offers):
                 if good_cpu and good_mem and attribute.name == "domain":
                     return (offer.agent_id, resources_to_use, attribute.text.value)
     print("Failed to find a server.",file=sys.stderr)
-    client.stop()
     sys.exit(1)
 
 def getCoAPTask(offers):
@@ -174,7 +164,6 @@ def getCoAPTask(offers):
                 if good_cpu and good_mem and attribute.name == "domain":
                     return (offer.agent_id, resources_to_use, attribute.text.value)
     print("Failed to find a coap server...")
-    client.stop()
     sys.exit(1)
 
 def getClassifyTask(offers):
@@ -198,7 +187,6 @@ def getClassifyTask(offers):
                 if good_cpu and good_mem and attribute.name == "domain":
                     return (offer.agent_id, resources_to_use, attribute.text.value)
     print("Failed to find a classify instance...")
-    client.stop()
     sys.exit(1)
 
 def printOffer(offers):
@@ -279,23 +267,19 @@ def getOffer():
     wrapper = messages_pb2.WrapperMessage()
     wrapper.type = messages_pb2.WrapperMessage.Type.RESOURCE_REQUEST
     wrapper.request.framework_id = framework_id
-    request_payload = wrapper.SerializeToString()
-    ct = {'content_type': defines.Content_types["application/octet-stream"]}
-    response = client.post('request', request_payload, timeout=2, **ct)
+    response = requests.post("http://" + host + ":" + port + '/request', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
     if response:
         wrapper = messages_pb2.WrapperMessage()
-        wrapper.ParseFromString(response.payload)
+        wrapper.ParseFromString(response.content)
         offers = wrapper.offermsg.offers
         print("Got offers!")
         return offers
     else:
         print("Couldn't receive resource offer... ?")
-        client.stop()
         sys.exit(1)
 
 
 def main(host, port, tasks, clientID, cameraToUse):  # pragma: no cover
-    global client
     global tasksfile
 
     tasksfile = tasks
@@ -306,14 +290,11 @@ def main(host, port, tasks, clientID, cameraToUse):  # pragma: no cover
     except socket.gaierror:
         pass
     
-    client = HelperClient(server=(host, int(port)))
     loadTasks()
     # TODO: Should we register the framework first?
 
     offers = getOffer()
     submitTasks(offers, clientID, cameraToUse)
-
-    client.stop()
 
     # loop ping/pong
     # try:
