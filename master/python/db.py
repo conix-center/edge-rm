@@ -20,8 +20,33 @@ killtasks = {}
 frameworks = {}
 frameworksDict = {}
 
+#offers
+offers = {}
+agentOffers = {}
+
+def get_offer_by_offer_id(offer_id):
+    try:
+        return offers[offer_id]
+    except:
+        raise ValueError
+
+def get_offers_by_agent_id(agent_id):
+    if agent_id in agentOffers:
+        return agentOffers[agent_id]
+    else:
+        return []
+
 def get_offer_id():
     return str(uuid.uuid4())
+
+def add_offer(offer_id, agent_id, offer):
+    offers[offer_id] = offer
+
+    if agent_id in agentOffers:
+        agentOffers[agent_id].append(offer)
+    else:
+        agentOffers[agent_id] = []
+        agentOffers[agent_id].append(offer)
 
 def refresh_agent(aid, agent):
     agent.id = aid
