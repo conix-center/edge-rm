@@ -170,7 +170,7 @@ def main(host, port, configPath, verbose):  # pragma: no cover
             print("")
             print("Ping!")
             try:
-                response = requests.post("http://" + host + ":" + port + '/ping', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
+                response = requests.post("http://" + host + ":" + str(port) + '/ping', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
                 if response and response.content:
                     print("Pong!")
                     wrapper = messages_pb2.WrapperMessage()
