@@ -325,7 +325,8 @@ def start_coap_server(ip, port):  # pragma: no cover
     except:
         print("Server Shutdown")
         server.close()
-        print("Exiting...")
+        print("Restarting...")
+        start_coap_server(ip, port)
 
 
 ### This section is responsible for the HTTP server
