@@ -284,7 +284,7 @@ message TaskInfo {
 // Run task message is sent from scheduler to master to agent to launch a task as requested by a framework
 message RunTaskMessage {
   required TaskInfo task = 4;
-  required string offer_id = 5;
+  optional string offer_id = 5;
   //required bool launch_executor = 6;
 }
 
