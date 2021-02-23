@@ -117,22 +117,45 @@ def RunTask(wrapper):
         offer = db.get_offer_by_offer_id(wrapper.run_task.offer_id)
     except ValueError:
         print("Not a valid offer ID")
-        return "Not a valid offer ID"
+        wrapper = messages_pb2.WrapperMessage()
+        wrapper.type = messages_pb2.WrapperMessage.Type.ERROR
+        wrapper.error.error = "Not a valid offer ID"
+        lock.release()
+        return wrapper.SerializeToString()
 
     #unexpired
     if time.time() > offer.expiration_time:
         print("Offer expired")
-        return "Offer expired"
+        wrapper = messages_pb2.WrapperMessage()
+        wrapper.type = messages_pb2.WrapperMessage.Type.ERROR
+        wrapper.error.error = "Offer Expired"
+        lock.release()
+        return wrapper.SerializeToString()
 
     #check for valid resources - just scalars for now
     for tresource in wrapper.run_task.task.resources:
         r = {x.name: (x.type, x.scalar,x.ranges,x.set,x.text,x.device) for x in offer.resources}
         if tresource.name not in r:
-            return "Resource not in offer"
+            print ("Resource not in offer")
+            wrapper = messages_pb2.WrapperMessage()
+            wrapper.type = messages_pb2.WrapperMessage.Type.ERROR
+            wrapper.error.error = "Resource not in offer"
+            lock.release()
+            return wrapper.SerializeToString()
         elif tresource.type != r[tresource.name][0]:
-            return "Resource type doesn't match offer"
+            print ("Resource type doesn't match offer")
+            wrapper = messages_pb2.WrapperMessage()
+            wrapper.type = messages_pb2.WrapperMessage.Type.ERROR
+            wrapper.error.error = "Resource type doesn't match offer"
+            lock.release()
+            return wrapper.SerializeToString()
         elif tresource.scalar.value and r[tresource.name][1].value and tresource.scalar.value > r[tresource.name][1].value:
-            return "Resouce value exceeds offered value"
+            print ("Resource value exceeds offer")
+            wrapper = messages_pb2.WrapperMessage()
+            wrapper.type = messages_pb2.WrapperMessage.Type.ERROR
+            wrapper.error.error = "Resource value exceeds offer"
+            lock.release()
+            return wrapper.SerializeToString()
             
     # TODO: Forward the request onto the particular device through a ping/pong
     db.add_task(wrapper.run_task)

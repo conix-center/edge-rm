@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto2',
   serialized_options=None,
-  serialized_pb=b'\n\x0emessages.proto\"\xf4\x02\n\x0eWrapperMessage\x12\"\n\x04type\x18\x01 \x02(\x0e\x32\x14.WrapperMessage.Type\x12\x1f\n\x04ping\x18\x02 \x01(\x0b\x32\x11.PingAgentMessage\x12\x1f\n\x04pong\x18\x03 \x01(\x0b\x32\x11.PongAgentMessage\x12!\n\x08run_task\x18\x04 \x01(\x0b\x32\x0f.RunTaskMessage\x12#\n\tkill_task\x18\x05 \x01(\x0b\x32\x10.KillTaskMessage\x12\'\n\x08offermsg\x18\x06 \x01(\x0b\x32\x15.ResourceOfferMessage\x12(\n\x07request\x18\x07 \x01(\x0b\x32\x17.ResourceRequestMessage\"a\n\x04Type\x12\x08\n\x04PING\x10\x00\x12\x08\n\x04PONG\x10\x01\x12\x0c\n\x08RUN_TASK\x10\x02\x12\r\n\tKILL_TASK\x10\x03\x12\x12\n\x0eRESOURCE_OFFER\x10\x04\x12\x14\n\x10RESOURCE_REQUEST\x10\x05\"G\n\x10PingAgentMessage\x12\x19\n\x05\x61gent\x18\x01 \x02(\x0b\x32\n.AgentInfo\x12\x18\n\x05tasks\x18\x02 \x03(\x0b\x32\t.TaskInfo\"l\n\x10PongAgentMessage\x12\x10\n\x08\x61gent_id\x18\x01 \x02(\t\x12!\n\x08run_task\x18\x02 \x01(\x0b\x32\x0f.RunTaskMessage\x12#\n\tkill_task\x18\x03 \x01(\x0b\x32\x10.KillTaskMessage\"v\n\tAgentInfo\x12\x1c\n\tresources\x18\x01 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x02 \x03(\x0b\x32\n.Attribute\x12\n\n\x02id\x18\x03 \x01(\t\x12\x0c\n\x04name\x18\x04 \x01(\t\x12\x11\n\tping_rate\x18\x05 \x01(\x05\"\xd4\x01\n\x08Resource\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x05 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x07 \x01(\x0b\x32\x0b.Value.Text\x12\x1d\n\x06\x64\x65vice\x18\x08 \x01(\x0b\x32\r.Value.Device\x12\x0e\n\x06shared\x18\x06 \x01(\x08\"\xa6\x01\n\tAttribute\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x06 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\"\x9d\x03\n\x05Value\x12\x19\n\x04type\x18\x01 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x02 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x03 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x04 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\x12\x1d\n\x06\x64\x65vice\x18\x06 \x01(\x0b\x32\r.Value.Device\x1a\x17\n\x06Scalar\x12\r\n\x05value\x18\x01 \x02(\x01\x1a#\n\x05Range\x12\r\n\x05\x62\x65gin\x18\x01 \x02(\x04\x12\x0b\n\x03\x65nd\x18\x02 \x02(\x04\x1a%\n\x06Ranges\x12\x1b\n\x05range\x18\x01 \x03(\x0b\x32\x0c.Value.Range\x1a\x13\n\x03Set\x12\x0c\n\x04item\x18\x01 \x03(\t\x1a\x15\n\x04Text\x12\r\n\x05value\x18\x01 \x02(\t\x1a\x18\n\x06\x44\x65vice\x12\x0e\n\x06\x64\x65vice\x18\x01 \x02(\t\"=\n\x04Type\x12\n\n\x06SCALAR\x10\x00\x12\n\n\x06RANGES\x10\x01\x12\x07\n\x03SET\x10\x02\x12\x08\n\x04TEXT\x10\x03\x12\n\n\x06\x44\x45VICE\x10\x04\"\x9c\x05\n\rContainerInfo\x12!\n\x04type\x18\x01 \x02(\x0e\x32\x13.ContainerInfo.Type\x12)\n\x06\x64ocker\x18\x03 \x01(\x0b\x32\x19.ContainerInfo.DockerInfo\x12%\n\x04wasm\x18\x05 \x01(\x0b\x32\x17.ContainerInfo.WASMInfo\x1a\xcd\x02\n\nDockerInfo\x12\r\n\x05image\x18\x01 \x02(\t\x12\x38\n\x07network\x18\x02 \x01(\x0e\x32!.ContainerInfo.DockerInfo.Network:\x04HOST\x12<\n\rport_mappings\x18\x03 \x03(\x0b\x32%.ContainerInfo.DockerInfo.PortMapping\x12\x18\n\x10\x66orce_pull_image\x18\x06 \x01(\x08\x12\x1d\n\x15\x65nvironment_variables\x18\x07 \x03(\t\x1aJ\n\x0bPortMapping\x12\x11\n\thost_port\x18\x01 \x02(\r\x12\x16\n\x0e\x63ontainer_port\x18\x02 \x02(\r\x12\x10\n\x08protocol\x18\x03 \x01(\t\"3\n\x07Network\x12\x08\n\x04HOST\x10\x01\x12\n\n\x06\x42RIDGE\x10\x02\x12\x08\n\x04NONE\x10\x03\x12\x08\n\x04USER\x10\x04\x1a\xa7\x01\n\x08WASMInfo\x12\x13\n\x0bwasm_binary\x18\x01 \x02(\x0c\x12@\n\x0b\x65nvironment\x18\x02 \x03(\x0b\x32+.ContainerInfo.WASMInfo.EnvironmentVariable\x1a\x44\n\x13\x45nvironmentVariable\x12\x0b\n\x03key\x18\x01 \x02(\t\x12\r\n\x05value\x18\x02 \x01(\x05\x12\x11\n\tstr_value\x18\x03 \x01(\t\"\x1c\n\x04Type\x12\n\n\x06\x44OCKER\x10\x01\x12\x08\n\x04WASM\x10\x02\"3\n\rFrameworkInfo\x12\x0c\n\x04name\x18\x02 \x02(\t\x12\x14\n\x0c\x66ramework_id\x18\x03 \x01(\t\"\xc4\x02\n\x08TaskInfo\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0f\n\x07task_id\x18\x02 \x02(\t\x12\x10\n\x08\x61gent_id\x18\x03 \x02(\t\x12\x1c\n\tresources\x18\x04 \x03(\x0b\x32\t.Resource\x12!\n\tframework\x18\x05 \x02(\x0b\x32\x0e.FrameworkInfo\x12!\n\tcontainer\x18\t \x02(\x0b\x32\x0e.ContainerInfo\x12\"\n\x05state\x18\x06 \x01(\x0e\x32\x13.TaskInfo.TaskState\x12\x15\n\rerror_message\x18\x07 \x01(\t\"h\n\tTaskState\x12\r\n\tCOMPLETED\x10\x00\x12\x0b\n\x07\x45RRORED\x10\x01\x12\x0b\n\x07RUNNING\x10\x02\x12\n\n\x06ISSUED\x10\x03\x12\x0c\n\x08UNISSUED\x10\x04\x12\x0c\n\x08STARTING\x10\x05\x12\n\n\x06KILLED\x10\x06\";\n\x0eRunTaskMessage\x12\x17\n\x04task\x18\x04 \x02(\x0b\x32\t.TaskInfo\x12\x10\n\x08offer_id\x18\x05 \x02(\t\"e\n\x0fKillTaskMessage\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0f\n\x07task_id\x18\x02 \x02(\t\x12\x10\n\x08\x61gent_id\x18\x03 \x02(\t\x12!\n\tframework\x18\x04 \x02(\x0b\x32\x0e.FrameworkInfo\".\n\x16ResourceRequestMessage\x12\x14\n\x0c\x66ramework_id\x18\x01 \x02(\t\"D\n\x14ResourceOfferMessage\x12\x14\n\x0c\x66ramework_id\x18\x01 \x02(\t\x12\x16\n\x06offers\x18\x02 \x03(\x0b\x32\x06.Offer\"\xa6\x01\n\x05Offer\x12\n\n\x02id\x18\x01 \x02(\t\x12\x14\n\x0c\x66ramework_id\x18\x02 \x02(\t\x12\x10\n\x08\x61gent_id\x18\x03 \x02(\t\x12\x1c\n\tresources\x18\x05 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x07 \x03(\x0b\x32\n.Attribute\x12\x12\n\noffer_time\x18\t \x02(\x01\x12\x17\n\x0f\x65xpiration_time\x18\x08 \x02(\x01\"\x18\n\x07OfferID\x12\r\n\x05value\x18\x01 \x02(\t'
+  serialized_pb=b'\n\x0emessages.proto\"\x9d\x03\n\x0eWrapperMessage\x12\"\n\x04type\x18\x01 \x02(\x0e\x32\x14.WrapperMessage.Type\x12\x1f\n\x04ping\x18\x02 \x01(\x0b\x32\x11.PingAgentMessage\x12\x1f\n\x04pong\x18\x03 \x01(\x0b\x32\x11.PongAgentMessage\x12!\n\x08run_task\x18\x04 \x01(\x0b\x32\x0f.RunTaskMessage\x12#\n\tkill_task\x18\x05 \x01(\x0b\x32\x10.KillTaskMessage\x12\'\n\x08offermsg\x18\x06 \x01(\x0b\x32\x15.ResourceOfferMessage\x12(\n\x07request\x18\x07 \x01(\x0b\x32\x17.ResourceRequestMessage\x12\x1c\n\x05\x65rror\x18\x08 \x01(\x0b\x32\r.ErrorMessage\"l\n\x04Type\x12\x08\n\x04PING\x10\x00\x12\x08\n\x04PONG\x10\x01\x12\x0c\n\x08RUN_TASK\x10\x02\x12\r\n\tKILL_TASK\x10\x03\x12\x12\n\x0eRESOURCE_OFFER\x10\x04\x12\x14\n\x10RESOURCE_REQUEST\x10\x05\x12\t\n\x05\x45RROR\x10\x06\"\x1d\n\x0c\x45rrorMessage\x12\r\n\x05\x65rror\x18\x01 \x02(\t\"G\n\x10PingAgentMessage\x12\x19\n\x05\x61gent\x18\x01 \x02(\x0b\x32\n.AgentInfo\x12\x18\n\x05tasks\x18\x02 \x03(\x0b\x32\t.TaskInfo\"l\n\x10PongAgentMessage\x12\x10\n\x08\x61gent_id\x18\x01 \x02(\t\x12!\n\x08run_task\x18\x02 \x01(\x0b\x32\x0f.RunTaskMessage\x12#\n\tkill_task\x18\x03 \x01(\x0b\x32\x10.KillTaskMessage\"v\n\tAgentInfo\x12\x1c\n\tresources\x18\x01 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x02 \x03(\x0b\x32\n.Attribute\x12\n\n\x02id\x18\x03 \x01(\t\x12\x0c\n\x04name\x18\x04 \x01(\t\x12\x11\n\tping_rate\x18\x05 \x01(\x05\"\xd4\x01\n\x08Resource\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x05 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x07 \x01(\x0b\x32\x0b.Value.Text\x12\x1d\n\x06\x64\x65vice\x18\x08 \x01(\x0b\x32\r.Value.Device\x12\x0e\n\x06shared\x18\x06 \x01(\x08\"\xa6\x01\n\tAttribute\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x19\n\x04type\x18\x02 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x03 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x04 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x06 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\"\x9d\x03\n\x05Value\x12\x19\n\x04type\x18\x01 \x02(\x0e\x32\x0b.Value.Type\x12\x1d\n\x06scalar\x18\x02 \x01(\x0b\x32\r.Value.Scalar\x12\x1d\n\x06ranges\x18\x03 \x01(\x0b\x32\r.Value.Ranges\x12\x17\n\x03set\x18\x04 \x01(\x0b\x32\n.Value.Set\x12\x19\n\x04text\x18\x05 \x01(\x0b\x32\x0b.Value.Text\x12\x1d\n\x06\x64\x65vice\x18\x06 \x01(\x0b\x32\r.Value.Device\x1a\x17\n\x06Scalar\x12\r\n\x05value\x18\x01 \x02(\x01\x1a#\n\x05Range\x12\r\n\x05\x62\x65gin\x18\x01 \x02(\x04\x12\x0b\n\x03\x65nd\x18\x02 \x02(\x04\x1a%\n\x06Ranges\x12\x1b\n\x05range\x18\x01 \x03(\x0b\x32\x0c.Value.Range\x1a\x13\n\x03Set\x12\x0c\n\x04item\x18\x01 \x03(\t\x1a\x15\n\x04Text\x12\r\n\x05value\x18\x01 \x02(\t\x1a\x18\n\x06\x44\x65vice\x12\x0e\n\x06\x64\x65vice\x18\x01 \x02(\t\"=\n\x04Type\x12\n\n\x06SCALAR\x10\x00\x12\n\n\x06RANGES\x10\x01\x12\x07\n\x03SET\x10\x02\x12\x08\n\x04TEXT\x10\x03\x12\n\n\x06\x44\x45VICE\x10\x04\"\x9c\x05\n\rContainerInfo\x12!\n\x04type\x18\x01 \x02(\x0e\x32\x13.ContainerInfo.Type\x12)\n\x06\x64ocker\x18\x03 \x01(\x0b\x32\x19.ContainerInfo.DockerInfo\x12%\n\x04wasm\x18\x05 \x01(\x0b\x32\x17.ContainerInfo.WASMInfo\x1a\xcd\x02\n\nDockerInfo\x12\r\n\x05image\x18\x01 \x02(\t\x12\x38\n\x07network\x18\x02 \x01(\x0e\x32!.ContainerInfo.DockerInfo.Network:\x04HOST\x12<\n\rport_mappings\x18\x03 \x03(\x0b\x32%.ContainerInfo.DockerInfo.PortMapping\x12\x18\n\x10\x66orce_pull_image\x18\x06 \x01(\x08\x12\x1d\n\x15\x65nvironment_variables\x18\x07 \x03(\t\x1aJ\n\x0bPortMapping\x12\x11\n\thost_port\x18\x01 \x02(\r\x12\x16\n\x0e\x63ontainer_port\x18\x02 \x02(\r\x12\x10\n\x08protocol\x18\x03 \x01(\t\"3\n\x07Network\x12\x08\n\x04HOST\x10\x01\x12\n\n\x06\x42RIDGE\x10\x02\x12\x08\n\x04NONE\x10\x03\x12\x08\n\x04USER\x10\x04\x1a\xa7\x01\n\x08WASMInfo\x12\x13\n\x0bwasm_binary\x18\x01 \x02(\x0c\x12@\n\x0b\x65nvironment\x18\x02 \x03(\x0b\x32+.ContainerInfo.WASMInfo.EnvironmentVariable\x1a\x44\n\x13\x45nvironmentVariable\x12\x0b\n\x03key\x18\x01 \x02(\t\x12\r\n\x05value\x18\x02 \x01(\x05\x12\x11\n\tstr_value\x18\x03 \x01(\t\"\x1c\n\x04Type\x12\n\n\x06\x44OCKER\x10\x01\x12\x08\n\x04WASM\x10\x02\"3\n\rFrameworkInfo\x12\x0c\n\x04name\x18\x02 \x02(\t\x12\x14\n\x0c\x66ramework_id\x18\x03 \x01(\t\"\xc4\x02\n\x08TaskInfo\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0f\n\x07task_id\x18\x02 \x02(\t\x12\x10\n\x08\x61gent_id\x18\x03 \x02(\t\x12\x1c\n\tresources\x18\x04 \x03(\x0b\x32\t.Resource\x12!\n\tframework\x18\x05 \x02(\x0b\x32\x0e.FrameworkInfo\x12!\n\tcontainer\x18\t \x02(\x0b\x32\x0e.ContainerInfo\x12\"\n\x05state\x18\x06 \x01(\x0e\x32\x13.TaskInfo.TaskState\x12\x15\n\rerror_message\x18\x07 \x01(\t\"h\n\tTaskState\x12\r\n\tCOMPLETED\x10\x00\x12\x0b\n\x07\x45RRORED\x10\x01\x12\x0b\n\x07RUNNING\x10\x02\x12\n\n\x06ISSUED\x10\x03\x12\x0c\n\x08UNISSUED\x10\x04\x12\x0c\n\x08STARTING\x10\x05\x12\n\n\x06KILLED\x10\x06\";\n\x0eRunTaskMessage\x12\x17\n\x04task\x18\x04 \x02(\x0b\x32\t.TaskInfo\x12\x10\n\x08offer_id\x18\x05 \x02(\t\"e\n\x0fKillTaskMessage\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0f\n\x07task_id\x18\x02 \x02(\t\x12\x10\n\x08\x61gent_id\x18\x03 \x02(\t\x12!\n\tframework\x18\x04 \x02(\x0b\x32\x0e.FrameworkInfo\".\n\x16ResourceRequestMessage\x12\x14\n\x0c\x66ramework_id\x18\x01 \x02(\t\"D\n\x14ResourceOfferMessage\x12\x14\n\x0c\x66ramework_id\x18\x01 \x02(\t\x12\x16\n\x06offers\x18\x02 \x03(\x0b\x32\x06.Offer\"\xa6\x01\n\x05Offer\x12\n\n\x02id\x18\x01 \x02(\t\x12\x14\n\x0c\x66ramework_id\x18\x02 \x02(\t\x12\x10\n\x08\x61gent_id\x18\x03 \x02(\t\x12\x1c\n\tresources\x18\x05 \x03(\x0b\x32\t.Resource\x12\x1e\n\nattributes\x18\x07 \x03(\x0b\x32\n.Attribute\x12\x12\n\noffer_time\x18\t \x02(\x01\x12\x17\n\x0f\x65xpiration_time\x18\x08 \x02(\x01\"\x18\n\x07OfferID\x12\r\n\x05value\x18\x01 \x02(\t'
 )
 
 
@@ -53,11 +53,15 @@ _WRAPPERMESSAGE_TYPE = _descriptor.EnumDescriptor(
       name='RESOURCE_REQUEST', index=5, number=5,
       serialized_options=None,
       type=None),
+    _descriptor.EnumValueDescriptor(
+      name='ERROR', index=6, number=6,
+      serialized_options=None,
+      type=None),
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=294,
-  serialized_end=391,
+  serialized_start=324,
+  serialized_end=432,
 )
 _sym_db.RegisterEnumDescriptor(_WRAPPERMESSAGE_TYPE)
 
@@ -90,8 +94,8 @@ _VALUE_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1433,
-  serialized_end=1494,
+  serialized_start=1505,
+  serialized_end=1566,
 )
 _sym_db.RegisterEnumDescriptor(_VALUE_TYPE)
 
@@ -120,8 +124,8 @@ _CONTAINERINFO_DOCKERINFO_NETWORK = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=1914,
-  serialized_end=1965,
+  serialized_start=1986,
+  serialized_end=2037,
 )
 _sym_db.RegisterEnumDescriptor(_CONTAINERINFO_DOCKERINFO_NETWORK)
 
@@ -142,8 +146,8 @@ _CONTAINERINFO_TYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2137,
-  serialized_end=2165,
+  serialized_start=2209,
+  serialized_end=2237,
 )
 _sym_db.RegisterEnumDescriptor(_CONTAINERINFO_TYPE)
 
@@ -184,8 +188,8 @@ _TASKINFO_TASKSTATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=2441,
-  serialized_end=2545,
+  serialized_start=2513,
+  serialized_end=2617,
 )
 _sym_db.RegisterEnumDescriptor(_TASKINFO_TASKSTATE)
 
@@ -246,6 +250,13 @@ _WRAPPERMESSAGE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='error', full_name='WrapperMessage.error', index=7,
+      number=8, type=11, cpp_type=10, label=1,
+      has_default_value=False, default_value=None,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
   ],
   extensions=[
   ],
@@ -260,7 +271,38 @@ _WRAPPERMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=19,
-  serialized_end=391,
+  serialized_end=432,
+)
+
+
+_ERRORMESSAGE = _descriptor.Descriptor(
+  name='ErrorMessage',
+  full_name='ErrorMessage',
+  filename=None,
+  file=DESCRIPTOR,
+  containing_type=None,
+  fields=[
+    _descriptor.FieldDescriptor(
+      name='error', full_name='ErrorMessage.error', index=0,
+      number=1, type=9, cpp_type=9, label=2,
+      has_default_value=False, default_value=b"".decode('utf-8'),
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+  ],
+  extensions=[
+  ],
+  nested_types=[],
+  enum_types=[
+  ],
+  serialized_options=None,
+  is_extendable=False,
+  syntax='proto2',
+  extension_ranges=[],
+  oneofs=[
+  ],
+  serialized_start=434,
+  serialized_end=463,
 )
 
 
@@ -297,8 +339,8 @@ _PINGAGENTMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=393,
-  serialized_end=464,
+  serialized_start=465,
+  serialized_end=536,
 )
 
 
@@ -342,8 +384,8 @@ _PONGAGENTMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=466,
-  serialized_end=574,
+  serialized_start=538,
+  serialized_end=646,
 )
 
 
@@ -401,8 +443,8 @@ _AGENTINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=576,
-  serialized_end=694,
+  serialized_start=648,
+  serialized_end=766,
 )
 
 
@@ -481,8 +523,8 @@ _RESOURCE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=697,
-  serialized_end=909,
+  serialized_start=769,
+  serialized_end=981,
 )
 
 
@@ -547,8 +589,8 @@ _ATTRIBUTE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=912,
-  serialized_end=1078,
+  serialized_start=984,
+  serialized_end=1150,
 )
 
 
@@ -578,8 +620,8 @@ _VALUE_SCALAR = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1262,
-  serialized_end=1285,
+  serialized_start=1334,
+  serialized_end=1357,
 )
 
 _VALUE_RANGE = _descriptor.Descriptor(
@@ -615,8 +657,8 @@ _VALUE_RANGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1287,
-  serialized_end=1322,
+  serialized_start=1359,
+  serialized_end=1394,
 )
 
 _VALUE_RANGES = _descriptor.Descriptor(
@@ -645,8 +687,8 @@ _VALUE_RANGES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1324,
-  serialized_end=1361,
+  serialized_start=1396,
+  serialized_end=1433,
 )
 
 _VALUE_SET = _descriptor.Descriptor(
@@ -675,8 +717,8 @@ _VALUE_SET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1363,
-  serialized_end=1382,
+  serialized_start=1435,
+  serialized_end=1454,
 )
 
 _VALUE_TEXT = _descriptor.Descriptor(
@@ -705,8 +747,8 @@ _VALUE_TEXT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1384,
-  serialized_end=1405,
+  serialized_start=1456,
+  serialized_end=1477,
 )
 
 _VALUE_DEVICE = _descriptor.Descriptor(
@@ -735,8 +777,8 @@ _VALUE_DEVICE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1407,
-  serialized_end=1431,
+  serialized_start=1479,
+  serialized_end=1503,
 )
 
 _VALUE = _descriptor.Descriptor(
@@ -801,8 +843,8 @@ _VALUE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1081,
-  serialized_end=1494,
+  serialized_start=1153,
+  serialized_end=1566,
 )
 
 
@@ -846,8 +888,8 @@ _CONTAINERINFO_DOCKERINFO_PORTMAPPING = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1838,
-  serialized_end=1912,
+  serialized_start=1910,
+  serialized_end=1984,
 )
 
 _CONTAINERINFO_DOCKERINFO = _descriptor.Descriptor(
@@ -905,8 +947,8 @@ _CONTAINERINFO_DOCKERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1632,
-  serialized_end=1965,
+  serialized_start=1704,
+  serialized_end=2037,
 )
 
 _CONTAINERINFO_WASMINFO_ENVIRONMENTVARIABLE = _descriptor.Descriptor(
@@ -949,8 +991,8 @@ _CONTAINERINFO_WASMINFO_ENVIRONMENTVARIABLE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2067,
-  serialized_end=2135,
+  serialized_start=2139,
+  serialized_end=2207,
 )
 
 _CONTAINERINFO_WASMINFO = _descriptor.Descriptor(
@@ -986,8 +1028,8 @@ _CONTAINERINFO_WASMINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1968,
-  serialized_end=2135,
+  serialized_start=2040,
+  serialized_end=2207,
 )
 
 _CONTAINERINFO = _descriptor.Descriptor(
@@ -1031,8 +1073,8 @@ _CONTAINERINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1497,
-  serialized_end=2165,
+  serialized_start=1569,
+  serialized_end=2237,
 )
 
 
@@ -1069,8 +1111,8 @@ _FRAMEWORKINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2167,
-  serialized_end=2218,
+  serialized_start=2239,
+  serialized_end=2290,
 )
 
 
@@ -1150,8 +1192,8 @@ _TASKINFO = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2221,
-  serialized_end=2545,
+  serialized_start=2293,
+  serialized_end=2617,
 )
 
 
@@ -1188,8 +1230,8 @@ _RUNTASKMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2547,
-  serialized_end=2606,
+  serialized_start=2619,
+  serialized_end=2678,
 )
 
 
@@ -1240,8 +1282,8 @@ _KILLTASKMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2608,
-  serialized_end=2709,
+  serialized_start=2680,
+  serialized_end=2781,
 )
 
 
@@ -1271,8 +1313,8 @@ _RESOURCEREQUESTMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2711,
-  serialized_end=2757,
+  serialized_start=2783,
+  serialized_end=2829,
 )
 
 
@@ -1309,8 +1351,8 @@ _RESOURCEOFFERMESSAGE = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2759,
-  serialized_end=2827,
+  serialized_start=2831,
+  serialized_end=2899,
 )
 
 
@@ -1382,8 +1424,8 @@ _OFFER = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2830,
-  serialized_end=2996,
+  serialized_start=2902,
+  serialized_end=3068,
 )
 
 
@@ -1413,8 +1455,8 @@ _OFFERID = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2998,
-  serialized_end=3022,
+  serialized_start=3070,
+  serialized_end=3094,
 )
 
 _WRAPPERMESSAGE.fields_by_name['type'].enum_type = _WRAPPERMESSAGE_TYPE
@@ -1424,6 +1466,7 @@ _WRAPPERMESSAGE.fields_by_name['run_task'].message_type = _RUNTASKMESSAGE
 _WRAPPERMESSAGE.fields_by_name['kill_task'].message_type = _KILLTASKMESSAGE
 _WRAPPERMESSAGE.fields_by_name['offermsg'].message_type = _RESOURCEOFFERMESSAGE
 _WRAPPERMESSAGE.fields_by_name['request'].message_type = _RESOURCEREQUESTMESSAGE
+_WRAPPERMESSAGE.fields_by_name['error'].message_type = _ERRORMESSAGE
 _WRAPPERMESSAGE_TYPE.containing_type = _WRAPPERMESSAGE
 _PINGAGENTMESSAGE.fields_by_name['agent'].message_type = _AGENTINFO
 _PINGAGENTMESSAGE.fields_by_name['tasks'].message_type = _TASKINFO
@@ -1479,6 +1522,7 @@ _RESOURCEOFFERMESSAGE.fields_by_name['offers'].message_type = _OFFER
 _OFFER.fields_by_name['resources'].message_type = _RESOURCE
 _OFFER.fields_by_name['attributes'].message_type = _ATTRIBUTE
 DESCRIPTOR.message_types_by_name['WrapperMessage'] = _WRAPPERMESSAGE
+DESCRIPTOR.message_types_by_name['ErrorMessage'] = _ERRORMESSAGE
 DESCRIPTOR.message_types_by_name['PingAgentMessage'] = _PINGAGENTMESSAGE
 DESCRIPTOR.message_types_by_name['PongAgentMessage'] = _PONGAGENTMESSAGE
 DESCRIPTOR.message_types_by_name['AgentInfo'] = _AGENTINFO
@@ -1502,6 +1546,13 @@ WrapperMessage = _reflection.GeneratedProtocolMessageType('WrapperMessage', (_me
   # @@protoc_insertion_point(class_scope:WrapperMessage)
   })
 _sym_db.RegisterMessage(WrapperMessage)
+
+ErrorMessage = _reflection.GeneratedProtocolMessageType('ErrorMessage', (_message.Message,), {
+  'DESCRIPTOR' : _ERRORMESSAGE,
+  '__module__' : 'messages_pb2'
+  # @@protoc_insertion_point(class_scope:ErrorMessage)
+  })
+_sym_db.RegisterMessage(ErrorMessage)
 
 PingAgentMessage = _reflection.GeneratedProtocolMessageType('PingAgentMessage', (_message.Message,), {
   'DESCRIPTOR' : _PINGAGENTMESSAGE,

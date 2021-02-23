@@ -12,6 +12,7 @@ message WrapperMessage {
     KILL_TASK = 3;
     RESOURCE_OFFER = 4;
     RESOURCE_REQUEST = 5;
+    ERROR = 6;
   }
 
   required Type type = 1;
@@ -21,6 +22,11 @@ message WrapperMessage {
   optional KillTaskMessage kill_task = 5;
   optional ResourceOfferMessage offermsg = 6;
   optional ResourceRequestMessage request = 7;
+  optional ErrorMessage error = 8;
+}
+
+message ErrorMessage {
+  required string error = 1;
 }
 
 /**
