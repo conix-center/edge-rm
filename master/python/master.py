@@ -322,6 +322,10 @@ def start_coap_server(ip, port):  # pragma: no cover
     server = CoAPServer(ip, int(port), multicast)
     try:
         server.listen(10)
+    except KeyboardInterrupt:
+        print("Server Shutdown")
+        server.close()
+        sys.exit()
     except:
         print("Server Shutdown")
         server.close()
