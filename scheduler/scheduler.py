@@ -44,7 +44,7 @@ def dumpTasks():
             'tasks': tasks
         }))
 
-def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings, env_variables, domain_to_store=''):
+def submitRunTask(host, port, name, agent_to_use, resources_to_use, dockerimg, port_mappings, env_variables, domain_to_store=''):
     print("Submitting task to agent " + agent_to_use + "...")
     # construct message
     wrapper = messages_pb2.WrapperMessage()
@@ -72,7 +72,7 @@ def submitRunTask(name, agent_to_use, resources_to_use, dockerimg, port_mappings
         port_mapping.host_port = host_port
         port_mapping.container_port = container_port
     wrapper.run_task.task.container.docker.environment_variables.extend(env_variables)
-    response = requests.post("http://" + host + ":" + port + '/task', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
+    response = requests.post("http://" + host + ":" + str(port) + '/task', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
     if response:
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.content)
@@ -253,13 +253,13 @@ def submitTasks(host, port, offers, clientID, cameraToUse):
     # return
     # print("Submitting task to agent " + agent_to_use + "...")
     if not taskAlreadyRunning("HTTP endpoint"):
-        submitRunTask("HTTP endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'], server_domain)
+        submitRunTask(host, port, "HTTP endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'], server_domain)
     # if not taskAlreadyRunning("CoAP endpoint"):
     #     submitRunTask("CoAP endpoint", coap_agent, coap_resources, "jnoor/coapserver:v1", {3002:3002}, ['SERVER_PORT=3002'], coap_domain)
 
     unique_key = clientID + '-' + str(randint(0, 1000000))
-    submitRunTask(clientID + ": image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/" + unique_key + "-latest.jpg", 'OUTPUT_URL=http://' + server_domain + ":3003/" + clientID + "-predictions.jpg", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/" + clientID + "-results.json"])
-    submitRunTask(clientID + ": camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/" + unique_key + "-latest.jpg"])
+    submitRunTask(host, port, clientID + ": image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/" + unique_key + "-latest.jpg", 'OUTPUT_URL=http://' + server_domain + ":3003/" + clientID + "-predictions.jpg", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/" + clientID + "-results.json"])
+    submitRunTask(host, port, clientID + ": camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/" + unique_key + "-latest.jpg"])
     
 
 def getOffer(host, port):

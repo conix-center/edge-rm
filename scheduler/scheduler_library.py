@@ -13,7 +13,7 @@ import messages_pb2
 
 class Framework:
 
-  def __init__(self, framework_name, master, master_port=5683, master_api_port=80):
+  def __init__(self, framework_name, master, master_port=80, master_api_port=80):
     self.framework_name = framework_name
     b = hashlib.sha256(framework_name.encode('ascii')).digest()
     self.framework_id = str(uuid.UUID(bytes=b[:16]))
@@ -73,7 +73,7 @@ class Framework:
     wrapper = messages_pb2.WrapperMessage()
     wrapper.type = messages_pb2.WrapperMessage.Type.RESOURCE_REQUEST
     wrapper.request.framework_id = self.framework_id
-    response = requests.post("http://" + host + ":" + port + '/request', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
+    response = requests.post("http://" + self.master + ":" + str(self.master_api_port) + '/request', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
     if response:
       wrapper = messages_pb2.WrapperMessage()
       wrapper.ParseFromString(response.content)
@@ -151,7 +151,7 @@ class Framework:
         wrapper.kill_task.framework.framework_id = task['framework']['frameworkId']
         print(wrapper)
         request_payload = wrapper.SerializeToString()
-        response = requests.post("http://" + host + ":" + port + '/kill', data=request_payload, timeout=2, headers={'Content-Type':'application/protobuf'})
+        response = requests.post("http://" + self.master + ":" + str(self.master_api_port) + '/kill', data=request_payload, timeout=2, headers={'Content-Type':'application/protobuf'})
         if response:
             wrapper = messages_pb2.WrapperMessage()
             wrapper.ParseFromString(response.content)
@@ -221,7 +221,7 @@ class Framework:
     else:
       raise Exception("Must specify either docker or wasm task")
 
-    response = requests.post("http://" + host + ":" + port + '/task', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
+    response = requests.post("http://" + self.master + ":" + str(self.master_api_port) + '/task', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
     if response:
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.content)
