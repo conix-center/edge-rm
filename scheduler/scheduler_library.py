@@ -84,15 +84,18 @@ class Framework:
 
   # find agents tries to be smart and filter agents for you
   # offer filters is a dictionary of name:value or name:list of values
-  def findAgents(self, offer_filters):
-    offers = self.getOffers()
-    print("Find Agents", offers)
+  def findAgents(self, offers, offer_filters):
+    #print("Find Agents", offer_filters)
     valid_offers = []
     for offer in offers:
       offer_valid = True
       for fkey in offer_filters:
-        if fkey == 'name':
-          if offer.agent_name != name:
+        if fkey == 'agent_name':
+          if offer.agent_name != offer_filters[fkey]:
+            offer_valid = False
+            break
+        elif fkey == 'agent_id':
+          if offer.agent_id != offer_filters[fkey]:
             offer_valid = False
             break
         else:
@@ -171,38 +174,45 @@ class Framework:
         print("Kill", task['taskId'])
         self.killTask(task['taskId'])
 
-  def runTask(self, taskName, agent, resources, docker_image=None, wasm_binary=None, docker_port_mappings=None, environment=None):
+  def runTask(self, taskName, agent, resources, offer, docker_image=None, wasm_binary=None, docker_port_mappings=None, environment=None):
     # construct message
     wrapper = messages_pb2.WrapperMessage()
     wrapper.type = messages_pb2.WrapperMessage.Type.RUN_TASK
 
     wrapper.run_task.task.framework.name = self.framework_name
     wrapper.run_task.task.framework.framework_id =self.framework_id
+    wrapper.run_task.offer_id = offer.id
     wrapper.run_task.task.name = taskName
     task_id = str(uuid.uuid1())
     wrapper.run_task.task.task_id = task_id
     wrapper.run_task.task.agent_id = agent
 
-    #do something for resources
-    for resource in resources:
+    for resource in offer.resources:
         r = wrapper.run_task.task.resources.add()
-        r.name = resource
-        val = resources[resource]
-        if isinstance(val, int) or isinstance(val, float):
-          r.type = messages_pb2.Value.SCALAR
-          r.scalar.value = val
-        elif isinstance(val, str):
-          r.type = messages_pb2.Value.DEVICE
+        r.name = resource.name
+        r.type = resource.type
+        for res in resources:
+          if res == r.name and r.type == messages_pb2.Value.SCALAR:
+            r.scalar.value = resources[res]
+
+    ##do something for resources
+    #for resource in resources:
+    #    name = resource
+    #    val = resources[resource]
+    #    for r in wrapper.run_task.task.resources:
+    #      if r.name == name and r.type == messages_pb2.Value.SCALAR:
+    #        r.scalar.value = val
 
     if docker_image:
       # wrapper.run_task.task.resources.extend(resources_to_use)
       wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.DOCKER
       wrapper.run_task.task.container.docker.image = docker_image
-      wrapper.run_task.task.container.docker.network = messages_pb2.ContainerInfo.DockerInfo.Network.BRIDGE
-      for host_port, container_port in docker_port_mappings.items():
-          port_mapping = wrapper.run_task.task.container.docker.port_mappings.add()
-          port_mapping.host_port = host_port
-          port_mapping.container_port = container_port
+      wrapper.run_task.task.container.docker.network = messages_pb2.ContainerInfo.DockerInfo.Network.HOST
+      if docker_port_mappings is not None:
+        for host_port, container_port in docker_port_mappings.items():
+            port_mapping = wrapper.run_task.task.container.docker.port_mappings.add()
+            port_mapping.host_port = host_port
+            port_mapping.container_port = container_port
 
       env = ["{}={}".format(key,environment[key]) for key in environment]
       wrapper.run_task.task.container.docker.environment_variables.extend(env)
@@ -225,7 +235,13 @@ class Framework:
     if response:
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.content)
-        return task_id
+        if wrapper.type == messages_pb2.WrapperMessage.Type.ERROR:
+            print("Task issuance failed", file=sys.stderr)
+            print(wrapper.error.error, file=sys.stderr)
+            return None
+        else:
+            print("Task {} Running!".format(task_id))
+            return task_id
     else:
       raise Exception("Failed to receive resource offers")
 
