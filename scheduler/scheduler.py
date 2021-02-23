@@ -226,7 +226,7 @@ def getDomainForTask(name):
             return tasks[i]['domain']
     return ''
 
-def submitTasks(offers, clientID, cameraToUse):
+def submitTasks(host, port, offers, clientID, cameraToUse):
     print("Searching for a good server offer...")
     printOffer(offers)
 
@@ -262,7 +262,7 @@ def submitTasks(offers, clientID, cameraToUse):
     submitRunTask(clientID + ": camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/" + unique_key + "-latest.jpg"])
     
 
-def getOffer():
+def getOffer(host, port):
     # get offers
     print("Requesting resource offers...")
     wrapper = messages_pb2.WrapperMessage()
@@ -294,8 +294,8 @@ def main(host, port, tasks, clientID, cameraToUse):  # pragma: no cover
     loadTasks()
     # TODO: Should we register the framework first?
 
-    offers = getOffer()
-    submitTasks(offers, clientID, cameraToUse)
+    offers = getOffer(host, port)
+    submitTasks(host, port, offers, clientID, cameraToUse)
 
     # loop ping/pong
     # try:
