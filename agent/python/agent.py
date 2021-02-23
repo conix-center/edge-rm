@@ -191,7 +191,10 @@ def main(host, port, configPath, verbose):  # pragma: no cover
                         else:
                             print("Agent cannot run this type of task")
             except requests.exceptions.ConnectionError:
-                print("Connection Error")
+                print("ERROR: Connection Error")
+            except requests.exceptions.ReadTimeout:
+                print("WARNING: Ping Response timeout")
+
             time.sleep(ping_rate / 1000)
 
     except KeyboardInterrupt:
