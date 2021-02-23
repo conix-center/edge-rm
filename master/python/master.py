@@ -126,7 +126,7 @@ def RunTask(wrapper):
 
     #check for valid resources - just scalars for now
     for tresource in wrapper.run_task.task.resources:
-        r = {x.name: (x.type, x.scalar,x.ranges,x.set,x.text,x.devic) for x in offer.resources}
+        r = {x.name: (x.type, x.scalar,x.ranges,x.set,x.text,x.device) for x in offer.resources}
         if tresource.name not in r:
             return "Resource not in offer"
         elif tresource.type != r[tresource.name][0]:
