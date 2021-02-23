@@ -44,11 +44,12 @@ def dumpTasks():
             'tasks': tasks
         }))
 
-def submitRunTask(host, port, name, agent_to_use, resources_to_use, dockerimg, port_mappings, env_variables, domain_to_store=''):
+def submitRunTask(host, port, name, agent_to_use, resources_to_use, offer_id, dockerimg, port_mappings, env_variables, domain_to_store=''):
     print("Submitting task to agent " + agent_to_use + "...")
     # construct message
     wrapper = messages_pb2.WrapperMessage()
     wrapper.type = messages_pb2.WrapperMessage.Type.RUN_TASK
+    wrapper.run_task.offer_id = offer_id
     wrapper.run_task.task.framework.name = framework_name
     wrapper.run_task.task.framework.framework_id = framework_id
     wrapper.run_task.task.name = name
@@ -76,15 +77,19 @@ def submitRunTask(host, port, name, agent_to_use, resources_to_use, dockerimg, p
     if response:
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.content)
-        print("Task Running!")
-        tasks.append({
-            'name': name,
-            'task_id': task_id,
-            'agent_id': agent_to_use,
-            'domain': domain_to_store
-        })
-        dumpTasks()
-        #TODO: Generate confirmation protobuf message
+        if wrapper.type == messages_pb2.WrapperMessage.Type.ERROR:
+            print("Task issuance failed", file=sys.stderr)
+            print(wrapper.error.error, file=sys.stderr)
+        else:
+            print("Task Running!")
+            tasks.append({
+                'name': name,
+                'task_id': task_id,
+                'agent_id': agent_to_use,
+                'domain': domain_to_store
+            })
+            dumpTasks()
+            #TODO: Generate confirmation protobuf message
         
     else:
         print("Failed to submit task.",file=sys.stderr)
@@ -113,11 +118,11 @@ def getCamTask(offers, cameraToUse):
                     got_cam = True
             if cameraToUse:
                 if offer.agent_id == cameraToUse:
-                    return (offer.agent_id, resources_to_use)
+                    return (offer.agent_id, resources_to_use, offer.id)
             else:
                 for attribute in offer.attributes:
                     if good_cpu and good_mem and got_cam and attribute.name == "OS" and attribute.text.value == "debian-10.1-armv6l":
-                        return (offer.agent_id, resources_to_use)
+                        return (offer.agent_id, resources_to_use, offer.id)
     print("Failed to find a node with a camera.",file=sys.stderr)
     sys.exit(1)
 
@@ -140,7 +145,7 @@ def getServerTask(offers):
                     good_mem = True
             for attribute in offer.attributes:
                 if good_cpu and good_mem and attribute.name == "domain":
-                    return (offer.agent_id, resources_to_use, attribute.text.value)
+                    return (offer.agent_id, resources_to_use, attribute.text.value, offer.id)
     print("Failed to find a server.",file=sys.stderr)
     sys.exit(1)
 
@@ -163,7 +168,7 @@ def getCoAPTask(offers):
                     good_mem = True
             for attribute in offer.attributes:
                 if good_cpu and good_mem and attribute.name == "domain":
-                    return (offer.agent_id, resources_to_use, attribute.text.value)
+                    return (offer.agent_id, resources_to_use, attribute.text.value, offer.id)
     print("Failed to find a coap server...")
     sys.exit(1)
 
@@ -186,7 +191,7 @@ def getClassifyTask(offers):
                     good_mem = True
             for attribute in offer.attributes:
                 if good_cpu and good_mem and attribute.name == "domain":
-                    return (offer.agent_id, resources_to_use, attribute.text.value)
+                    return (offer.agent_id, resources_to_use, attribute.text.value, offer.id)
     print("Failed to find a classify instance...")
     sys.exit(1)
 
@@ -230,11 +235,11 @@ def submitTasks(host, port, offers, clientID, cameraToUse):
     print("Searching for a good server offer...")
     printOffer(offers)
 
-    (camera_agent, camera_resources) = getCamTask(offers, cameraToUse)
+    (camera_agent, camera_resources, camera_offer_id) = getCamTask(offers, cameraToUse)
     print("Got a camera!")
 
     if not taskAlreadyRunning("HTTP endpoint"):
-        (server_agent, server_resources, server_domain) = getServerTask(offers)
+        (server_agent, server_resources, server_domain, server_offer_id) = getServerTask(offers)
         print("Got a server!")
     else:
         server_domain = getDomainForTask("HTTP endpoint")
@@ -247,19 +252,19 @@ def submitTasks(host, port, offers, clientID, cameraToUse):
     #     coap_domain = getDomainForTask("CoAP endpoint")
     #     print("CoAP Server is already running! Reusing...")
     
-    (classify_agent, classify_resources, classify_domain) = getClassifyTask(offers)
+    (classify_agent, classify_resources, classify_domain, classify_offer_id) = getClassifyTask(offers)
     print("Got a classify instance!")
 
     # return
     # print("Submitting task to agent " + agent_to_use + "...")
     if not taskAlreadyRunning("HTTP endpoint"):
-        submitRunTask(host, port, "HTTP endpoint", server_agent, server_resources, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'], server_domain)
+        submitRunTask(host, port, "HTTP endpoint", server_agent, server_resources, server_offer_id, "jnoor/hellocameraserver:v1", {3003:3003}, ['SERVER_PORT=3003'], server_domain)
     # if not taskAlreadyRunning("CoAP endpoint"):
     #     submitRunTask("CoAP endpoint", coap_agent, coap_resources, "jnoor/coapserver:v1", {3002:3002}, ['SERVER_PORT=3002'], coap_domain)
 
     unique_key = clientID + '-' + str(randint(0, 1000000))
-    submitRunTask(host, port, clientID + ": image classification", classify_agent, classify_resources, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/" + unique_key + "-latest.jpg", 'OUTPUT_URL=http://' + server_domain + ":3003/" + clientID + "-predictions.jpg", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/" + clientID + "-results.json"])
-    submitRunTask(host, port, clientID + ": camera task", camera_agent, camera_resources, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/" + unique_key + "-latest.jpg"])
+    submitRunTask(host, port, clientID + ": image classification", classify_agent, classify_resources, classify_offer_id, "jnoor/classify:v1", {}, ['INPUT_URL=http://' + server_domain + ":3003/" + unique_key + "-latest.jpg", 'OUTPUT_URL=http://' + server_domain + ":3003/" + clientID + "-predictions.jpg", 'OUTPUTRESULT_URL=http://' + server_domain + ":3003/" + clientID + "-results.json"])
+    submitRunTask(host, port, clientID + ": camera task", camera_agent, camera_resources, camera_offer_id, "jnoor/cameraalpine:v1", {}, ["SERVER_HOST=http://" + server_domain + ":3003/" + unique_key + "-latest.jpg"])
     
 
 def getOffer(host, port):
