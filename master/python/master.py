@@ -78,7 +78,7 @@ def GetResourceOffer(wrapper):
        
         removal_indexes = []
         for i, r in enumerate(offer.resources):
-            if r.scalar.value is not None and r.scalar.value <= 0.001:
+            if r.type == messages_pb2.Value.Type.SCALAR and r.scalar.value is not None and r.scalar.value <= 0.001:
                 removal_indexes.append(i)
 
         #removal_list
