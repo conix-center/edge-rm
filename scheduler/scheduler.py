@@ -268,7 +268,7 @@ def getOffer(host, port):
     wrapper = messages_pb2.WrapperMessage()
     wrapper.type = messages_pb2.WrapperMessage.Type.RESOURCE_REQUEST
     wrapper.request.framework_id = framework_id
-    response = requests.post("http://" + host + ":" + port + '/request', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
+    response = requests.post("http://" + host + ":" + str(port) + '/request', data=wrapper.SerializeToString(), timeout=2, headers={'Content-Type':'application/protobuf'})
     if response:
         wrapper = messages_pb2.WrapperMessage()
         wrapper.ParseFromString(response.content)
