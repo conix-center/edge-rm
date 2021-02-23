@@ -317,7 +317,7 @@ def main(host, port, tasks, clientID, cameraToUse):  # pragma: no cover
 if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(description='Launch a CoAP Resource Manager Framework')
     parser.add_argument('--host', required=True, help='the Edge RM Master IP to register with.')
-    parser.add_argument('--port', required=False, default=5683, help='the Edge RM Master port to register on.')
+    parser.add_argument('--port', required=False, default=80, help='the Edge RM Master port to register on.')
     parser.add_argument('--tasks', required=True, help='the file containing the scheduler tasks.')
     parser.add_argument('--client', help='the client ID that submitted this task')
     parser.add_argument('--camera', help='the camera to use')
