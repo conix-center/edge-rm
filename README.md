@@ -22,7 +22,9 @@ and frameworks which facilitate the scheduling of applications (which are broken
 down into tasks on the) on the agent
 nodes. 
 
-<img src="./media/architecture.png" width="200">
+<p align="center">
+    <img src="./media/architecture.png" width="600">
+</p>
 
 ### Master Node
 
