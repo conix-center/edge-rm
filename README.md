@@ -28,7 +28,7 @@ nodes.
 
 ### Master Node
 
-The EdgeRM Master node collects resources from agent nodes and offers
+[The EdgeRM Master](./master/python) node collects resources from agent nodes and offers
 those resources to frameworks which can schedule tasks on those resources.
 Currently the EdgeRM Master is implemented in python and supports both HTTP
 and COAP networking.
