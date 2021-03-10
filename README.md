@@ -60,11 +60,19 @@ implementations are [here](./docs/resource-attributes.md).
 ## Repo Organization
 
 ./master - the EdgeRM master implementation written in python
+
 ./agent - multiple EdgeRM agent implementations
+
 ./proto - EdgeRM Protobuf definitions
+
 ./frameworks - several example frameworks which use EdgeRM
+
 ./scheduler - scheduling library and utilities used by the frameworks
+
 ./test - full systems tests
+
 ./media - media for this project
+
 ./docs - more documentation about details of the project
+
 ./support - third party supporting directories
