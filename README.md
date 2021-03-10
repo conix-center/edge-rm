@@ -15,56 +15,56 @@ bandwidth constrained networks and behind NATs. We intend to support executors
 such as WASM in addition to traditional container environments so that multiple
 tasks can be run in memory constrained environments.
 
-Currently we are building a minimal testbed on which we can test these ideas
-during development. The details of the testbed are outlined below.
+## Architecture
 
-### Server
+The resource manager consists of a master node, multiple agent nodes, 
+and frameworks which facilitate the scheduling of applications (which are broken
+down into tasks on the) on the agent
+nodes. 
 
-We run the resource manager master on a linux server. It should be 
-globally accessible. Current we have two resource managers under master/python.
+![EdgeRM Architecture](./media/architecture.png)
 
-Hopefully this will be combined into a single program at some point in the future.
+### Master Node
 
-### Gateway
+The EdgeRM Master node collects resources from agent nodes and offers
+those resources to frameworks which can schedule tasks on those resources.
+Currently the EdgeRM Master is implemented in python and supports both HTTP
+and COAP networking.
 
-Local linux-class devices serve as gateways for constrained network protocols
-and perform local compute and data storage. Currently we are using raspberry
-pis that are setup as thread border routers.
+If the entire deployment is within a local network, this could be deployed locally,
+but we expect it will be most useful if deployed on a publicly accessible server.
 
-You need a custom kernel to run docker with all the cgroup features on a pi ([see this](github.com/hypriot/rpi-kernel)). We provide an 
-image with this kernel that is running thread border router software [here](https://drive.google.com/drive/u/1/folders/1SPO9n25aIeH7cvcsD7acbq7WBMO16mKg).
-Setup for this image, which is based off the lab11 open thread border router image, is described [here](https://github.com/lab11/otbr).
+### Agent Nodes
 
-The image comes with a copy of this repo that automatically performs a git pull, updates library
-dependencies, and starts a resource manager agent on boot.
+EdgeRM agent nodes offer resources on which tasks can be scheduled. They can
+range from small embedded nodes up to traditional Linux servers. Agent nodes
+support one or mode execution environments (currently Docker and WASM are supported),
+and can advertise traditional resources such as compute and memory, and less traditional
+resources, such as sensor and actuator devices.
 
-### Edge Devices
+Currently agent nodes are implemented in python supporting a Docker execution
+environment and in C on the zephyr OS supporting a WASM execution environment. 
 
-We are using permamotes as edge devices: github.com/lab11/permamote
+### Resources and Attributes
 
-Other edge devices could be used, but they should be able to act as COAP clients.
+Resources are anything that needs to be shared are partitioned by tasks
+running on an agent node, and attributes are added information about
+the nodes on which these resources exist. While the EdgeRM protocol and master do
+no enforce the usage of specific resources and attributes, 
+without standardization of these types
+there would be little portability between frameworks and agent nodes.
 
-We hope to run WASM on these devices using the WASM Micro Runtime (WAMR): https://github.com/bytecodealliance/wasm-micro-runtime
+A current list of the resources and attributes we use in our agent and framework
+implementations are [here](./docs/resource-attributes.md).
 
-### Resources & Attributes
+## Repo Organization
 
-Current resources expected by the system:
-- cpus:Scalar
-- mem:Scalar
-- ports:Ranges
-- disk:Scalar
-
-Current attributes expected by the system:
-- executors:Set (the set of possible executors, currently DOCKER or WASM)
-- OS:Text (OS of agent)
-- domain:Text (globally accessible domain name of agent)
-
-## Project Roadmap
- - Poster/Lightning Talk/Lightning talk video - September 25th - Joseph
- - Wireframe mockup that shows user experience in demo - September 25th - Josh
- - Edge Zephyr Agent connecting and executing WASM Tasks - September 28th - Josh
- - Write a WASM task that collect sensor data and send to MQTT-SN Broker - September 28th - Josh
- - Make framework for sensor data store and forward - October 2nd - Joseph
- - Make framework for image classification and filtering - September 28th - Joseph
- - Write the demo frontend/backend - October 6th - Josh
- - Write the framework API interface to accept programs from the website - October 6th - Joseph
+./master - the EdgeRM master implementation written in python
+./agent - multiple EdgeRM agent implementations
+./proto - EdgeRM Protobuf definitions
+./frameworks - several example frameworks which use EdgeRM
+./scheduler - scheduling library and utilities used by the frameworks
+./test - full systems tests
+./media - media for this project
+./docs - more documentation about details of the project
+./support - third party supporting directories
