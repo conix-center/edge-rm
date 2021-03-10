@@ -22,7 +22,7 @@ and frameworks which facilitate the scheduling of applications (which are broken
 down into tasks on the) on the agent
 nodes. 
 
-![EdgeRM Architecture](./media/architecture.png)
+![EdgeRM Architecture](./media/architecture.png | width=300)
 
 ### Master Node
 
