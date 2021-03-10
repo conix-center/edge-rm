@@ -9,7 +9,6 @@ import threading
 import flask
 app = flask.Flask(__name__)
 
-sys.path.insert(1, '../../support/CoAPthon3')
 from coapthon.server.coap import CoAP
 from coapthon import defines
 from coapthon.resources.resource import Resource
