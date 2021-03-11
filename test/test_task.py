@@ -10,7 +10,7 @@ from scheduler_library import Framework
 def test_run_task():
    m = start_master()
 
-   start agent with specific cpu and memory
+   #start agent with specific cpu and memory
    a = start_agent(memory='125Mb',cpu=0.4)
 
    #time.sleep(10)
