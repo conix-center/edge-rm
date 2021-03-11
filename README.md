@@ -1,7 +1,7 @@
 Edge Resource Manager
 =====================
 
-<img src='https://staging.travis-ci.com/conix-center/edge-rm.svg?branch=master'>
+[![Build Status](https://staging.travis-ci.com/conix-center/edge-rm.svg?branch=master)](https://staging.travis-ci.com/conix-center/edge-rm)
 
 Resource managers exist to collect computing resources from multiple disparate machines
 and abstract their use into a unified interface for distributed applications. Existing
