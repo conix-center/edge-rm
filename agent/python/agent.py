@@ -15,6 +15,7 @@ import dockerhelper
 import socket
 import db
 import requests
+import distro
 
 import messages_pb2
 
@@ -89,8 +90,8 @@ def constructAttributes(attributes, config):
     if platform.system().lower() == 'darwin':
         os = sysconfig.get_platform() 
     elif platform.system().lower() == 'linux':
-        distro = platform.linux_distribution()[0]
-        version = platform.linux_distribution()[1]
+        distro = distro.linux_distribution(full_distribution_name=False)[0]
+        version = distro.linux_distribution(full_distribution_name=False)[1]
         arch = platform.machine()
         os = distro + '-' + version + '-' + arch
     os_attribute.text.value =  os
