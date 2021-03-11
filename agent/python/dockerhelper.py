@@ -50,12 +50,25 @@ def fetchImage(imageURL, forcepull=False):
 
 def runImage(image, cpu_shares, mem_limit, disk_limit, network, ports, environment, devices, volumes, frameworkName, taskID,):
     containerName = str(taskID)
+
+    print("pulling image..")
     client.images.pull(image)
+
+    disk_limit={'size':'10G'}
+    print("running image...")
+    print("CPU shares: ", cpu_shares)
+    print("Memory Limit: ", mem_limit)
+    print("Storage Options: ", disk_limit)
+    print("Network Mode: ", network)
+    print("Ports: ", ports)
+    print("Env: ", environment)
+    print("Devices: ", devices)
+    print("Volumes: ", volumes)
     container = client.containers.run(image, 
                                       cpu_quota=int(cpu_shares), 
                                       cpu_period=100000, 
                                       mem_limit=int(mem_limit),
-                                      storage_opt=disk_limit,
+                                      #storage_opt=disk_limit,
                                       detach=True, 
                                       name=containerName, 
                                       network_mode=network, 
@@ -63,6 +76,8 @@ def runImage(image, cpu_shares, mem_limit, disk_limit, network, ports, environme
                                       environment=environment,
                                       devices=devices,
                                       volumes=volumes)
+
+    print("Image running")
 
     containers[taskID] = container
 

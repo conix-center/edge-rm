@@ -135,10 +135,7 @@ class Framework:
       if offer_valid:      
         valid_offers.append(offer)
 
-    r = []
-    for offer in valid_offers:
-      r.append((offer.agent_id,offer))
-    return r
+    return valid_offers
 
   def killTask(self, taskId):
     tasks = self.getTasks()
@@ -174,7 +171,16 @@ class Framework:
         print("Kill", task['taskId'])
         self.killTask(task['taskId'])
 
-  def runTask(self, taskName, agent, resources, offer, docker_image=None, wasm_binary=None, docker_port_mappings=None, environment=None):
+  def runTask(self, taskName, offer, resources, docker_image=None, wasm_binary=None, docker_port_mappings=None, environment=None):
+    """Run task on an agent
+
+    Runs a task with the specified information on an agent.
+
+    Arguments:
+      taskName (str): human-readable name for the task.
+      offer (OfferMessage): The offer messsage associated with this task
+      resources (ResourcesList): In its most basic form, this is juster offer.resources
+    """
     # construct message
     wrapper = messages_pb2.WrapperMessage()
     wrapper.type = messages_pb2.WrapperMessage.Type.RUN_TASK
@@ -185,26 +191,10 @@ class Framework:
     wrapper.run_task.task.name = taskName
     task_id = str(uuid.uuid1())
     wrapper.run_task.task.task_id = task_id
-    wrapper.run_task.task.agent_id = agent
-
-    for resource in offer.resources:
-        r = wrapper.run_task.task.resources.add()
-        r.name = resource.name
-        r.type = resource.type
-        for res in resources:
-          if res == r.name and r.type == messages_pb2.Value.SCALAR:
-            r.scalar.value = resources[res]
-
-    ##do something for resources
-    #for resource in resources:
-    #    name = resource
-    #    val = resources[resource]
-    #    for r in wrapper.run_task.task.resources:
-    #      if r.name == name and r.type == messages_pb2.Value.SCALAR:
-    #        r.scalar.value = val
+    wrapper.run_task.task.agent_id = offer.agent_id
+    wrapper.run_task.task.resources.extend(resources)
 
     if docker_image:
-      # wrapper.run_task.task.resources.extend(resources_to_use)
       wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.DOCKER
       wrapper.run_task.task.container.docker.image = docker_image
       wrapper.run_task.task.container.docker.network = messages_pb2.ContainerInfo.DockerInfo.Network.HOST
