@@ -13,7 +13,7 @@ def test_run_task():
    #start agent with specific cpu and memory
    a = start_agent(memory='125Mb',cpu=0.4)
 
-   #time.sleep(10)
+   time.sleep(10)
 
    #declare a framework and request offers
    test_framework = Framework('test','127.0.0.1',8080,8080)
