@@ -1,6 +1,3 @@
-[submodule "agent/openthread"]
-	path = agent/support/openthread
-	url = https://github.com/oubotong/openthread
 [submodule "agent/zephyr/app/wamr"]
 	path = agent/zephyr/app/wamr
 	url = https://github.com/bytecodealliance/wasm-micro-runtime
