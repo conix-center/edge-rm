@@ -1,0 +1,11 @@
+language: python
+python:
+    - "3.8"
+services:
+    - docker
+install:
+    - pip install -r master/python/requirements.txt
+    - pip install -r agent/python/requirements.txt
+script:
+    - cd test
+    - pytest
