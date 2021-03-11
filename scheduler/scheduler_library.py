@@ -214,8 +214,9 @@ class Framework:
             port_mapping.host_port = host_port
             port_mapping.container_port = container_port
 
-      env = ["{}={}".format(key,environment[key]) for key in environment]
-      wrapper.run_task.task.container.docker.environment_variables.extend(env)
+      if environment is not None:
+        env = ["{}={}".format(key,environment[key]) for key in environment]
+        wrapper.run_task.task.container.docker.environment_variables.extend(env)
     elif wasm_binary:
       wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.WASM
       wrapper.run_task.task.container.wasm.wasm_binary = wasm_binary
