@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import pytest
 from test import start_master, start_agent
 import time
 import subprocess
@@ -7,12 +8,20 @@ import sys
 sys.path.insert(0,'../scheduler/')
 from scheduler_library import Framework
 
-def test_run_task():
+@pytest.fixture
+def master():
    m = start_master()
+   yield m
+   m.kill()  
 
-   #start agent with specific cpu and memory
+@pytest.fixture
+def agent():
    a = start_agent(memory='125Mb',cpu=0.4)
+   yield a
+   a.kill()  
 
+
+def test_run_task(master, agent):
    time.sleep(10)
 
    #declare a framework and request offers
@@ -44,9 +53,5 @@ def test_run_task():
    assert complete
 
    #are they still running?
-   assert m.poll() is None
-   assert a.poll() is None
-
-   #kill
-   m.kill()
-   a.kill()
+   assert master.poll() is None
+   assert agent.poll() is None

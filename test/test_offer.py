@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import pytest
 from test import start_master, start_agent
 import time
 import subprocess
@@ -7,11 +8,19 @@ import sys
 sys.path.insert(0,'../scheduler/')
 from scheduler_library import Framework
 
-def test_resource_offer():
+@pytest.fixture
+def master():
    m = start_master()
+   yield m
+   m.kill()  
 
-   #start agent with specific cpu and memory
+@pytest.fixture
+def agent():
    a = start_agent(memory='125Mb',cpu=0.4)
+   yield a
+   a.kill()  
+
+def test_resource_offer(master, agent):
 
    time.sleep(10)
 
@@ -34,18 +43,11 @@ def test_resource_offer():
    assert cpu and mem
 
    #are they still running?
-   assert m.poll() is None
-   assert a.poll() is None
+   assert master.poll() is None
+   assert agent.poll() is None
 
-   #kill
-   m.kill()
-   a.kill()
 
-def test_repeat_offer():
-   m = start_master()
-
-   #start agent with specific cpu and memory
-   a = start_agent(memory='125Mb',cpu=0.4)
+def test_repeat_offer(master, agent):
 
    time.sleep(10)
 
@@ -71,9 +73,5 @@ def test_repeat_offer():
    assert len(offers_2) == 0
 
    #are they still running?
-   assert m.poll() is None
-   assert a.poll() is None
-
-   #kill
-   m.kill()
-   a.kill()
+   assert master.poll() is None
+   assert agent.poll() is None

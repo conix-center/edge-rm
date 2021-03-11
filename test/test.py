@@ -17,6 +17,7 @@ def start_agent(master_ip='127.0.0.1', master_port=8080, memory='500Mb', cpu=1.0
 
    l = ['../agent/python/agent.py', '--host', master_ip, '--port', str(master_port), '--config', cname]
    return subprocess.Popen(l, stdout=subprocess.PIPE)
+
 start_agent.counter = 0
 
 def start_master(master_ip='127.0.0.1', master_port=5683, master_api_port=8080):
