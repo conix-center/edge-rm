@@ -90,10 +90,10 @@ def constructAttributes(attributes, config):
     if platform.system().lower() == 'darwin':
         os = sysconfig.get_platform() 
     elif platform.system().lower() == 'linux':
-        distro = distro.linux_distribution(full_distribution_name=False)[0]
+        dist = distro.linux_distribution(full_distribution_name=False)[0]
         version = distro.linux_distribution(full_distribution_name=False)[1]
         arch = platform.machine()
-        os = distro + '-' + version + '-' + arch
+        os = dist + '-' + version + '-' + arch
     os_attribute.text.value =  os
 
     #if there is a domain attribute add it
