@@ -49,7 +49,7 @@ app.post('/startSensor', jsonParser, function(req, res) {
 
 	var python;
 	if(req.body.ffunc) {
-		python = spawn('python3', ['../scheduler/sensor-scheduler.py', 
+		python = spawn('python3', ['../simple-sensor/sensor-scheduler.py', 
 			'--host', '128.97.92.77', 
 			'--client', req.cookies['client'], 
 			'--sensor', req.body.sensor,
@@ -57,7 +57,7 @@ app.post('/startSensor', jsonParser, function(req, res) {
 			'--ffunc', req.body.ffunc,
 			'--fval', req.body.fval])
 	} else {
-		python = spawn('python3', ['../scheduler/sensor-scheduler.py', 
+		python = spawn('python3', ['../simple-snesor/sensor-scheduler.py', 
 			'--host', '128.97.92.77', 
 			'--client', req.cookies['client'], 
 			'--sensor', req.body.sensor,
@@ -90,7 +90,11 @@ app.get('/start', jsonParser, function(req, res) {
 
 	log.info("starting tasks")
 
-	const python = spawn('python3', ['../scheduler/scheduler.py', '--host', '128.97.92.77', '--tasks', 'tasks.json', '--client', req.cookies['client'], '--camera', camera_to_use])
+	const python = spawn('python3', ['../simple-camera/new-scheduler.py', 
+					  '--host', '128.97.92.77', 
+					  '--tasks', 'tasks.json', 
+					  '--client', req.cookies['client'], 
+					  '--camera', camera_to_use])
 	var dataToSend = '';
 	python.stdout.on('data', function(data) {
 		//dataToSend += data.toString();
@@ -110,7 +114,7 @@ app.get('/stop/all', function(req, res) {
 	// log.info(req.body);
 	log.info("stopping all tasks")
 
-	const python = spawn('python3', ['../scheduler/kill-task.py', '--host', '128.97.92.77', '--all'])
+	const python = spawn('python3', ['../../edgerm/tools/kill-task.py', '--host', '128.97.92.77', '--all'])
 	var dataToSend = '';
 	python.stdout.on('data', function(data) {
 		dataToSend += data.toString();
