@@ -5,8 +5,7 @@ from test import start_master, start_agent
 import time
 import subprocess
 import sys
-sys.path.insert(0,'../scheduler/')
-from scheduler_library import Framework
+from edgerm.framework import Framework
 
 @pytest.fixture
 def master():

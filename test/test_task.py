@@ -5,8 +5,8 @@ from test import start_master, start_agent
 import time
 import subprocess
 import sys
-sys.path.insert(0,'../scheduler/')
-from scheduler_library import Framework
+import os
+from edgerm.framework import Framework
 
 @pytest.fixture
 def master():
@@ -16,6 +16,13 @@ def master():
 
 @pytest.fixture
 def agent():
+
+   #delete task.json if exists
+   if os.path.exists('./tasks.json'):
+      os.remove('./tasks.json') 
+   if os.path.exists('./test/tasks.json'):
+      os.remove('./test/tasks.json') 
+
    a = start_agent(memory='125Mb',cpu=0.4)
    yield a
    a.kill()  

@@ -9,7 +9,7 @@ import json
 import requests
 import hashlib
 
-import messages_pb2
+from . import messages_pb2
 
 class Framework:
 

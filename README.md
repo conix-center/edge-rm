@@ -71,12 +71,10 @@ implementations are [here](./docs/resource-attributes.md).
 
 ./frameworks - several example frameworks which use EdgeRM
 
-./scheduler - scheduling library and utilities used by the frameworks
+./edgerm - the edgerm python library code. Utilities to create frameworks and schedulers.
 
 ./test - full systems tests
 
 ./media - media for this project
 
 ./docs - more documentation about details of the project
-
-./support - third party supporting directories
