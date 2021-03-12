@@ -3,7 +3,7 @@ import sys
 import argparse
 import pydig
 
-from scheduler_library import Framework
+from edgerm.framework import Framework
 
 def main(host, port, client, sensor, period, func, val):  # pragma: no cover
 
@@ -16,22 +16,21 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
     domain = None
     if agent is None:
         #launch the task
-        server_agents = framework.findAgents({'domain':None,'cpus':0.5,'mem':100000})
+        server_agents = framework.findAgents({'domain':None,'cpus':0.5,'mem':100000000})
 
         if len(server_agents) == 0:
             print("No available server agents.", file=sys.stderr)
             return
 
 
-        framework.runTask("SensorServer",server_agents[0][0],
-                                {'cpus':0.5,'mem':'100000000'},
+        framework.runTask("SensorServer",server_agents[0],
                                 docker_image='jnoor/coapserver:v1',
                                 docker_port_mappings={3002:3002},
                                 environment={'SERVER_PORT':'3002'})
 
-        print("Started server task on agent: {}".format(server_agents[0][0]))
+        print("Started server task on agent: {}".format(server_agents[0].agent_id))
 
-        domain = framework.getAgentProperty(server_agents[0][0],'domain')
+        domain = framework.getAgentProperty(server_agents[0].agent_id,'domain')
     else:
         print("Sensor server task already running.")
         domain = framework.getAgentProperty(agent,'domain')
@@ -81,8 +80,8 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
     wasm_file = open('../wasm/wasm-send/out.wasm','rb')
     print("Running task with environment:")
     print(env)
-    framework.runTask(args.client + ':' + "SensorSample",wasm_agents[0][0],{'cpus':1.0},wasm_binary=wasm_file.read(),environment=env)
-    print("Started sensor task on agent: {}".format(wasm_agents[0][0]))
+    framework.runTask(args.client + ':' + "SensorSample",wasm_agents[0],wasm_binary=wasm_file.read(),environment=env)
+    print("Started sensor task on agent: {}".format(wasm_agents[0].agent_id))
 
 if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(description='Launch a CoAP Resource Manager Framework')

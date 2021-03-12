@@ -34,10 +34,10 @@ def test_kill_task(master, agent):
    test_framework = Framework('test','127.0.0.1',8080,8080)
 
    offers = test_framework.getOffers()
-   valid_offers = test_framework.findAgents(offers,{'cpus':0.2})
+   valid_offers = test_framework.findAgents(offers,{'cpus':0.2,'mem':100000000})
 
    #run a docker task on the found agent
-   task_id = test_framework.runTask('test', valid_offers[0], valid_offers[0].resources, docker_image='jnoor/dummy:v1')
+   task_id = test_framework.runTask('test', valid_offers[0], docker_image='jnoor/dummy:v1')
 
    time.sleep(5)
 
@@ -86,10 +86,10 @@ def test_run_task(master, agent):
    test_framework = Framework('test','127.0.0.1',8080,8080)
 
    offers = test_framework.getOffers()
-   valid_offers = test_framework.findAgents(offers,{'cpus':0.2})
+   valid_offers = test_framework.findAgents(offers,{'cpus':0.2,'mem':100000000})
 
    #run a docker task on the found agent
-   task_id = test_framework.runTask('test', valid_offers[0], valid_offers[0].resources, docker_image='jnoor/dummy:v1')
+   task_id = test_framework.runTask('test', valid_offers[0], docker_image='jnoor/dummy:v1')
 
    time.sleep(5)
 

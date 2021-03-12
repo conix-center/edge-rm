@@ -135,6 +135,13 @@ class Framework:
       if offer_valid:      
         valid_offers.append(offer)
 
+    #now before return offers decrease them by any scalars specified
+    for offer in valid_offers:
+      for r in offer.resources:
+        for key in offer_filters:
+          if r.name == key and r.scalar.value:
+            r.scalar.value = offer_filters[key]
+
     return valid_offers
 
   def killTask(self, taskId):
@@ -171,7 +178,7 @@ class Framework:
         print("Kill", task['taskId'])
         self.killTask(task['taskId'])
 
-  def runTask(self, taskName, offer, resources, docker_image=None, wasm_binary=None, docker_port_mappings=None, environment=None):
+  def runTask(self, taskName, offer, docker_image=None, wasm_binary=None, docker_port_mappings=None, environment=None):
     """Run task on an agent
 
     Runs a task with the specified information on an agent.
@@ -179,7 +186,6 @@ class Framework:
     Arguments:
       taskName (str): human-readable name for the task.
       offer (OfferMessage): The offer messsage associated with this task
-      resources (ResourcesList): In its most basic form, this is juster offer.resources
     """
     # construct message
     wrapper = messages_pb2.WrapperMessage()
@@ -192,7 +198,7 @@ class Framework:
     task_id = str(uuid.uuid1())
     wrapper.run_task.task.task_id = task_id
     wrapper.run_task.task.agent_id = offer.agent_id
-    wrapper.run_task.task.resources.extend(resources)
+    wrapper.run_task.task.resources.extend(offer.resources)
 
     if docker_image:
       wrapper.run_task.task.container.type = messages_pb2.ContainerInfo.Type.DOCKER
