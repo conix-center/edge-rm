@@ -8,6 +8,6 @@ services:
 install:
     - pip install -r master/python/requirements.txt
     - pip install -r agent/python/requirements.txt
+    - pip install -e .
 script:
-    - cd test
-    - pytest
+    - pytest test
