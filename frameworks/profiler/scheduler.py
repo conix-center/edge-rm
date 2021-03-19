@@ -20,7 +20,7 @@ def main(host, port):  # pragma: no cover
         server_agents = framework.findAgents({'domain':None,'cpus':0.5,'mem':100000000})
 
         if len(server_agents) == 0:
-            print("No available server agents.", file=sys.stderr)
+            print("No available server agents.")
             return
 
 
@@ -71,6 +71,6 @@ def main(host, port):  # pragma: no cover
 if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(description='Launch the Profiler Meta-Framework')
     parser.add_argument('--host', required=True, help='the Edge RM Master IP to register with.')
-    parser.add_argument('--port', required=False, default=5683, help='the Edge RM Master port to register on.')
+    parser.add_argument('--port', required=False, default=80, help='the Edge RM Master port to register on.')
     args = parser.parse_args()
     main(args.host, args.port)
