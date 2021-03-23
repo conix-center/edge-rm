@@ -14,10 +14,13 @@ def main(host, port):  # pragma: no cover
     # First we need to launch the server task if it's not already running
     agent = framework.getAgentInfoForRunningTask('ProfilerServer')
 
+    #Get offers
+    offers = framework.getOffers()
+
     domain = None
     if agent is None:
         #launch the task
-        server_agents = framework.findAgents({'domain':None,'cpus':0.5,'mem':100000000})
+        server_agents = framework.findAgents(offers, {'domain':None,'cpus':0.5,'mem':100000000})
 
         if len(server_agents) == 0:
             print("No available server agents.")
@@ -44,14 +47,31 @@ def main(host, port):  # pragma: no cover
 
     #construct the profile task environment
     env = {}
-    env['HOST'] = ip
+    env['HOST'] = domain
     env['PORT'] = 3001
+    env['TS'] = int(time.time())
+    env['ENDPOINT'] = "http://" + str(ip) + ":3001/profile"
 
     agents = framework.findAgents(offers, {'cpus':0.5,"mem":10000000})
     for agent in agents:
+        imageToUse = None
+        for attribute in agent.attributes:
+            if attribute.name == 'OS':
+                # print(agent.agent_id, attribute.name, attribute.text.value)    
+                if "x86" in attribute.text.value:
+                    imageToUse = 'jnoor/profiler-x86:v1'
+                elif 'arm' in attribute.text.value:
+                    imageToUse = 'jnoor/profiler-arm:v1'
+
+        if not imageToUse:
+            print("No profiler image for ")
+            print(agent)
+            continue
+        # if agent.agent_id != '14038003386728':
+        #     continue
         env['AGENT'] = agent.agent_id
         print("Starting profiler task on agent: {}".format(agent.agent_id))
-        framework.runTask("profiler-" + str(agent.agent_id), agent, docker_image='jnoor/profiler:v1', environment=env)
+        framework.runTask("profiler-" + str(agent.agent_id), agent, docker_image=imageToUse, environment=env)
 
     # #Find a wasm agent
     # wasm_agents = framework.findAgents({'executors':'WASM','cpus':1.0,sensor_name:None})

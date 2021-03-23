@@ -19,7 +19,7 @@ echo $DIFF
 # AGENT=4
 # ENDPOINT="http://conixdb.com:3001/profile"
 
-REQUEST_URL="${ENDPOINT}?id=${AGENT}&agent=${AGENT}&cpu=${DIFF}&last=${END}"
+REQUEST_URL="${ENDPOINT}?id=${AGENT}&agent=${AGENT}&cpu=${DIFF}&ts=${TS}"
 echo $REQUEST_URL
 
 /usr/bin/curl $REQUEST_URL

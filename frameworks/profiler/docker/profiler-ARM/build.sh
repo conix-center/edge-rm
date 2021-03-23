@@ -1,0 +1,1 @@
+docker build -t "jnoor/profiler-arm:v1" .
