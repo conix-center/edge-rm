@@ -17,6 +17,14 @@ def main(host, port):  # pragma: no cover
     #Get offers
     offers = framework.getOffers()
 
+    # find all domains
+    allDomains = []
+    for agentWithDomain in offers:
+        for att in agentWithDomain.attributes:
+            if att.name == 'domain':
+                allDomains.append(att.text.value)
+    print(allDomains)
+
     domain = None
     if agent is None:
         #launch the task
@@ -43,6 +51,7 @@ def main(host, port):  # pragma: no cover
         domain = framework.getAgentProperty(agent,'domain')
 
     # okay now do a dns lookup for this domain
+    print("Lookup: " + domain)
     ip = pydig.query(domain,'A')[0]
 
     #construct the profile task environment
@@ -51,6 +60,9 @@ def main(host, port):  # pragma: no cover
     env['PORT'] = 3001
     env['TS'] = int(time.time())
     env['ENDPOINT'] = "http://" + str(ip) + ":3001/profile"
+
+    for i in range(len(allDomains)):
+        env['DOMAIN' + str(i)] = allDomains[i]
 
     agents = framework.findAgents(offers, {'cpus':0.5,"mem":10000000})
     for agent in agents:
