@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "asbuild:untouched": "asc assembly/index.ts --target debug",
+    "asbuild:optimized": "asc assembly/index.ts --target release",
+    "asbuild:minimal": "asc assembly/index.ts --target minimal",
+    "asbuild": "npm run asbuild:untouched && npm run asbuild:optimized && npm run asbuild:minimal",
+    "test": "node tests",
+    "build": "asc assembly/index.ts -b build/index.wasm -t build/index.wat --runtime half",
+    "start": "wasmtime --dir . build/index.wasm"
+  },
+  "dependencies": {
+    "@assemblyscript/loader": "^0.18.15",
+    "as-wasi": "^0.4.4"
+  },
+  "devDependencies": {
+    "assemblyscript": "^0.18.15"
+  }
+}
