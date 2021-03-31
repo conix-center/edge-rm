@@ -9,14 +9,12 @@ import { Console, FileSystem, Descriptor } from "as-wasi";
 	
 
 export function start(): i32 {
-	// Print out hello world!
-	// This will handle writing to stdout for us using the WASI APIs (e.g fd_write)
+	// Print hello world!
 	Console.log("Hello World!");
 
 	// We are creating/opening a `helloworld.txt` file
 	// This code requires the Wasi host to provide a directory on the guest.
-	// For example, in Wasmtime, if you want to access to the current directory,
-	// invoke the wasmtime with the flag/argument: `--dir .`
+	// For example, invoke the wasmtime with the flag/argument: `--dir .`
 	// FileSystem.open will return null if it fails to create/open the file
 	let filePath: string = "out.txt";
 	let fileOrNull: Descriptor | null = FileSystem.open(filePath, "w+");
