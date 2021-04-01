@@ -1,1 +1,1 @@
-sudo docker run -t -d -p 3001:3001 --env SERVER_PORT=3001 jnoor/wasm-linux:v1
+sudo docker run -t -d -p 3002:3002 --env PORT=3002 jnoor/wasm-linux:v1

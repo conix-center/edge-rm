@@ -4,10 +4,10 @@ EXPOSE 3002
 
 RUN curl https://wasmtime.dev/install.sh -sSf | bash
 RUN pip install wasmtime
+RUN pip install flask
 
-COPY server.js ./
-COPY package.json ./
+COPY server.py ./
+COPY exec_wasm.py ./
 COPY wasm /wasm
-RUN npm install
 
-ENTRYPOINT node server.js
+ENTRYPOINT python server.py

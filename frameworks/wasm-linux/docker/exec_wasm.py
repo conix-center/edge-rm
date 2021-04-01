@@ -14,7 +14,7 @@ class WasmModule:
 
         # create I/O directory
         base = os.path.basename(path)
-        self.directory = os.path.splitext(base)[0]
+        self.directory = 'wasm/' + os.path.splitext(base)[0]
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
 
@@ -42,7 +42,8 @@ class WasmModule:
 
     def run(self, inputString):
         # append input to input file
-        with open(self.directory + '/input.txt', 'a') as f:
+        mode = 'ab' if isinstance(inputString, bytes) else 'a'
+        with open(self.directory + '/input.txt', mode) as f:
             f.write(inputString)
         # execute wasm export
         self._call()
