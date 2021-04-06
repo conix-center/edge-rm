@@ -1,1 +1,1 @@
-docker build -t "jnoor/profiler-arm:v1" .
+sudo docker build -t "jnoor/profiler-arm:v1" .

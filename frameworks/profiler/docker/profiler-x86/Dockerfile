@@ -1,9 +1,8 @@
-FROM alpine
+FROM python:3
 
-RUN apk --no-cache add curl
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY hello.sh ./
+COPY hello.py ./
 
-RUN chmod +x ./hello.sh
-
-ENTRYPOINT ./hello.sh
+CMD [ "python", "./hello.py" ]

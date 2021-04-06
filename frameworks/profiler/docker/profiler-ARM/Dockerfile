@@ -1,10 +1,8 @@
 FROM arm32v6/python:3.7-alpine3.12
 
-RUN apk update
-RUN apk --no-cache add curl
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
 
-COPY hello.sh ./
+COPY hello.py ./
 
-RUN chmod +x ./hello.sh
-
-ENTRYPOINT ./hello.sh
+CMD [ "python", "./hello.py" ]

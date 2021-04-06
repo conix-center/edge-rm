@@ -43,9 +43,6 @@ def main(host, port):  # pragma: no cover
         print("Started server task on agent: {}".format(server_agents[0].agent_id))
 
         domain = framework.getAgentProperty(server_agents[0].agent_id,'domain')
-
-        print ("Sleeping to allow server to come online...")
-        time.sleep(10)
     else:
         print("Sensor server task already running.")
         domain = framework.getAgentProperty(agent,'domain')
