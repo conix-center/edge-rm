@@ -53,14 +53,14 @@ def main(host, port, client, camera):  # pragma: no cover
     unique_key = client + '-' + str(randint(0, 1000000))
     framework.runTask(client + ':' + "image classification",classify_agents[0],
                                 docker_image='jnoor/classify:v1',
-                                environment={'INPUT_URL':'https://' + domain + ':3003/' + unique_key + '-latest.jpg',
-                                             'OUTPUT_URL':'https://' + domain + ':3003/' + client + '-predictions.jpg',
-                                             'OUTPUTRESULT_URL':'https://' + domain + ':3003/' + client + '-results.json'})
+                                environment={'INPUT_URL':'http://' + domain + ':3003/' + unique_key + '-latest.jpg',
+                                             'OUTPUT_URL':'http://' + domain + ':3003/' + client + '-predictions.jpg',
+                                             'OUTPUTRESULT_URL':'http://' + domain + ':3003/' + client + '-results.json'})
     # Run the classify task
 
     framework.runTask(client + ':' + "camera task",cam_agents[0],
                                 docker_image='jnoor/cameraalpine:v1',
-                                environment={'SERVER_HOST':'https://' + domain + ':3003/' + unique_key + '-latest.jpg'})
+                                environment={'SERVER_HOST':'http://' + domain + ':3003/' + unique_key + '-latest.jpg'})
     print("Started classify task on agent: {}".format(classify_agents[0].agent_id))
     print("Started camera task on agent: {}".format(cam_agents[0].agent_id))
 

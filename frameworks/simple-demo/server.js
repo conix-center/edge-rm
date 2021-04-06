@@ -92,7 +92,7 @@ app.get('/start', jsonParser, function(req, res) {
 
 	const python = spawn('python3', ['../simple-camera/new-scheduler.py', 
 					  '--host', '128.97.92.77', 
-					  '--tasks', 'tasks.json', 
+					//  '--tasks', 'tasks.json', 
 					  '--client', req.cookies['client'], 
 					  '--camera', camera_to_use])
 	var dataToSend = '';
