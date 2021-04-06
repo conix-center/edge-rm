@@ -13,10 +13,13 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
     # First we need to launch the server task if it's not already running
     agent = framework.getAgentInfoForRunningTask('SensorServer')
 
+    #Get offers
+    offers = framework.getOffers()
+
     domain = None
     if agent is None:
         #launch the task
-        server_agents = framework.findAgents({'domain':None,'cpus':0.5,'mem':100000000})
+        server_agents = framework.findAgents(offers, {'domain':None,'cpus':0.5,'mem':100000000})
 
         if len(server_agents) == 0:
             print("No available server agents.", file=sys.stderr)
@@ -71,7 +74,7 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
         return
 
     #Find a wasm agent
-    wasm_agents = framework.findAgents({'executors':'WASM','cpus':1.0,sensor_name:None})
+    wasm_agents = framework.findAgents(offers, {'executors':'WASM','cpus':1.0,sensor_name:None})
     if(len(wasm_agents) == 0):
         print("No available sensor agents.",file=sys.stderr)
         return
