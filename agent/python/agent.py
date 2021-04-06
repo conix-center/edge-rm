@@ -12,6 +12,7 @@ import uuid
 import argparse
 import yaml
 import dockerhelper
+import wasmhelper
 import socket
 import db
 import requests
@@ -163,6 +164,8 @@ def main(host, port, configPath, verbose):  # pragma: no cover
 
     print("My Agent name is " + agent_name)
 
+    wasmhelper.establishWasmRuntime(config)
+
     # loop ping/pong
     try:
         while True:
@@ -199,6 +202,7 @@ def main(host, port, configPath, verbose):  # pragma: no cover
             time.sleep(ping_rate / 1000)
 
     except KeyboardInterrupt:
+        wasmhelper.stopWasmRuntime()
         print("Shutting down...")
         # TODO: Deregister
 

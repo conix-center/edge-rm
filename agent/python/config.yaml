@@ -14,6 +14,9 @@ maxDisk: 50GB
 #optional ping rate in milliseconds (default 1000ms)
 pingRate: 1000
 
+#optional specification to load wasm runtime
+loadWasm: true
+
 ## If domain is set this is a global accessible domain or IP
 #domain: test.com
 #
