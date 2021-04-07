@@ -2,6 +2,7 @@
 import sys
 import argparse
 import pydig
+import os
 
 from edgerm.framework import Framework
 
@@ -80,7 +81,9 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
         return
 
     # Run the WASM task
-    wasm_file = open('./wasm/wasm-send/out.wasm','rb')
+
+    __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+    wasm_file = open(os.join(__location,'./wasm/wasm-send/out.wasm'),'rb')
     print("Running task with environment:")
     print(env)
     framework.runTask(args.client + ':' + "SensorSample",wasm_agents[0],wasm_binary=wasm_file.read(),environment=env)
