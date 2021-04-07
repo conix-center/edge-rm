@@ -17,7 +17,7 @@ def main(host, port, client, camera):  # pragma: no cover
     offers = framework.getOffers()
 
     #Find a classify agent
-    classify_agents = framework.findAgents(offers, {'cpus':1.0,"mem":200000000})
+    classify_agents = framework.findAgents(offers, {'cpus':1.0,"mem":200000000,'domain':None})
     if(len(classify_agents) == 0):
         print("No available classify agents.",file=sys.stderr)
         return
