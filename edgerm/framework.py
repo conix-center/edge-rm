@@ -135,12 +135,29 @@ class Framework:
       if offer_valid:      
         valid_offers.append(offer)
 
+    #copy over resources and add them to new 
+
     #now before return offers decrease them by any scalars specified
     for offer in valid_offers:
-      for r in offer.resources:
+      to_remove_list = []
+      for idx, r in enumerate(offer.resources):
+        foundKey = False
         for key in offer_filters:
           if r.name == key and r.scalar.value:
             r.scalar.value = offer_filters[key]
+            foundKey = True
+          elif r.name == key:
+            print("Found ", r.name)
+            foundKey = True
+       
+        #remove any device resources that are not requested specifically
+        if foundKey is False and r.device.device:
+          to_remove_list.append(idx)
+
+      #now iterate through and remove backwards
+      for i in reversed(to_remove_list):
+        del offer.resources[i]
+
 
     return valid_offers
 
