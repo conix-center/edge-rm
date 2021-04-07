@@ -80,7 +80,7 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
         return
 
     # Run the WASM task
-    wasm_file = open('../wasm/wasm-send/out.wasm','rb')
+    wasm_file = open('./wasm/wasm-send/out.wasm','rb')
     print("Running task with environment:")
     print(env)
     framework.runTask(args.client + ':' + "SensorSample",wasm_agents[0],wasm_binary=wasm_file.read(),environment=env)
