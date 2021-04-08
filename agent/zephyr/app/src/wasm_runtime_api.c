@@ -17,26 +17,40 @@
 #include <openthread/joiner.h>
 #include <openthread-system.h>
 #include <openthread-config-generic.h>
+#include <drivers/gpio.h>
 //#include "openthread/mqttsn.h"
 #include "coap_help.h"
+#include "config.h"
 
 #include <drivers/sensor.h>
 
-#define BME280 DT_INST(0, bosch_bme280)
+#define SI7006 DT_INST(0, silabs_si7006)
 
-#if DT_NODE_HAS_STATUS(BME280, okay)
-#define BME280_LABEL DT_LABEL(BME280)
+#if DT_NODE_HAS_STATUS(SI7006, okay)
+#define SI7006_LABEL DT_LABEL(SI7006)
 #else
-#error Your devicetree has no enabled nodes with compatible "bosch,bme280"
-#define BME280_LABEL "<none>"
+#error Your devicetree has no enabled nodes with compatible "silabs,si7006"
+#define SI7006_LABEL "<none>"
 #endif
+
+#define MS5837 DT_INST(0, meas_ms5837)
+
+#if DT_NODE_HAS_STATUS(MS5837, okay)
+#define MS5837_LABEL DT_LABEL(MS5837)
+#else
+#error Your devicetree has no enabled nodes with compatible "meas,ms5837"
+#define MS5837_LABEL "<none>"
+#endif
+
 
 #include "wasm_export.h"
 
 #define GATEWAY_PORT 47193
 #define GATEWAY_ADDRESS "fdde:ad00:beef:0:9a2a:2a02:71bf:f061"
 
-struct device *dev = NULL;
+struct device *sidev = NULL;
+struct device *msdev = NULL;
+struct device *gpiodev = NULL;
 otInstance *instance = NULL;
 bool connected=false;
 bool registered=false;
@@ -263,41 +277,65 @@ float waReadSensor(wasm_exec_env_t exec_env, char* attr, char* result, int len)
 {
       struct sensor_value temp, press, humidity;
       float t,p,h;
+
+      //enable the sensors
+      gpiodev = device_get_binding("GPIO_1");
+
+      gpio_pin_configure(gpiodev, 10, GPIO_OUTPUT_ACTIVE); 
+      gpio_pin_configure(gpiodev, 11, GPIO_OUTPUT_ACTIVE); 
+      gpio_pin_set(gpiodev, 10, 0);
+      gpio_pin_set(gpiodev, 11, 0);
+      
+      k_sleep(K_MSEC(100));
       
       //If the device isn't initialized, lazily initialize it
-      if(dev == NULL) {
-	 dev = (struct device*)device_get_binding("BME280");
-	 if (dev == NULL) {
-	    printk("No device \"%s\" found; did initialization fail?\n", BME280_LABEL);
+      /*if(sidev == NULL) {
+	 sidev = (struct device*)device_get_binding(SI7006_LABEL);
+	 if (sidev == NULL) {
+	    printk("No device \"%s\" found; did initialization fail?\n", SI7006_LABEL);
 	    return -1;
 	 } else {
-	    printk("Found device \"%s\"\n", BME280_LABEL);
+	    printk("Found device \"%s\"\n", SI7006_LABEL);
 	 }
       }
 
+      if(msdev == NULL) {
+	 msdev = (struct device*)device_get_binding(MS5837_LABEL);
+	 if (msdev == NULL) {
+	    printk("No device \"%s\" found; did initialization fail?\n", MS5837_LABEL);
+	    return -1;
+	 } else {
+	    printk("Found device \"%s\"\n", MS5837_LABEL);
+	 }
+      }*/
+
       // Sample the sensor
-      sensor_sample_fetch(dev);
+      //sensor_sample_fetch(sidev);
+      //sensor_sample_fetch(msdev);
 
       if(strcmp(attr, "humidity") == 0 ){
-	 sensor_channel_get(dev, SENSOR_CHAN_HUMIDITY, &humidity);
+	 //sensor_channel_get(sidev, SENSOR_CHAN_HUMIDITY, &humidity);
 
-	 h=humidity.val1+humidity.val2/1000000.0;
+	 //h=humidity.val1+humidity.val2/1000000.0;
+	 h = HUM;
 	 k_sleep(K_MSEC(50));
 	 printk("Got humidity: %d\n",(int)h);
 	 sprintf(result,"%d",(int)h);
 	 return h;
       } else if(strcmp(attr, "press") == 0) {
-	 sensor_channel_get(dev, SENSOR_CHAN_PRESS, &press);
+	 //sensor_channel_get(msdev, SENSOR_CHAN_PRESS, &press);
 
-	 p=press.val1+press.val2/1000000.0;
+	 //p=press.val1+press.val2/1000000.0;
+	 p = PRESS;
 	 k_sleep(K_MSEC(50));
 	 printk("Got pressure: %d\n",(int)p);
 	 sprintf(result,"%d",(int)p);
 	 return p;
      } else if(strcmp(attr, "temp") == 0) {
-	 sensor_channel_get(dev, SENSOR_CHAN_AMBIENT_TEMP, &temp);
+	 //sensor_channel_get(sidev, SENSOR_CHAN_AMBIENT_TEMP, &temp);
 
-	 t=temp.val1+temp.val2/1000000.0;
+	 //t=temp.val1+temp.val2/1000000.0;
+	 t = TEMP;
 	 k_sleep(K_MSEC(50));
 	 printk("Got temperature: %d\n",(int)t);
 	 sprintf(result,"%d",(int)t);
