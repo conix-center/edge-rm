@@ -7,7 +7,7 @@ class WasmModule:
     directory = ''
     _call = None
 
-    def __init__(self, path, function="start"):
+    def __init__(self, path, env={}, function="start"):
         # create base WASM elements
         store = Store()
         config = WasiConfig()
@@ -26,6 +26,9 @@ class WasmModule:
         config.stdin_file = self.directory + '/input.txt'
         config.stdout_file = self.directory + '/console.log'
         config.preopen_dir(self.directory, '.')
+
+        # set environment variables
+        config.env = env.items()
 
         # First set up our linker which is going to be linking modules together. We
         # want our linker to have wasi available, so we set that up here as well.

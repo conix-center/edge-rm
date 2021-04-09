@@ -16,14 +16,22 @@ def get_test():
     return flask.jsonify({'hello': 'world'})
 
 ##
+## GET /task
+## returns all active modules
+##
+##
 ## POST /task
 ## QUERY: 'name' = the task ID
 ## BODY: a wasm binary file
 ## 
 ## stores the posted wasm binary and loads a module with name
 ##
-@app.route('/task', methods=['POST'])
+@app.route('/task', methods=['GET','POST'])
 def create_task():
+    if flask.request.method == 'GET':
+        print ('GET /task')
+        return flask.jsonify(list(ActiveModules.keys()))
+
     print("POST /task")
 
     # ensure query params
@@ -39,8 +47,10 @@ def create_task():
     with open(wasmFilePath, 'wb') as f:
         f.write(flask.request.get_data())
 
+    print(flask.request.args.to_dict())
+
     # load module
-    ActiveModules[name] = WasmModule(wasmFilePath, exportFunction)
+    ActiveModules[name] = WasmModule(wasmFilePath, env=flask.request.args.to_dict(), function=exportFunction)
 
     # write input to file
     return "OK!"
