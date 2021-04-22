@@ -1,4 +1,5 @@
 #include "wasm_runtime_api.h"
+#include <stdio.h>
 
 #ifdef MAP_FILE
 #include MAP_FILE
@@ -32,11 +33,12 @@ int main(int argc, char *argv[]){
         #endif
 
         //turn it into JSON
+        sprintf(sResult, "{\"value\":%.3f}", f);
         
         //post the result
         waCoapPost(ip, port, path, sResult, 20);
 
-        waDelayMs(period*1000)
+        waDelayMs(period*1000);
     }
 
     return 0;

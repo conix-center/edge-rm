@@ -5,27 +5,36 @@ import argparse
 import pydig
 import os
 import subprocess
+import shutil
 
 
 def build(map_func, sensor, period):
+
+    #create a master undefined symbols file
+    shutil.copy('../../agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot/share/defined-symbols.txt','./map-wrapper/defined-symbols.txt')
+
+    f = open('./map-wrapper/defined-symbols.txt', 'a')
+    a = open('./map-wrapper/wasm_runtime_api.txt')
+    f.write(a.read())
+    f.close()
 
     if map_func:
         # there is a map func - include it in the clang call
 
         rel_path = os.path.relpath(map_func, './map-wrapper/')
 
+        
         subprocess.run(["/opt/wasi-sdk/bin/clang",
                         "--target=wasm32",
                         "-O1",
                         "-z",
                         "stack-size=4096",
                         "-Wl,--initial-memory=65536",
-                        "--sysroot=/Users/adkins/Research/edge-rm/agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot",
-                        "-Wl,--allow-undefined-file=/Users/adkins/Research/edge-rm/agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot/share/defined-symbols.txt",
+                        "--sysroot=../../agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot",
+                        "-Wl,--allow-undefined-file=./map-wrapper/defined-symbols.txt",
                         "-Wl,--no-threads,--strip-all,--no-entry",
                         "-nostdlib",
                         "-Wl,--export=main",
-                        "-Wl,--allow-undefined",
                         '-DMAP_FILE="' + rel_path + '"',
                         '-DSENSOR="' + sensor + '"',
                         "-DPERIOD=" + period,
@@ -41,12 +50,11 @@ def build(map_func, sensor, period):
                         "-z",
                         "stack-size=4096",
                         "-Wl,--initial-memory=65536",
-                        "--sysroot=/Users/adkins/Research/edge-rm/agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot",
-                        "-Wl,--allow-undefined-file=/Users/adkins/Research/edge-rm/agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot/share/defined-symbols.txt",
+                        "--sysroot=../../agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot",
+                        "-Wl,--allow-undefined-file=./map-wrapper/defined-symbols.txt",
                         "-Wl,--no-threads,--strip-all,--no-entry",
                         "-nostdlib",
                         "-Wl,--export=main",
-                        "-Wl,--allow-undefined",
                         '-DSENSOR="' + sensor + '"',
                         "-DPERIOD=" + period,
                         "-o",
