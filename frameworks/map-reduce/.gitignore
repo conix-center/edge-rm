@@ -1,0 +1,2 @@
+*.wasm
+map-wrapper/defined-symbols.txt
