@@ -17,16 +17,17 @@ app.get('/', function(req,res) {
 
 
 var scripts = {}
-app.post('/reduce', function(req, res) {
-    if(!req.query.key) return res.status(404).send({success: false, error: "malformed request"});
-    var pathToFile = path.join(__dirname + "/scripts/" + req.query.key);
+app.post('/reduce/:key', function(req, res) {
+    if(!req.params.key) return res.status(404).send({success: false, error: "malformed request"});
+    let key = req.params.key
+    var pathToFile = path.join(__dirname + "/scripts/" + key);
     var stream = req.pipe(fs.createWriteStream(pathToFile))
     stream.on('finish', function() {
         try {
-            scripts[req.query.key] = require(pathToFile);
-            console.log(scripts[req.query.key]);
-            console.log(scripts[req.query.key].reduce);
-            res.status(200).send({success: true, key: req.query.key});
+            scripts[key] = require(pathToFile);
+            console.log(scripts[key]);
+            console.log(scripts[key].reduce);
+            res.status(200).send({success: true, key: key});
         } catch(e) {
             res.status(500).send({success: false, error: e});
         } 
@@ -36,12 +37,11 @@ app.post('/reduce', function(req, res) {
     });
 });
 
-app.post('/reduce/data', jsonParser, function(req, res) {
+app.post('/reduce/:key/data', jsonParser, function(req, res) {
     console.log(req.body);
-    if(!req.query.key) return res.status(404).send({success: false, error: "malformed request"});
-    console.log(scripts)
-    var scrippie = scripts[req.query.key];
-    console.log(scrippie)
+    if(!req.params.key) return res.status(404).send({success: false, error: "malformed request"});
+    let key = req.params.key
+    var scrippie = scripts[key];
     if(!scrippie) return res.status(404).send({success: false, error: "not loaded"});
     if(!scrippie.reduce) return res.status(404).send({success: false, error: "no reduce"});
     scrippie.reduce(req.body);
