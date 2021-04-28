@@ -13,8 +13,8 @@ int main(int argc, char *argv[]){
     int port;
     waGetEnvironmentInt("PORT", &port, 1);
 
-    char path[20];
-    waGetEnvironmentString("PATH", path, 20);
+    char path[40];
+    waGetEnvironmentString("PATH", path, 40);
 
     char sensor[10] = SENSOR;
     int period = PERIOD;
