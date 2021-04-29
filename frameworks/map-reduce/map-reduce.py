@@ -41,7 +41,7 @@ def schedule_reduce_server(framework, dest_ip, dest_port, task_id):
 
 # Takes the reduce code and posts it to the reduce server
 def issue_reduce_code(reduce_file, reduce_server_ip, reduce_server_port, task_id, reissue_tasks):
-    p = subprocess.Popen(['node', 'reduce/scheduler-reduce.js', reduce_file, task_id, reduce_server_ip, str(reduce_server_port)],close_fds=True)
+    p = os.system(' '.join(['node', 'reduce/scheduler-reduce.js', reduce_file, task_id, reduce_server_ip, str(reduce_server_port)]))
     print("Issued reduce code.")
     return task_id
 
@@ -70,9 +70,6 @@ def schedule_result_server():
 # Gets new results from the map reduce file server and prints them for the users
 def fetch_and_print_results():
     pass
-
-issue_reduce_code('reduce/test.js', 'localhost', 5683, "MapReduceTest", None)
-exit()
 
 if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(
