@@ -17,11 +17,32 @@ def compile_map(map_file, sensor, period):
     return 'out.wasm'
 
 # checks to see if a reduce server is running, and if it isn't schedules it
-def schedule_reduce_server(dest_ip, dest_port, task_id):
-    return '127.0.0.1', 8000
+def schedule_reduce_server(framework, dest_ip, dest_port, task_id):
+    # check if the reduce task is already running
+    agent = framework.getAgentInfoForRunningTask("ReduceServer")
+    if agent:
+        print("Reduce server running.")
+        domain = framework.getAgentProperty(agent,'domain')
+        agent_ip = pydig.query(domain,'A')[0]
+        return agent_ip, 3004
+
+    # reduce task needs to be scheduled
+    server_agents = framework.findAgents(offers, {'domain':None,'cpus':0.5,'mem':100000000})
+    if len(server_agents) == 0:
+        print("No available reduce agents.")
+        return None, None
+
+    # issue task and return IP / Port
+    framework.runTask("ReduceServer", server_agents[0], docker_image='jnoor/sensor-reduce:v1', docker_port_mappings={3004:3004},environment={'SERVER_PORT':'3004'})
+    print("Started reduce task on agent: {}".format(server_agents[0].agent_id))
+    domain = framework.getAgentProperty(server_agents[0].agent_id,'domain')
+    agent_ip = pydig.query(domain,'A')[0]
+    return agent_ip, 3004
 
 # Takes the reduce code and posts it to the reduce server
 def issue_reduce_code(reduce_file, reduce_server_ip, reduce_server_port, task_id, reissue_tasks):
+    p = subprocess.Popen(['node', 'reduce/scheduler-reduce.js', reduce_file, task_id, reduce_server_ip, str(reduce_server_port)],close_fds=True)
+    print("Issued reduce code.")
     return task_id
 
 # Looks for available sensors on which to run the map task and schedules them
@@ -38,7 +59,7 @@ def schedule_map(framework, wasm_file, sensor, sensor_filters, reduce_server_ip,
 
     for agent in map_agents:
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-        f = open(os.path.join(__location__, wasm_file,'rb')
+        f = open(os.path.join(__location__, wasm_file,'rb'))
         framework.runTask(task_id,agent,wasm_binary=f.read(),environment=env)
         print("Started map task on agent: {}".format(agent[0].agent_id))
 
@@ -49,6 +70,9 @@ def schedule_result_server():
 # Gets new results from the map reduce file server and prints them for the users
 def fetch_and_print_results():
     pass
+
+issue_reduce_code('reduce/test.js', 'localhost', 5683, "MapReduceTest", None)
+exit()
 
 if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(
@@ -97,7 +121,7 @@ if __name__ == '__main__':  # pragma: no cover
 
     #schedule the reduce/result parts of the code
     result_ip, result_port = schedule_result_server()
-    ip, port = schedule_reduce_server(result_ip, result_port, id)
+    ip, port = schedule_reduce_server(framework, result_ip, result_port, id)
     path = issue_reduce_code(args.reduce, ip, port, id, args.reissue)
 
     #schedule the map parts of the code - maybe call in a loop for multiple arguments?
