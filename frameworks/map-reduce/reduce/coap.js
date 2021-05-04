@@ -7,6 +7,8 @@ var path = require('path')
 var scripts = {}
 
 server.on('request', function(req, res) {
+  console.log(req.method, req.url)
+  
   var pathSplit = req.url.split('/');
   if(pathSplit.length < 4) return res.end("Hello World!");
 

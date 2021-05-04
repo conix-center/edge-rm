@@ -24,7 +24,10 @@ class Framework:
   def getTasks(self):
     r = requests.get('http://' + self.master + ':' + str(self.master_api_port) + '/tasks')
     if r.status_code == 200:
-      return r.json()
+      all_tasks = r.json()
+      return [x for x in all_tasks if x["framework"] and x["framework"]["frameworkId"] == self.framework_id]
+    else:
+      return None
 
   def getAgents(self):
     r = requests.get('http://' + self.master + ':' + str(self.master_api_port) + '/agents')
