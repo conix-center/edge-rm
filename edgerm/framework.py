@@ -8,6 +8,7 @@ import uuid
 import json
 import requests
 import hashlib
+import re
 
 from . import messages_pb2
 
@@ -189,6 +190,15 @@ class Framework:
             return
 
     print("Did not find task")
+
+  # matches on task name or task ID
+  def killTasksThatMatch(self, regex):
+    tasks = self.getTasks()
+    for task in tasks:
+      if task['state'] != "KILLED" and task['state'] != "COMPLETED" and task['state'] != "ERRORED":
+        if re.match(regex, task['name']) or re.match(regex,task['taskId']):
+          print("Kill", task['taskId'], task['name'])
+          self.killTask(task['taskId'])
 
   def killAllTasks(self):
     tasks = self.getTasks()
