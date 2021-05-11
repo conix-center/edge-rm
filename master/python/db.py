@@ -66,7 +66,9 @@ def refresh_tasks(agent_id, new_tasks):
     for task in new_tasks:
         #if the task already exists
         if task.task_id in tasks and task.state:
-            tasks[task.task_id].state = task.state
+            if tasks[task.task_id].state != messages_pb2.TaskInfo.TaskState.KILLING or task.state != messages_pb2.TaskInfo.TaskState.RUNNING:
+                # do not update if killing + agent reports task as running
+                tasks[task.task_id].state = task.state
             if task.error_message:
                 tasks[task.task_id].error_message = task.error_message
         else:
