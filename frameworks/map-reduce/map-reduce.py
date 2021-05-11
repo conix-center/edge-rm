@@ -52,6 +52,9 @@ def schedule_map(framework, wasm_file, sensor, sensor_filters, reduce_server_ip,
     env['IP'] = reduce_server_ip
     env['PORT'] = reduce_server_port
 
+    if reissue_tasks:
+        framework.killTasksThatMatch(task_id)
+
     #Get offers
     offers = framework.getOffers()
 
@@ -95,7 +98,6 @@ if __name__ == '__main__':  # pragma: no cover
         '--id', help='Allows user to specify the name of this map reduce task. Defaults to the combined name of the map,reduce,sensor,and period fields.')
 
     parser.add_argument('--reissue-tasks', dest='reissue', action='store_true', help='Should already running tasks for the same ID be killed and reissued. Defaults to False.')
-    parser.set_defaults(reissue=True)
 
     args = parser.parse_args()
 
