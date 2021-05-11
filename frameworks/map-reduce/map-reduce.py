@@ -60,6 +60,9 @@ def schedule_map(framework, offers, wasm_file, sensor, sensor_filters, reduce_se
     elif(sensor == 'press'):
         sensor = 'pressure_sensor'
 
+    if reissue_tasks:
+        framework.killTasksThatMatch(task_id)
+
     map_agents = framework.findAgents(offers, {'executors':'WASM','cpus':1.0, sensor:None})
 
     print(env)
@@ -106,7 +109,6 @@ if __name__ == '__main__':  # pragma: no cover
         '--id', help='Allows user to specify the name of this map reduce task. Defaults to the combined name of the map,reduce,sensor,and period fields.')
 
     parser.add_argument('--reissue-tasks', dest='reissue', action='store_true', help='Should already running tasks for the same ID be killed and reissued. Defaults to False.')
-    parser.set_defaults(reissue=True)
 
     args = parser.parse_args()
 
