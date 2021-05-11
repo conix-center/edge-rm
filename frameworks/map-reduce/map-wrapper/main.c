@@ -33,7 +33,8 @@ int main(int argc, char *argv[]){
         #endif
 
         //turn it into JSON
-        sprintf(sResult, "{\"value\":%.3f}", f);
+        //sprintf(sResult, "{\"value\":%.3f}", f);
+        sprintf(sResult, "{\"value\":%d}", (int)f);
         
         //post the result
         waCoapPost(ip, port, path, sResult, 20);

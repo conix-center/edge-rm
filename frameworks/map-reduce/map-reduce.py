@@ -17,8 +17,8 @@ def compile_map(map_file, sensor, period):
     return 'out.wasm'
 
 # checks to see if a reduce server is running, and if it isn't schedules it
-def schedule_reduce_server(framework, dest_ip, dest_port, task_id):
-    # check if the reduce task is already running
+def schedule_reduce_server(framework, offers, dest_ip, dest_port, task_id):
+
     agent = framework.getAgentInfoForRunningTask("ReduceServer")
     if agent:
         print("Reduce server running.")
@@ -29,8 +29,8 @@ def schedule_reduce_server(framework, dest_ip, dest_port, task_id):
     # reduce task needs to be scheduled
     server_agents = framework.findAgents(offers, {'domain':None,'cpus':0.5,'mem':100000000})
     if len(server_agents) == 0:
-        print("No available reduce agents.")
-        return None, None
+        print("No available reduce agents.\n\nA reduce agent is required. Please ensure that the cluster has enough resources.\n\nExiting.")
+        sys.exit(1)
 
     # issue task and return IP / Port
     framework.runTask("ReduceServer", server_agents[0], docker_image='jnoor/sensor-reduce:v1', docker_port_mappings={3004:3004},environment={'SERVER_PORT':'3004'})
@@ -43,25 +43,36 @@ def schedule_reduce_server(framework, dest_ip, dest_port, task_id):
 def issue_reduce_code(reduce_file, reduce_server_ip, reduce_server_port, task_id, reissue_tasks):
     p = os.system(' '.join(['node', 'reduce/scheduler-reduce.js', reduce_file, task_id, reduce_server_ip, str(reduce_server_port)]))
     print("Issued reduce code.")
-    return task_id
+    return 'reduce/' + task_id + '/data'
 
 # Looks for available sensors on which to run the map task and schedules them
-def schedule_map(framework, wasm_file, sensor, sensor_filters, reduce_server_ip, reduce_server_port, task_path, task_id, reissue_tasks):
+def schedule_map(framework, offers, wasm_file, sensor, sensor_filters, reduce_server_ip, reduce_server_port, task_path, task_id, reissue_tasks):
     #setup the environment
+    env = {}
     env['PATH'] = task_path
     env['IP'] = reduce_server_ip
     env['PORT'] = reduce_server_port
 
-    #Get offers
-    offers = framework.getOffers()
+    if(sensor == 'temp'):
+        sensor = 'temperature_sensor'
+    elif(sensor == 'humidity'):
+        sensor = 'humidity_sensor'
+    elif(sensor == 'press'):
+        sensor = 'pressure_sensor'
 
     map_agents = framework.findAgents(offers, {'executors':'WASM','cpus':1.0, sensor:None})
 
+    print(env)
+
+    if(len(map_agents) == 0):
+        print("No map agents found. Exiting.")
+        sys.exit(1)
+
     for agent in map_agents:
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-        f = open(os.path.join(__location__, wasm_file,'rb'))
+        f = open(os.path.join(__location__, wasm_file), 'rb')
         framework.runTask(task_id,agent,wasm_binary=f.read(),environment=env)
-        print("Started map task on agent: {}".format(agent[0].agent_id))
+        print("Started map task on agent: {}".format(agent.agent_id))
 
 # Schedules a simple fileserver so that we can store and print user results
 def schedule_result_server():
@@ -89,7 +100,7 @@ if __name__ == '__main__':  # pragma: no cover
         '--map', help='Optional map task. A c file that implements at single "map" function.')
 
     parser.add_argument(
-        '--reduce', help='Optional reduce task. A javascript file that implements a "reduce" function.')
+        '--reduce', required=True, help='Reduce task. A javascript file that implements a "reduce" function.')
 
     parser.add_argument(
         '--id', help='Allows user to specify the name of this map reduce task. Defaults to the combined name of the map,reduce,sensor,and period fields.')
@@ -109,20 +120,26 @@ if __name__ == '__main__':  # pragma: no cover
     h = hashlib.sha256()
     h.update(id.encode('utf-8'))
     id = h.hexdigest()[0:20]
+    print(id)
 
     #declare a framework
     framework = Framework("Map Reduce", args.host, args.port)
+
+    # check if the reduce task is already running
+    offers = framework.getOffers()
+
+    print(offers)
 
     #get the map function
     wasm_file = compile_map(args.map, args.sensor, args.period)
 
     #schedule the reduce/result parts of the code
     result_ip, result_port = schedule_result_server()
-    ip, port = schedule_reduce_server(framework, result_ip, result_port, id)
+    ip, port = schedule_reduce_server(framework, offers, result_ip, result_port, id)
     path = issue_reduce_code(args.reduce, ip, port, id, args.reissue)
 
     #schedule the map parts of the code - maybe call in a loop for multiple arguments?
-    schedule_map(framework, wasm_file, args.sensor, args.sensor_filter, ip, port, path, id, args.reissue)
+    schedule_map(framework, offers, wasm_file, args.sensor, args.sensor_filter, ip, port, path, id, args.reissue)
 
     #call fetch and print results in loop
     #fetch_and_print_results(result_ip, result_port)
