@@ -275,6 +275,7 @@ message TaskInfo {
     UNISSUED = 4;
     STARTING = 5;
     KILLED = 6;
+    KILLING = 7;
   }
 
   optional TaskState state = 6;

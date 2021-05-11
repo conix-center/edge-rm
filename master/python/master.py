@@ -175,7 +175,6 @@ def KillTask(wrapper):
     print("    Task ID:        " + wrapper.kill_task.task_id)
     print("    Selected Agent: " + wrapper.kill_task.agent_id)
 
-    # TODO: Forward the request onto the particular device through a ping/pong
     db.add_kill_task(wrapper.kill_task)
 
     # construct response
