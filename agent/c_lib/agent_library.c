@@ -379,7 +379,7 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
         wrapper.pong.run_task.task.container.wasm.environment.arg = &new_task;
 
         //get the kill task id
-        char kill_task_id[TASK_ID_LEN];
+        char kill_task_id[TASK_ID_LEN] = {0};
         wrapper.pong.kill_task.task_id.funcs.decode = &generic_string_decode_callback;
         wrapper.pong.kill_task.task_id.arg = kill_task_id;
 
@@ -473,8 +473,14 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
             } else if (wrapper.pong.has_kill_task) {
                 agent_port_print("Got Pong Message with kill task request\n");
 
-                if(strncmp(running_task.task_id,kill_task_id,TASK_ID_LEN) == 0) {
+                agent_port_print("ID of running task: %s\n", running_task.task_id);
+                agent_port_print("ID of task to kill: %s\n", kill_task_id);
+
+                if(strncmp(running_task.task_id, kill_task_id, TASK_ID_LEN) == 0) {
+                    agent_port_print("Task ID to kill matches running task. Killing\n");
                     agent_port_kill_wasm_task();
+                } else {
+                    agent_port_print("Task ID to kill does not match running task.\n");
                 }
             } else {
                 agent_port_print("Got Pong Message\n");
