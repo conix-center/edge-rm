@@ -99,7 +99,7 @@ def add_kill_task(killtaskmsg):
     task_id = killtaskmsg.task_id
     if task_id in tasks:
         if tasks[task_id].state == messages_pb2.TaskInfo.TaskState.UNISSUED:
-            tasks[task_id].state == messages_pb2.TaskInfo.TaskState.KILLED:
+            tasks[task_id].state == messages_pb2.TaskInfo.TaskState.KILLED
         else:
             tasks[task_id].state = messages_pb2.TaskInfo.TaskState.KILLING
     agent_id = killtaskmsg.agent_id
