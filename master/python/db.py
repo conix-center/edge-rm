@@ -59,7 +59,9 @@ def refresh_agent(aid, agent):
 
     return aid
 
-def refresh_tasks(new_tasks):
+def refresh_tasks(agent_id, new_tasks):
+    tasks_returned = set()
+
     #update teh tasks
     for task in new_tasks:
         #if the task already exists
@@ -70,6 +72,15 @@ def refresh_tasks(new_tasks):
         else:
             #if it doesn't
             tasks[task.task_id] = task
+
+        # keep track of tasks returned in this ping
+        tasks_returned.add(task.task_id)
+
+    #search for any missing tasks:
+    for task in get_tasks_by_agent(agent_id):
+        if task.task_id not in tasks_returned:
+            # task missing, assume killed
+            tasks[task.task_id].state = messages_pb2.TaskInfo.TaskState.KILLED
 
 def add_task(runtaskmsg):
     task_id = runtaskmsg.task.task_id
