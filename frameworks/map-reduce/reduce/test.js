@@ -1,8 +1,8 @@
 const https = require('https')
 
-
-
 function reduce(data) {
+
+	console.log("hello")
 
 	const msg = JSON.stringify({
 		content: data.toString()
