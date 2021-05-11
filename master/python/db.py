@@ -98,7 +98,10 @@ def add_task(runtaskmsg):
 def add_kill_task(killtaskmsg):
     task_id = killtaskmsg.task_id
     if task_id in tasks:
-        tasks[task_id].state = messages_pb2.TaskInfo.TaskState.KILLING
+        if tasks[task_id].state == messages_pb2.TaskInfo.TaskState.UNISSUED:
+            tasks[task_id].state == messages_pb2.TaskInfo.TaskState.KILLED:
+        else:
+            tasks[task_id].state = messages_pb2.TaskInfo.TaskState.KILLING
     agent_id = killtaskmsg.agent_id
     killtasks[task_id] = killtaskmsg
 
@@ -135,7 +138,7 @@ def get_next_unissued_kill_by_agent(agent_id):
         if task_id not in tasks:
             continue
         task = tasks[task_id]
-        if task.agent_id == agent_id and (task.state == messages_pb2.TaskInfo.TaskState.RUNNING or task.state == messages_pb2.TaskInfo.TaskState.KILLING):
+        if task.agent_id == agent_id and (task.state == messages_pb2.TaskInfo.TaskState.RUNNING or task.state == messages_pb2.TaskInfo.TaskState.KILLING or task.state == messages_pb2.TaskInfo.TaskState.ISSUED):
             return killtaskmsg
 
 def get_all_tasks():
