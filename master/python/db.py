@@ -78,7 +78,7 @@ def refresh_tasks(agent_id, new_tasks):
 
     #search for any missing tasks:
     for task in get_tasks_by_agent(agent_id):
-        if task.task_id not in tasks_returned:
+        if task.task_id not in tasks_returned and tasks[task.task_id].state == messages_pb2.TaskInfo.TaskState.RUNNING:
             # task missing, assume killed
             tasks[task.task_id].state = messages_pb2.TaskInfo.TaskState.KILLED
 
