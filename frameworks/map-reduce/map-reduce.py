@@ -7,6 +7,7 @@ import os
 import subprocess
 import shutil
 import hashlib
+import time
 from map_compiler import build
 
 from edgerm.framework import Framework
@@ -44,6 +45,10 @@ def issue_reduce_code(reduce_file, reduce_server_ip, reduce_server_port, task_id
     p = os.system(' '.join(['node', 'reduce/scheduler-reduce.js', reduce_file, task_id, reduce_server_ip, str(reduce_server_port)]))
     print("Issued reduce code.")
     return 'reduce/' + task_id + '/data'
+
+def poll_reduce_server(output_file, reduce_server_ip, reduce_server_port, task_id):
+    print("Polling reducer.")
+    p = os.system(' '.join(['node', 'reduce/fetch-reduce.js', output_file, task_id, reduce_server_ip, str(reduce_server_port)]))
 
 # Looks for available sensors on which to run the map task and schedules them
 def schedule_map(framework, offers, wasm_file, sensor, sensor_filters, reduce_server_ip, reduce_server_port, task_path, task_id, reissue_tasks):
@@ -136,6 +141,22 @@ if __name__ == '__main__':  # pragma: no cover
 
     #schedule the map parts of the code - maybe call in a loop for multiple arguments?
     schedule_map(framework, offers, wasm_file, args.sensor, args.sensor_filter, ip, port, path, id, args.reissue)
+
+    # clear output log
+    with open('reduce.log', 'w') as fp:
+        pass
+    number_of_lines = 0
+    while True:
+        time.sleep(4)
+        poll_reduce_server('reduce.log', ip, port, id)
+        with open('reduce.log','r') as f:
+            lines = f.readlines()
+
+            # check if new stuff to read
+            if len(lines) > number_of_lines:
+                print(lines[number_of_lines:])
+                number_of_lines = len(lines)
+
 
     #call fetch and print results in loop
     #fetch_and_print_results(result_ip, result_port)

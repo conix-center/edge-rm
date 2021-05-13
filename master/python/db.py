@@ -100,6 +100,8 @@ def add_task(runtaskmsg):
 def add_kill_task(killtaskmsg):
     task_id = killtaskmsg.task_id
     if task_id in tasks:
+        if tasks[task_id].state in [messages_pb2.TaskInfo.TaskState.KILLED, messages_pb2.TaskInfo.TaskState.COMPLETED]:
+            return
         if tasks[task_id].state == messages_pb2.TaskInfo.TaskState.UNISSUED:
             tasks[task_id].state == messages_pb2.TaskInfo.TaskState.KILLED
         else:
