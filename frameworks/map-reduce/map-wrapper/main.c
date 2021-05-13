@@ -13,10 +13,12 @@ int main(int argc, char *argv[]){
     int port;
     waGetEnvironmentInt("PORT", &port, 1);
 
-    char path[20];
-    waGetEnvironmentString("PATH", path, 20);
+    char path[40];
+    waGetEnvironmentString("PATH", path, 40);
 
-    char sensor[10] = SENSOR;
+    char sensor[20];
+    waGetEnvironmentString("SENSOR", sensor, 20);
+
     int period = PERIOD;
 
     char sResult[20];
@@ -33,7 +35,8 @@ int main(int argc, char *argv[]){
         #endif
 
         //turn it into JSON
-        sprintf(sResult, "{\"value\":%.3f}", f);
+        //sprintf(sResult, "{\"value\":%.3f}", f);
+        sprintf(sResult, "{\"value\":%d}", (int)f);
         
         //post the result
         waCoapPost(ip, port, path, sResult, 20);

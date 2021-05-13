@@ -59,17 +59,30 @@ def refresh_agent(aid, agent):
 
     return aid
 
-def refresh_tasks(new_tasks):
+def refresh_tasks(agent_id, new_tasks):
+    tasks_returned = set()
+
     #update teh tasks
     for task in new_tasks:
         #if the task already exists
         if task.task_id in tasks and task.state:
-            tasks[task.task_id].state = task.state
+            if tasks[task.task_id].state != messages_pb2.TaskInfo.TaskState.KILLING or task.state != messages_pb2.TaskInfo.TaskState.RUNNING:
+                # do not update if killing + agent reports task as running
+                tasks[task.task_id].state = task.state
             if task.error_message:
                 tasks[task.task_id].error_message = task.error_message
         else:
             #if it doesn't
             tasks[task.task_id] = task
+
+        # keep track of tasks returned in this ping
+        tasks_returned.add(task.task_id)
+
+    #search for any missing tasks:
+    for task in get_tasks_by_agent(agent_id):
+        if task.task_id not in tasks_returned and tasks[task.task_id].state in [messages_pb2.TaskInfo.TaskState.RUNNING, messages_pb2.TaskInfo.TaskState.KILLING]:
+            # task missing, assume killed
+            tasks[task.task_id].state = messages_pb2.TaskInfo.TaskState.KILLED
 
 def add_task(runtaskmsg):
     task_id = runtaskmsg.task.task_id
@@ -86,6 +99,11 @@ def add_task(runtaskmsg):
 
 def add_kill_task(killtaskmsg):
     task_id = killtaskmsg.task_id
+    if task_id in tasks:
+        if tasks[task_id].state == messages_pb2.TaskInfo.TaskState.UNISSUED:
+            tasks[task_id].state == messages_pb2.TaskInfo.TaskState.KILLED
+        else:
+            tasks[task_id].state = messages_pb2.TaskInfo.TaskState.KILLING
     agent_id = killtaskmsg.agent_id
     killtasks[task_id] = killtaskmsg
 
@@ -122,7 +140,7 @@ def get_next_unissued_kill_by_agent(agent_id):
         if task_id not in tasks:
             continue
         task = tasks[task_id]
-        if task.agent_id == agent_id and task.state == messages_pb2.TaskInfo.TaskState.RUNNING:
+        if task.agent_id == agent_id and (task.state == messages_pb2.TaskInfo.TaskState.RUNNING or task.state == messages_pb2.TaskInfo.TaskState.KILLING or task.state == messages_pb2.TaskInfo.TaskState.ISSUED):
             return killtaskmsg
 
 def get_all_tasks():

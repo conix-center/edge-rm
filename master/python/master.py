@@ -175,7 +175,6 @@ def KillTask(wrapper):
     print("    Task ID:        " + wrapper.kill_task.task_id)
     print("    Selected Agent: " + wrapper.kill_task.agent_id)
 
-    # TODO: Forward the request onto the particular device through a ping/pong
     db.add_kill_task(wrapper.kill_task)
 
     # construct response
@@ -197,7 +196,7 @@ def GetPing(wrapper):
     db.refresh_agent(agent_id, wrapper.ping.agent)
 
     #update the state of any tasks it may have sent
-    db.refresh_tasks(wrapper.ping.tasks)
+    db.refresh_tasks(agent_id, wrapper.ping.tasks)
 
     task_to_run = db.get_next_unissued_task_by_agent(agent_id)
     task_to_kill = db.get_next_unissued_kill_by_agent(agent_id)

@@ -97,6 +97,14 @@ def constructAttributes(attributes, config):
         os = dist + '-' + version + '-' + arch
     os_attribute.text.value =  os
 
+    # add the supported executors
+    executors = attributes.add()
+    executors.name = "executors"
+    executors.type = messages_pb2.Value.SET
+    executors.set.item.append("DOCKER")
+    if wasmhelper.enabled():
+        executors.set.item.append("WASM")
+
     #if there is a domain attribute add it
     if 'domain' in config:
         domain_attribute = attributes.add()
@@ -111,6 +119,9 @@ def updateTasks():
             task.state = dockerhelper.getContainerStatus(task_id)
             if task.state == messages_pb2.TaskInfo.ERRORED:
                 task.error_message = dockerhelper.getContainerLogs(task_id)
+        elif task.container.type == messages_pb2.ContainerInfo.Type.WASM:
+            # get task state
+            task.state = wasmhelper.getTaskStatus(task_id)
     db.save()
 
 def constructPing(wrapper, config, verbose):
@@ -182,6 +193,7 @@ def main(host, port, configPath, verbose):  # pragma: no cover
                     if wrapper.pong.kill_task.task_id:
                         print("Received kill task request!")
                         dockerhelper.killContainer(wrapper.pong.kill_task.task_id)
+                        wasmhelper.killTask(wrapper.pong.kill_task.task_id)
                     if wrapper.pong.run_task.task.name:
                         if wrapper.pong.run_task.task.container.type == messages_pb2.ContainerInfo.Type.DOCKER:
                             print("Received Docker Task!!")
@@ -192,6 +204,16 @@ def main(host, port, configPath, verbose):  # pragma: no cover
                             print("Launching task")
                             #for now just grab the container info. Let ping check the state on the next run
                             containerInfo = dockerhelper.runImageFromRunTask(wrapper.pong.run_task, config.get('devices', []))
+                        elif wrapper.pong.run_task.task.container.type == messages_pb2.ContainerInfo.Type.WASM:
+                            print("Received WebAssembly Task!!")
+                            if not wasmhelper.enabled():
+                                print("Agent cannot run this type of task")
+                            else:
+                                print("Storing task")
+                                db.set_task(wrapper.pong.run_task.task.task_id, wrapper.pong.run_task.task)
+
+                                print("Launching task")
+                                wasmhelper.runModuleFromRunTask(wrapper.pong.run_task)
                         else:
                             print("Agent cannot run this type of task")
             except requests.exceptions.ConnectionError:

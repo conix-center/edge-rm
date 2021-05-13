@@ -16,6 +16,9 @@ WasmRuntimeContainer = None
 WasmRuntimeName = "LocalWasmRuntime"
 WasmRuntimePORT = 3002
 
+def enabled():
+    return WasmRuntimeContainer is not None
+
 def loadWasmRuntime():
     global WasmRuntimeContainer
     try:
@@ -32,6 +35,7 @@ def stopWasmRuntime():
         if WasmRuntimeContainer.status == "running":
             print("Stopping Wasm Runtime...")
             WasmRuntimeContainer.stop()
+            WasmRuntimeContainer = None
 
 def establishWasmRuntime(config):
     global WasmRuntimeContainer
@@ -61,12 +65,54 @@ def establishWasmRuntime(config):
                                                         # volumes=volumes,
                                                         )
 
-def runWasmTask(name, wasmbinary):
-    requests.post('http://localhost:' + str(WasmRuntimePORT) + '/task?name=' + str(name), 
+def runWasmTask(name, env, wasmbinary):
+    queryParams = env
+    queryParams['name'] = name
+
+    req = requests.post('http://localhost:' + str(WasmRuntimePORT) + '/task', 
+                    params=queryParams,
                     data=wasmbinary, 
                     headers={"Content-Type":"application/wasm"})
+    print(req.text)
 
 def receiveWasmMsg(name, message):
-    requests.post('http://localhost:' + str(WasmRuntimePORT) + '/task/data?name=' + str(name), 
+    req = requests.post('http://localhost:' + str(WasmRuntimePORT) + '/task/data', 
+                    params={"name":name},
                     data=message, 
                     headers={"Content-Type":"text/plain"})
+    print(req.text)
+
+def runModuleFromRunTask(run_task):
+    taskID = run_task.task.task_id
+    WASMInfo = run_task.task.container.wasm
+
+    # TODO: we would want to constain memory / cpu / etc.
+
+    # Extract the Wasm Bytes
+    wasmBytes = WASMInfo.wasm_binary
+
+    # Assemble environment dictionary
+    env = {}
+    for i in range(len(WASMInfo.environment)):
+        envEntry = WASMInfo.environment[i]
+        if envEntry.str_value:
+            env[key] = envEntry.str_value
+        else:
+            env[key] = envEntry.value
+
+    # Issue the run task
+    runWasmTask(taskID, env, wasmBytes)
+
+def getTaskStatus(task_id):
+    req = requests.get('http://localhost:' + str(WasmRuntimePORT) + '/task')
+    tasks = req.json() # returns an array of running tasks
+
+    # TODO: How do I check the status of a task in wasmtime?
+    if task_id in tasks:
+        return messages_pb2.TaskInfo.RUNNING
+    else:
+        return messages_pb2.TaskInfo.COMPLETED
+
+def killTask(taskID):
+    # TODO: implement kill
+    pass

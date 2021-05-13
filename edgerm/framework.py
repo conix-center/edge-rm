@@ -8,6 +8,7 @@ import uuid
 import json
 import requests
 import hashlib
+import re
 
 from . import messages_pb2
 
@@ -24,7 +25,10 @@ class Framework:
   def getTasks(self):
     r = requests.get('http://' + self.master + ':' + str(self.master_api_port) + '/tasks')
     if r.status_code == 200:
-      return r.json()
+      all_tasks = r.json()
+      return [x for x in all_tasks if x["framework"] and x["framework"]["frameworkId"] == self.framework_id]
+    else:
+      return None
 
   def getAgents(self):
     r = requests.get('http://' + self.master + ':' + str(self.master_api_port) + '/agents')
@@ -64,6 +68,16 @@ class Framework:
               return att['scalar']['value']
             if 'device' in att:
               return att['device']['device']
+
+    return None
+
+  def getResourceProperty(self, resources, prop):
+    for r in resources:
+      if r.name == prop:
+        if r.scalar.value:
+          return r.scalar.value
+        elif r.device.device:
+          return r.device.device
 
     return None
 
@@ -147,7 +161,7 @@ class Framework:
             r.scalar.value = offer_filters[key]
             foundKey = True
           elif r.name == key:
-            print("Found ", r.name)
+            #print("Found ", r.name)
             foundKey = True
        
         #remove any device resources that are not requested specifically
@@ -186,6 +200,15 @@ class Framework:
             return
 
     print("Did not find task")
+
+  # matches on task name or task ID
+  def killTasksThatMatch(self, regex):
+    tasks = self.getTasks()
+    for task in tasks:
+      if task['state'] != "KILLED" and task['state'] != "COMPLETED" and task['state'] != "ERRORED":
+        if re.match(regex, task['name']) or re.match(regex,task['taskId']):
+          print("Kill", task['taskId'], task['name'])
+          self.killTask(task['taskId'])
 
   def killAllTasks(self):
     tasks = self.getTasks()
