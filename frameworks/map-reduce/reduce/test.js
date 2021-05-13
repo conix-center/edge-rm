@@ -35,6 +35,7 @@ function reduce(data) {
 	req.end()
 
 	console.log(data);
+	return data;
 }
 
 module.exports = {reduce}

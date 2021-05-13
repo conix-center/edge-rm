@@ -39,7 +39,25 @@ setTimeout(function() {
     })
   })
 
-  req2.write("Hello!")
+  req2.write("Hello 2!")
 
   req2.end()
+
+  setTimeout(function() {
+    var req2 = coap.request({
+      host: 'localhost',
+      port: 5683,
+      pathname: '/reduce/123/data',
+      method: "GET"
+    });
+
+    req2.on('response', function(res) {
+      console.log(JSON.parse(String(res.payload)));
+      res.on('end', function() {
+        process.exit(0)
+      })
+    })
+
+    req2.end()
+  }, 2000)
 }, 2000)

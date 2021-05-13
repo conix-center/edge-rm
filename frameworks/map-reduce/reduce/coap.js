@@ -5,6 +5,7 @@ var fs = require('fs')
 var path = require('path')
  
 var scripts = {}
+var data = {}
 
 server.on('request', function(req, res) {
   console.log(req.method, req.url)
@@ -18,8 +19,15 @@ server.on('request', function(req, res) {
   // POST /reduce/:key/create or /reduce/:key/data
 
   if(req.method == "GET") {
+    // GET /reduce/:key/data
+    if(pathType == 'data' && data[key]) {
+      res.end(JSON.stringify(data[key]))
+      data[key] = []
+      return
+    }
+
     console.log("GET /")
-    return res.end("Hello World!")
+    return res.end('{"Hello":"World"}');
   }
 
   var pathToFile = path.join(__dirname + "/scripts/" + key + '.js');
@@ -33,6 +41,7 @@ server.on('request', function(req, res) {
       }
       try {
           scripts[key] = require(pathToFile);
+          data[key] = []
           console.log(scripts[key]);
           console.log(scripts[key].reduce);
           res.end("Success.")
@@ -45,7 +54,10 @@ server.on('request', function(req, res) {
     console.log("Received data!")
     if(!scrippie) return res.end("Not loaded.")
     if(!scrippie.reduce) return res.end("No reduce.")
-    scrippie.reduce(String(req.payload));
+    var result = scrippie.reduce(String(req.payload));
+    if(result != null && result != undefined) {
+      data[key].push(result);
+    }
     res.end("OK!");
   } else {
     res.end("Unknown.")
