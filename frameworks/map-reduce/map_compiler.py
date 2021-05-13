@@ -8,7 +8,7 @@ import subprocess
 import shutil
 
 
-def build(map_func, sensor, period):
+def build(map_func, period):
 
     #create a master undefined symbols file
     shutil.copy('../../agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot/share/defined-symbols.txt','./map-wrapper/defined-symbols.txt')
@@ -36,7 +36,6 @@ def build(map_func, sensor, period):
                         "-nostdlib",
                         "-Wl,--export=main",
                         '-DMAP_FILE="' + rel_path + '"',
-                        '-DSENSOR="' + sensor + '"',
                         "-DPERIOD=" + period,
                         "-o",
                         "out.wasm",
@@ -55,7 +54,6 @@ def build(map_func, sensor, period):
                         "-Wl,--no-threads,--strip-all,--no-entry",
                         "-nostdlib",
                         "-Wl,--export=main",
-                        '-DSENSOR="' + sensor + '"',
                         "-DPERIOD=" + period,
                         "-o",
                         "out.wasm",
@@ -67,8 +65,6 @@ if __name__ == '__main__':  # pragma: no cover
         description='Builds a wasm file from a supplied c file that implements the map function')
     parser.add_argument(
         '--map', help='the Edge RM Master IP to register with.')
-    parser.add_argument(
-        '--sensor', required=True, help='The sensor. One of temp,press,humidity')
     parser.add_argument('--period', required=True, help='Sample period of the sensor')
     args = parser.parse_args()
     build(args.map, args.sensor, args.period)

@@ -16,7 +16,9 @@ int main(int argc, char *argv[]){
     char path[40];
     waGetEnvironmentString("PATH", path, 40);
 
-    char sensor[10] = SENSOR;
+    char sensor[20];
+    waGetEnvironmentString("SENSOR", sensor, 20);
+
     int period = PERIOD;
 
     char sResult[20];

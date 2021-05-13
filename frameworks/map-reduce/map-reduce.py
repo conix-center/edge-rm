@@ -12,8 +12,8 @@ from map_compiler import build
 from edgerm.framework import Framework
 
 # call map compiler to get out a schedulable wasm tasks
-def compile_map(map_file, sensor, period):
-    build(map_file, sensor, period)
+def compile_map(map_file, period):
+    build(map_file, period)
     return 'out.wasm'
 
 # checks to see if a reduce server is running, and if it isn't schedules it
@@ -53,25 +53,21 @@ def schedule_map(framework, offers, wasm_file, sensor, sensor_filters, reduce_se
     env['IP'] = reduce_server_ip
     env['PORT'] = reduce_server_port
 
-    if(sensor == 'temp'):
-        sensor = 'temperature_sensor'
-    elif(sensor == 'humidity'):
-        sensor = 'humidity_sensor'
-    elif(sensor == 'press'):
-        sensor = 'pressure_sensor'
-
     if reissue_tasks:
         framework.killTasksThatMatch(task_id)
 
     map_agents = framework.findAgents(offers, {'executors':'WASM','cpus':1.0, sensor:None})
-
-    print(env)
 
     if(len(map_agents) == 0):
         print("No map agents found. Exiting.")
         sys.exit(1)
 
     for agent in map_agents:
+        #for each agent get the sensor handle and set the environment variable
+        sensor_device = framework.getResourceProperty(agent.resources, sensor)
+        print(sensor_device)
+        env['SENSOR'] = sensor_device
+
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
         f = open(os.path.join(__location__, wasm_file), 'rb')
         framework.runTask(task_id,agent,wasm_binary=f.read(),environment=env)
@@ -122,7 +118,6 @@ if __name__ == '__main__':  # pragma: no cover
     h = hashlib.sha256()
     h.update(id.encode('utf-8'))
     id = h.hexdigest()[0:20]
-    print(id)
 
     #declare a framework
     framework = Framework("Map Reduce", args.host, args.port)
@@ -130,10 +125,9 @@ if __name__ == '__main__':  # pragma: no cover
     # check if the reduce task is already running
     offers = framework.getOffers()
 
-    print(offers)
 
     #get the map function
-    wasm_file = compile_map(args.map, args.sensor, args.period)
+    wasm_file = compile_map(args.map, args.period)
 
     #schedule the reduce/result parts of the code
     result_ip, result_port = schedule_result_server()
