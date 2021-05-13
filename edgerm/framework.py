@@ -71,6 +71,16 @@ class Framework:
 
     return None
 
+  def getResourceProperty(self, resources, prop):
+    for r in resources:
+      if r.name == prop:
+        if r.scalar.value:
+          return r.scalar.value
+        elif r.device.device:
+          return r.device.device
+
+    return None
+
 
   def getOffers(self):
     # get offers
@@ -151,7 +161,7 @@ class Framework:
             r.scalar.value = offer_filters[key]
             foundKey = True
           elif r.name == key:
-            print("Found ", r.name)
+            #print("Found ", r.name)
             foundKey = True
        
         #remove any device resources that are not requested specifically
