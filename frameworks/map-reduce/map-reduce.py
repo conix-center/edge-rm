@@ -149,13 +149,13 @@ if __name__ == '__main__':  # pragma: no cover
     while True:
         time.sleep(4)
         poll_reduce_server('reduce.log', ip, port, id)
-        with open('reduce.log','r') as f:
-            lines = f.readlines()
+        # with open('reduce.log','r') as f:
+        #     lines = f.readlines()
 
-            # check if new stuff to read
-            if len(lines) > number_of_lines:
-                print(lines[number_of_lines:])
-                number_of_lines = len(lines)
+        #     # check if new stuff to read
+        #     if len(lines) > number_of_lines:
+        #         print(lines[number_of_lines:])
+        #         number_of_lines = len(lines)
 
 
     #call fetch and print results in loop
