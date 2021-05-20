@@ -47,7 +47,6 @@ def issue_reduce_code(reduce_file, reduce_server_ip, reduce_server_port, task_id
     return 'reduce/' + task_id + '/data'
 
 def poll_reduce_server(output_file, reduce_server_ip, reduce_server_port, task_id):
-    print("Polling reducer.")
     p = os.system(' '.join(['node', 'reduce/fetch-reduce.js', output_file, task_id, reduce_server_ip, str(reduce_server_port)]))
 
 # Looks for available sensors on which to run the map task and schedules them
@@ -60,20 +59,20 @@ def schedule_map(framework, offers, wasm_file, sensor, sensor_filters, reduce_se
 
     map_agents = framework.findAgents(offers, {'executors':'WASM','cpus':1.0, sensor:None})
 
-    if(len(map_agents) == 0):
-        print("No map agents found. Exiting.")
-        sys.exit(1)
+    #if(len(map_agents) == 0):
+    #    print("No map agents found.")
+    #    retu
 
     for agent in map_agents:
         #for each agent get the sensor handle and set the environment variable
         sensor_device = framework.getResourceProperty(agent.resources, sensor)
-        print(sensor_device)
         env['SENSOR'] = sensor_device
 
         __location__ = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
         f = open(os.path.join(__location__, wasm_file), 'rb')
         framework.runTask(task_id,agent,wasm_binary=f.read(),environment=env)
-        print("Started map task on agent: {}".format(agent.agent_id))
+        print("Started new map task on agent: {}".format(agent.agent_id))
+        print()
 
 # Schedules a simple fileserver so that we can store and print user results
 def schedule_result_server():
@@ -148,6 +147,7 @@ if __name__ == '__main__':  # pragma: no cover
         pass
     number_of_lines = 0
     loop_cnt = 0
+    print("Polling reducer.")
     while True:
         time.sleep(4)
         poll_reduce_server('reduce.log', ip, port, id)
