@@ -24,7 +24,7 @@ def build(map_func, period):
         rel_path = os.path.relpath(map_func, './map-wrapper/')
 
         
-        subprocess.run(["/opt/wasi-sdk/bin/clang",
+        subprocess.run(["/usr/local/opt/llvm@9/bin/clang",
                         "--target=wasm32",
                         "-O1",
                         "-z",
@@ -43,7 +43,7 @@ def build(map_func, period):
 
     else:
         # there is no map func - import an empty map func
-        subprocess.run(["/opt/wasi-sdk/bin/clang",
+        subprocess.run(["/usr/local/opt/llvm@9/bin/clang",
                         "--target=wasm32",
                         "-O1",
                         "-z",

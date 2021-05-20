@@ -1,5 +1,6 @@
 #include "wasm_runtime_api.h"
 #include <stdio.h>
+#include <string.h>
 
 #ifdef MAP_FILE
 #include MAP_FILE
@@ -39,7 +40,7 @@ int main(int argc, char *argv[]){
         sprintf(sResult, "{\"value\":%d}", (int)f);
         
         //post the result
-        waCoapPost(ip, port, path, sResult, 20);
+        waCoapPost(ip, port, path, sResult, strlen(sResult));
 
         waDelayMs(period*1000);
     }
