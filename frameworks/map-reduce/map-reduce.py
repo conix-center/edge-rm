@@ -51,15 +51,12 @@ def poll_reduce_server(output_file, reduce_server_ip, reduce_server_port, task_i
     p = os.system(' '.join(['node', 'reduce/fetch-reduce.js', output_file, task_id, reduce_server_ip, str(reduce_server_port)]))
 
 # Looks for available sensors on which to run the map task and schedules them
-def schedule_map(framework, offers, wasm_file, sensor, sensor_filters, reduce_server_ip, reduce_server_port, task_path, task_id, reissue_tasks):
+def schedule_map(framework, offers, wasm_file, sensor, sensor_filters, reduce_server_ip, reduce_server_port, task_path, task_id):
     #setup the environment
     env = {}
     env['PATH'] = task_path
     env['IP'] = reduce_server_ip
     env['PORT'] = reduce_server_port
-
-    if reissue_tasks:
-        framework.killTasksThatMatch(task_id)
 
     map_agents = framework.findAgents(offers, {'executors':'WASM','cpus':1.0, sensor:None})
 
@@ -139,23 +136,26 @@ if __name__ == '__main__':  # pragma: no cover
     ip, port = schedule_reduce_server(framework, offers, result_ip, result_port, id)
     path = issue_reduce_code(args.reduce, ip, port, id, args.reissue)
 
+    #if reissue, kill all currently running map tasks
+    if args.reissue:
+        framework.killTasksThatMatch(id)
+
     #schedule the map parts of the code - maybe call in a loop for multiple arguments?
-    schedule_map(framework, offers, wasm_file, args.sensor, args.sensor_filter, ip, port, path, id, args.reissue)
+    schedule_map(framework, offers, wasm_file, args.sensor, args.sensor_filter, ip, port, path, id)
 
     # clear output log
     with open('reduce.log', 'w') as fp:
         pass
     number_of_lines = 0
+    loop_cnt = 0
     while True:
         time.sleep(4)
         poll_reduce_server('reduce.log', ip, port, id)
-        # with open('reduce.log','r') as f:
-        #     lines = f.readlines()
-
-        #     # check if new stuff to read
-        #     if len(lines) > number_of_lines:
-        #         print(lines[number_of_lines:])
-        #         number_of_lines = len(lines)
+        loop_cnt += 1
+        if loop_cnt % 5 == 0:
+            # reissue map tasks every X iterations
+            offers = framework.getOffers()
+            schedule_map(framework, offers, wasm_file, args.sensor, args.sensor_filter, ip, port, path, id)
 
 
     #call fetch and print results in loop
