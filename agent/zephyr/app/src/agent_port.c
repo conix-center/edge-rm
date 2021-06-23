@@ -9,7 +9,13 @@ LOG_MODULE_REGISTER(agent_port, LOG_LEVEL_DBG);
 
 agent_port_timer_cb local_cb;
 agent_port_coap_receive_cb recv_cb;
-k_tid_t wasm_thread;
+
+typedef struct _task_thread {
+   char* task_id;
+   wasm_thread_t* wasm_thread;
+} task_thread_t;
+
+task_thread_t task_threads[10] = { 0 };
 static bool running_task = false;
 
 void agent_work_handler(struct k_work *work)
@@ -157,21 +163,35 @@ bool agent_port_run_wasm_task(uint8_t* wasm_binary,
                             char* task_id) {
 
    //start the module, save the thread
-   running_task = true;
-   wasm_thread = run_wasm_module(wasm_binary, wasm_binary_length, environment_keys, environment_int_values, environment_str_values, num_environment_variables);
+   int8_t t_idx = -1;
+   for(uint8_t i = 0; i < 10; i++) {
+      if(task_threads[i].task_id == 0) {
+         t_idx = i;
+      }
+   }
+
+   task_threads[t_idx].task_id = task_id;
+   task_threads[t_idx].wasm_thread = run_wasm_module(wasm_binary, wasm_binary_length, environment_keys, environment_int_values, environment_str_values, num_environment_variables);
 
    return true;
 }
 
-task_state_t agent_port_get_wasm_task_state(char* task_id,char** error_message) {
+task_state_t agent_port_get_wasm_task_state(char* task_id, char** error_message) {
 
-   uint32_t state =  wasm_thread->base.thread_state;
+   int8_t t_idx = -1;
+   for(uint8_t i = 0; i < 10; i++) {
+      if(strcmp(task_threads[i].task_id,task_id) == 0) {
+         t_idx = i;
+      }
+   }
+
+   uint32_t state = task_threads[t_idx].wasm_thread->thread_id->base.thread_state;
 
    if(state & _THREAD_DEAD || state & _THREAD_ABORTING) {
       //check for errors 
-      if(check_wasm_errored()) {
+      if(check_wasm_errored(task_threads[t_idx].wasm_thread)) {
          if(error_message != NULL) {
-            *error_message = get_wasm_error_message();
+            *error_message = get_wasm_error_message(task_threads[t_idx].wasm_thread);
          }
          return ERRORED;
       } else {
@@ -188,7 +208,14 @@ task_state_t agent_port_get_wasm_task_state(char* task_id,char** error_message) 
 }
 
 bool agent_port_kill_wasm_task(char* task_id) {
-   k_thread_abort(wasm_thread);
-   cleanup_wasm_module();
+   int8_t t_idx = -1;
+   for(uint8_t i = 0; i < 10; i++) {
+      if(strcmp(task_threads[i].task_id,task_id) == 0) {
+         t_idx = i;
+      }
+   }
+
+   k_thread_abort(task_threads[t_idx].wasm_thread->thread_id);
+   cleanup_wasm_module(task_threads[t_idx].wasm_thread);
    return true;
 }
