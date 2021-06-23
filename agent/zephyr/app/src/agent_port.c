@@ -90,14 +90,15 @@ void agent_port_free(void* pt) {
 }
 
 bool agent_port_can_run_task(void) {
-   task_state_t s = agent_port_get_wasm_task_state(NULL);
+   /*task_state_t s = agent_port_get_wasm_task_state(NULL);
 
    if(running_task == true && s != COMPLETED && s != ERRORED) {
       return false;
    } else {
       running_task = false;
       return true;
-   }
+   }*/
+   return true;
 }
 
 //Resources
@@ -152,7 +153,8 @@ bool agent_port_run_wasm_task(uint8_t* wasm_binary,
                             char* environment_keys[],
                             int32_t environment_int_values[],
                             char* environment_str_values[],
-                            uint8_t num_environment_variables) {
+                            uint8_t num_environment_variables,
+                            char* task_id) {
 
    //start the module, save the thread
    running_task = true;
@@ -161,7 +163,7 @@ bool agent_port_run_wasm_task(uint8_t* wasm_binary,
    return true;
 }
 
-task_state_t agent_port_get_wasm_task_state(char** error_message) {
+task_state_t agent_port_get_wasm_task_state(char* task_id,char** error_message) {
 
    uint32_t state =  wasm_thread->base.thread_state;
 
@@ -185,7 +187,7 @@ task_state_t agent_port_get_wasm_task_state(char** error_message) {
    }
 }
 
-bool agent_port_kill_wasm_task(void) {
+bool agent_port_kill_wasm_task(char* task_id) {
    k_thread_abort(wasm_thread);
    cleanup_wasm_module();
    return true;
