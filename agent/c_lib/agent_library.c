@@ -321,8 +321,9 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
         agent_task_t* new_task = NULL;
         for(uint8_t i = 0; i < NUM_TASKS; i++) {
             if(tasks[i].task_id[0] == 0) {
-                agent_port_print("Found empty task slot %d", i);
+                agent_port_print("Found empty task slot %d\n", i);
                 new_task = &tasks[i];
+                break;
             }
         }
 
@@ -330,14 +331,16 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
             //just get the first completed task and overwrite it
             for(uint8_t i = 0; i < NUM_TASKS; i++) {
                 if(tasks[i].state != TaskInfo_TaskState_RUNNING) {
-                    agent_port_print("Found empty task slot %d", i);
+                    agent_port_print("Found empty task slot %d\n", i);
                     new_task = &tasks[i];
+                    break;
                 }
             }
         }
 
         //we have ten running tasks and just can't take anymore
         if(new_task == NULL) {
+            agent_port_print("No empty task slot - setting task data to throw-away task\n");
             new_task = &empty_task;
         }
 

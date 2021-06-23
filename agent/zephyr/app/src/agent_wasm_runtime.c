@@ -55,6 +55,7 @@ static void* app_instance_main(wasm_module_inst_t module_inst, wasm_thread_t* wa
 
     wasm_application_execute_main(module_inst, app_argc, app_argv);
     if ((exception = wasm_runtime_get_exception(module_inst))) {
+        printk("Exception on return from WASM main.\n");
         printk("%s\n", exception);
         wasm_thread->wasm_errored = true;
         snprintk(wasm_thread->wasm_exception, EXCEPTION_LEN, "%s", exception);
@@ -141,6 +142,7 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
     /* load WASM module */
     if (!(wasm_thread->wasm_module = wasm_runtime_load(wasm_file_buf, wasm_file_size,
                                           error_buf, sizeof(error_buf)))) {
+        printk("Loading WASM module failed.\n");
         printk("%s\n", error_buf);
         wasm_thread->wasm_errored = true;
         snprintf(wasm_thread->wasm_exception, EXCEPTION_LEN, "%s", error_buf);
@@ -152,6 +154,7 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
                                                       CONFIG_APP_HEAP_SIZE,
                                                       error_buf,
                                                       sizeof(error_buf)))) {
+        printk("Instantiating WASM module failed.\n");
         printk("%s\n", error_buf);
         wasm_thread->wasm_errored = true;
         snprintf(wasm_thread->wasm_exception, EXCEPTION_LEN, "%s", error_buf);

@@ -157,9 +157,10 @@ int waGetEnvironmentInt(wasm_exec_env_t exec_env, char* key, int* val, int len) 
 
    for(uint8_t i = 0; i < 10; i++) {
       if(wasm_threads[i].thread_id == id) {
-	 for(uint8_t i = 0; i < wasm_threads[i].wasm_num_environment_vars; i++) {
-   	    if(strcmp(key, wasm_threads[i].wasm_environment_keys[i]) == 0) {
-   	       *val = wasm_threads[i].wasm_environment_values[i];
+	 for(uint8_t j = 0; j < wasm_threads[i].wasm_num_environment_vars; j++) {
+   	    if(strcmp(key, wasm_threads[i].wasm_environment_keys[j]) == 0) {
+   	       *val = wasm_threads[i].wasm_environment_values[j];
+	       printk("Returning WASM environemnt value %d for key %s\n", wasm_threads[i].wasm_environment_values[j], key);
    	       return 1;
    	    }
    	 }
@@ -173,16 +174,16 @@ int waGetEnvironmentString(wasm_exec_env_t exec_env, char* key, char* str, int l
 
    k_tid_t id = k_current_get();
 
-
    for(uint8_t i = 0; i < 10; i++) {
       if(wasm_threads[i].thread_id == id) {
-	 for(uint8_t i = 0; i < wasm_threads[i].wasm_num_environment_vars; i++) {
-   	    if(strcmp(key, wasm_threads[i].wasm_environment_keys[i]) == 0) {
-   	       int slen = strlen(wasm_threads[i].wasm_environment_str_values[i]);
+	 for(uint8_t j = 0; j < wasm_threads[i].wasm_num_environment_vars; j++) {
+   	    if(strcmp(key, wasm_threads[i].wasm_environment_keys[j]) == 0) {
+   	       int slen = strlen(wasm_threads[i].wasm_environment_str_values[j]);
+	       printk("Returning WASM environemnt value %s for key %s\n", wasm_threads[i].wasm_environment_str_values[j], key);
    	       if(len < slen) {
-   	          memcpy(str, wasm_threads[i].wasm_environment_str_values[i], len);
+   	          memcpy(str, wasm_threads[i].wasm_environment_str_values[j], len);
    	       } else {
-   	          memcpy(str, wasm_threads[i].wasm_environment_str_values[i], slen);
+   	          memcpy(str, wasm_threads[i].wasm_environment_str_values[j], slen);
    	       }
    	       return 1;
    	    }
