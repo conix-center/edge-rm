@@ -1,0 +1,1 @@
+./map-reduce.py --sensor humidity_sensor --period 10 --host conixdb.com --reduce reduce/test.js
