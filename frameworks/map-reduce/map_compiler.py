@@ -34,6 +34,8 @@ def build(map_func, period):
                         "-Wl,--allow-undefined-file=./map-wrapper/defined-symbols.txt",
                         "-Wl,--no-threads,--strip-all,--no-entry",
                         "-nostdlib",
+                        "-Wl,--export=__heap_base",
+                        "-Wl,--export=__data_end", 
                         "-Wl,--export=main",
                         '-DMAP_FILE="' + rel_path + '"',
                         "-DPERIOD=" + period,
@@ -53,6 +55,8 @@ def build(map_func, period):
                         "-Wl,--allow-undefined-file=./map-wrapper/defined-symbols.txt",
                         "-Wl,--no-threads,--strip-all,--no-entry",
                         "-nostdlib",
+                        "-Wl,--export=__heap_base",
+                        "-Wl,--export=__data_end", 
                         "-Wl,--export=main",
                         "-DPERIOD=" + period,
                         "-o",
@@ -67,4 +71,4 @@ if __name__ == '__main__':  # pragma: no cover
         '--map', help='the Edge RM Master IP to register with.')
     parser.add_argument('--period', required=True, help='Sample period of the sensor')
     args = parser.parse_args()
-    build(args.map, args.sensor, args.period)
+    build(args.map, args.period)
