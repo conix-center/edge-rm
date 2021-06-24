@@ -46,7 +46,7 @@ bool subscribed=false;
 int topicID=0;
 //otMqttsnTopic* topic;
 
-extern wasm_thread_t wasm_threads[10];
+extern wasm_thread_t wasm_threads[6];
 
 /*extern char** wasm_environment_keys;
 extern char** wasm_environment_str_values;
@@ -155,7 +155,7 @@ int waGetEnvironmentInt(wasm_exec_env_t exec_env, char* key, int* val, int len) 
 
    k_tid_t id = k_current_get();
 
-   for(uint8_t i = 0; i < 10; i++) {
+   for(uint8_t i = 0; i < 6; i++) {
       if(wasm_threads[i].thread_id == id) {
 	 for(uint8_t j = 0; j < wasm_threads[i].wasm_num_environment_vars; j++) {
    	    if(strcmp(key, wasm_threads[i].wasm_environment_keys[j]) == 0) {
@@ -174,7 +174,7 @@ int waGetEnvironmentString(wasm_exec_env_t exec_env, char* key, char* str, int l
 
    k_tid_t id = k_current_get();
 
-   for(uint8_t i = 0; i < 10; i++) {
+   for(uint8_t i = 0; i < 6; i++) {
       if(wasm_threads[i].thread_id == id) {
 	 for(uint8_t j = 0; j < wasm_threads[i].wasm_num_environment_vars; j++) {
    	    if(strcmp(key, wasm_threads[i].wasm_environment_keys[j]) == 0) {

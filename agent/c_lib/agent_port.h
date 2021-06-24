@@ -47,7 +47,8 @@ bool agent_port_run_wasm_task(uint8_t* wasm_binary,
                             int32_t environment_int_values[],
                             char* environment_str_values[],
                             uint8_t num_environment_variables,
-                            char* task_id);
+                            char* task_id,
+                            uint8_t task_index);
 
 bool agent_port_kill_wasm_task(char* task_id);
 

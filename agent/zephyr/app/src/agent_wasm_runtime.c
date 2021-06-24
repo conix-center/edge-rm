@@ -8,14 +8,9 @@
 #include "wasm_export.h"
 
 #define CONFIG_GLOBAL_HEAP_BUF_SIZE 80072
-#define CONFIG_APP_STACK_SIZE 8192
-#define CONFIG_APP_HEAP_SIZE 8192
-
-#ifdef CONFIG_NO_OPTIMIZATIONS
-#define CONFIG_MAIN_THREAD_STACK_SIZE 8192
-#else
+#define CONFIG_APP_STACK_SIZE 2048
+#define CONFIG_APP_HEAP_SIZE 2048
 #define CONFIG_MAIN_THREAD_STACK_SIZE 4096
-#endif
 
 static int app_argc;
 static char **app_argv;
@@ -36,10 +31,10 @@ bool wasm_application_execute_main(wasm_module_inst_t module_inst,
 
 // Define an array of stacks to use
 #define MAIN_THREAD_PRIORITY 5
-K_THREAD_STACK_ARRAY_DEFINE(iwasm_main_thread_stacks, 10, CONFIG_MAIN_THREAD_STACK_SIZE);
+K_THREAD_STACK_ARRAY_DEFINE(iwasm_main_thread_stacks, 6, CONFIG_MAIN_THREAD_STACK_SIZE);
 
 // Define 10 thread objects
-wasm_thread_t wasm_threads[10];
+wasm_thread_t wasm_threads[6];
 
 bool check_wasm_errored(wasm_thread_t* wasm_thread) {
     return wasm_thread->wasm_errored;
@@ -64,7 +59,7 @@ static void* app_instance_main(wasm_module_inst_t module_inst, wasm_thread_t* wa
 }
 
 // Global Heap for the WASM runtime
-static char global_heap_buf[CONFIG_GLOBAL_HEAP_BUF_SIZE] = { 0 };
+static char global_heap_buf[6][16384] = { 0 };
 
 void cleanup_wasm_module(wasm_thread_t* wasm_thread) {
     /* destroy the module instance */
@@ -121,8 +116,8 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
 
     // TODO
     init_args.mem_alloc_type = Alloc_With_Pool;
-    init_args.mem_alloc_option.pool.heap_buf = global_heap_buf;
-    init_args.mem_alloc_option.pool.heap_size = sizeof(global_heap_buf);
+    init_args.mem_alloc_option.pool.heap_buf = wasm_thread->heap_buf;
+    init_args.mem_alloc_option.pool.heap_size = 16384;
 
     // Native symbols need below registration phase
     init_args.n_native_symbols = sizeof(native_symbols) / sizeof(NativeSymbol);
@@ -170,23 +165,10 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
 }
 
 
-wasm_thread_t* run_wasm_module(uint8_t* buf, uint32_t len, char* e_keys[], int32_t e_values[], char* e_str_values[], uint8_t num_env_vars) {
+wasm_thread_t* run_wasm_module(uint8_t* buf, uint32_t len, char* e_keys[], int32_t e_values[], char* e_str_values[], uint8_t num_env_vars, uint8_t thread_idx) {
 
     // Pass in the buffer containing the WASM module and its length to the thread
-    printk("Starting WASM thread\n");
-
-    // Get the correct stack and thread objects
-    int8_t thread_idx = -1;
-    for(uint8_t i = 0; i < 10; i++) {
-        if(wasm_threads[i].thread_used == 0) {
-            thread_idx = i;
-        }
-    }
-
-    if(thread_idx == -1) {
-        printk("No more threads available");
-        return 0;
-    }
+    printk("Starting WASM thread on index %d\n", thread_idx);
 
     wasm_threads[thread_idx].wasm_errored = false;
     memset(wasm_threads[thread_idx].wasm_exception, 0, EXCEPTION_LEN);
@@ -197,6 +179,7 @@ wasm_thread_t* run_wasm_module(uint8_t* buf, uint32_t len, char* e_keys[], int32
     wasm_threads[thread_idx].wasm_environment_str_values = e_str_values;
     wasm_threads[thread_idx].wasm_num_environment_vars = num_env_vars;
     wasm_threads[thread_idx].wasm_buf_len = len;
+    wasm_threads[thread_idx].heap_buf = global_heap_buf[thread_idx];
 
     //setup the stack pointer
     //wasm_threads[thread_idx].thread_stack_pt = &iwasm_main_thread_stacks[thread_idx];

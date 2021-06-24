@@ -37,7 +37,7 @@ typedef struct _agent_task {
 } agent_task_t;
 
 //Currently we can hold ten tasks
-#define NUM_TASKS 10
+#define NUM_TASKS 6
 static agent_task_t tasks[NUM_TASKS];
 static agent_task_t empty_task;
 static uint8_t environment_idx = 0;
@@ -319,10 +319,12 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
 
         //find an empty slot in the task wrapper
         agent_task_t* new_task = NULL;
+        int8_t task_index = -1;
         for(uint8_t i = 0; i < NUM_TASKS; i++) {
             if(tasks[i].task_id[0] == 0) {
                 agent_port_print("Found empty task slot %d\n", i);
                 new_task = &tasks[i];
+                task_index = i;
                 break;
             }
         }
@@ -333,6 +335,7 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
                 if(tasks[i].state != TaskInfo_TaskState_RUNNING) {
                     agent_port_print("Found empty task slot %d\n", i);
                     new_task = &tasks[i];
+                    task_index = i;
                     break;
                 }
             }
@@ -396,7 +399,7 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
                 if(wrapper.pong.run_task.task.container.type == ContainerInfo_Type_WASM &&
                         wrapper.pong.run_task.task.container.has_wasm == true) {
                     // Is something already running
-                    if(agent_port_can_run_task()) {
+                    if(agent_port_can_run_task() && task_index != -1) {
                         //Is the task valid?
                         if(new_task->wasm_binary != NULL && strlen(new_task->task_id) > 0) {
                             // Run the task
@@ -415,7 +418,8 @@ void agent_response_cb(uint8_t return_code, uint8_t* buf, uint32_t len) {
                                                         new_task->environment_values,
                                                         new_task->environment_str_value_pointers,
                                                         NUM_ENVIRONMENT_VARIABLES,
-                                                        new_task->task_id);
+                                                        new_task->task_id,
+                                                        task_index);
 
                             if(success) {
                                 // Set the task state in the task struct
@@ -528,17 +532,35 @@ void agent_ping(void) {
     //update the state of running tasks
     for(uint8_t i = 0; i < NUM_TASKS; i++) {
         if(tasks[i].task_id[0] != 0) {
+
             task_state_t s = agent_port_get_wasm_task_state(tasks[i].task_id, &(tasks[i].error_message));
 
             if(s == RUNNING) {
+                agent_port_print("Task ID %s state running\n",tasks[i].task_id);
                 tasks[i].state = TaskInfo_TaskState_RUNNING;
             } else if (s == COMPLETED) {
+                agent_port_print("Task ID %s state complete\n",tasks[i].task_id);
                 tasks[i].state = TaskInfo_TaskState_COMPLETED;
+
+                if(tasks[i].wasm_binary != NULL) {
+                    agent_port_free(tasks[i].wasm_binary);
+                    tasks[i].wasm_binary = NULL;
+                }
+
             } else if (s == STARTING) {
+                agent_port_print("Task ID %s state starting\n",tasks[i].task_id);
+                agent_port_print("Got task state starting\n");
                 tasks[i].state = TaskInfo_TaskState_STARTING;
             } else if(s == ERRORED) {
+                agent_port_print("Task ID %s state errored\n",tasks[i].task_id);
                 tasks[i].state = TaskInfo_TaskState_ERRORED;
                 agent_port_print("Got error message: %s",tasks[i].error_message);
+
+                if(tasks[i].wasm_binary != NULL) {
+                    agent_port_free(tasks[i].wasm_binary);
+                    tasks[i].wasm_binary = NULL;
+                }
+
             }
         }
     }
