@@ -8,8 +8,9 @@ cnt = 0
 ts = "1624512091"
 pathname = './' + str(ts) + '/'
 
+agent_util = dict()
+
 while os.path.exists(pathname + str(cnt) + '-tasks.json'):
-	agent_util = dict()
 	with open(pathname + str(cnt) + '-tasks.json') as agentfile:
 		tasks = json.load(agentfile)
 		for task in tasks:
@@ -20,15 +21,20 @@ while os.path.exists(pathname + str(cnt) + '-tasks.json'):
 						cpu_util = i['scalar']['value']
 						if task['agentId'] not in agent_util:
 							agent_util[task['agentId']] = dict()
-							agent_util[task['agentId']]['total'] = 0
-						if task['framework']['name'] not in agent_util[task['agentId']]:
-							agent_util[task['agentId']][task['framework']['name']] = 0
-						agent_util[task['agentId']]["total"] += cpu_util
-						agent_util[task['agentId']][task['framework']['name']] += cpu_util
-	for agent in agent_util:
-		for framework in agent_util[agent]:
-			print(', '.join([str(cnt), agent, framework, str(agent_util[agent][framework])]))
+						framework_name = 'Sensor Framework'
+						if task['framework']['name'] == 'Map Reduce':
+							framework_name = 'Map Reduce'
+						if framework_name not in agent_util[task['agentId']]:
+							agent_util[task['agentId']][framework_name] = [0] * 300
+						agent_util[task['agentId']][framework_name][cnt] += cpu_util
 	cnt += 1
+
+for agent in agent_util:
+	print(" ")
+	for framework in agent_util[agent]:
+		print(', '.join([agent, framework, str(agent_util[agent][framework])]))
+
+exit()
 print("=============")
 print("====FRAMEWORK")
 print("=============")
