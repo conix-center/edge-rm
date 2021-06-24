@@ -1,4 +1,5 @@
 #include "wasm_runtime_api.h"
+#include "agent_wasm_runtime.h"
 
 #include <zephyr.h>
 #include <stdio.h>
@@ -59,170 +60,13 @@ bool subscribed=false;
 int topicID=0;
 //otMqttsnTopic* topic;
 
-extern char** wasm_environment_keys;
+extern wasm_thread_t wasm_threads[6];
+
+/*extern char** wasm_environment_keys;
 extern char** wasm_environment_str_values;
 extern int32_t** wasm_environment_values;
-extern uint8_t wasm_num_environment_vars;
+extern uint8_t wasm_num_environment_vars;*/
 
-/*void HandlePublished(otMqttsnReturnCode aCode, void* aContext)
-{
-    OT_UNUSED_VARIABLE(aCode);
-    OT_UNUSED_VARIABLE(aContext);
-    published=true;
-}
-void HandleSubscribed(otMqttsnReturnCode aCode, const otMqttsnTopic* aTopic, otMqttsnQos aQos, void* aContext)
-{
-    OT_UNUSED_VARIABLE(aCode);
-    OT_UNUSED_VARIABLE(aTopic);
-    OT_UNUSED_VARIABLE(aQos);
-    OT_UNUSED_VARIABLE(aContext);
-    subscribed=true;
-}
-
-void HandleRegistered(otMqttsnReturnCode aCode, const otMqttsnTopic* aTopic, void* aContext)
-{
-   // printf("register topic\n");
-    registered=true;
-    topicID=aTopic->mData.mTopicId;
-    topic=aTopic;
-    const char* tmp=otMqttsnGetTopicName(aTopic);
-    //printk("Name: %s\n",tmp);
-}
-
-void HandleConnected(otMqttsnReturnCode aCode, void* aContext)
-{
-    //printf("Gateway Connected\n");
-    connected=true;
-
-}
-
-void HandleDisconnected(otMqttsnDisconnectType aType, void* aContext)
-{
-    OT_UNUSED_VARIABLE(aType);
-    OT_UNUSED_VARIABLE(aContext);
-    //printf("Gateway Disconnected\n");
-}
-
-void waMQTTSNConnect(wasm_exec_env_t exec_env, char* clientID, int keepAlive, char* gatewayAddr, int gatewayPort)
-{
-    otIp6Address address;
-    otIp6AddressFromString(gatewayAddr, &address);
-    otMqttsnConfig config;
-    config.mClientId = clientID;
-    config.mKeepAlive = keepAlive;
-    config.mCleanSession = true;
-    config.mPort = gatewayPort;
-    config.mAddress = &address;
-    config.mRetransmissionCount = 3;
-    config.mRetransmissionTimeout = 10;
-    otMqttsnSetConnectedHandler(instance, HandleConnected, (void *)instance);
-    otMqttsnSetDisconnectedHandler(instance, HandleDisconnected, (void *)instance);
-    otMqttsnConnect(instance, &config); 
-    k_sleep(Z_TIMEOUT_MS(500));
-}
-
-int waMQTTSNReg(wasm_exec_env_t exec_env, char *topicName)
-{
-    //k_sleep(Z_TIMEOUT_MS(1000));
-    otMqttsnClientState cliState=otMqttsnGetState(instance);
-     switch (cliState)
-    {
-    case kStateDisconnected:
-        //printk("State: Disconnected\n");
-        break;
-    case kStateActive:
-        //printk("State: Active\n");
-        otMqttsnRegister(instance, topicName, HandleRegistered, (void *)instance);
-        break;
-    case kStateAsleep:
-        //printk("State: Asleep\n");
-        break;
-    case kStateAwake:
-        //printk("State: Awake\n");
-        break;
-    case kStateLost:
-        //printk("State: Lost\n");
-        break;
-    }
-   k_sleep(Z_TIMEOUT_MS(50));
-   return topicID; 
-}
-
-void waMQTTSNPub(wasm_exec_env_t exec_env, char *data, int qos, int ID)
-{
-   k_sleep(Z_TIMEOUT_MS(50));
-   //const char* data = "{\"temperature\":24.0}";
-   int32_t length = strlen(data);
-   //topic = otMqttsnCreateTopicName(topicName);
-   *topic=otMqttsnCreateTopicId((otMqttsnTopicId)ID);
-   //printk("topicID: %i, ID: %i\n",topicID, ID);
-   otMqttsnClientState cliState=otMqttsnGetState(instance);
-     switch (cliState)
-    {
-    case kStateDisconnected:
-        //printk("State: Disconnected\n");
-        break;
-    case kStateActive:
-        //printk("State: Active\n");
-         otMqttsnPublish(instance, (const uint8_t*)data, length, kQos1, false, topic,
-            HandlePublished, NULL);
-        break;
-    case kStateAsleep:
-        //printk("State: Asleep\n");
-        break;
-    case kStateAwake:
-        //printk("State: Awake\n");
-        break;
-    case kStateLost:
-        //printk("State: Lost\n");
-        break;
-    }
-}
-
-void waMQTTSNSub(wasm_exec_env_t exec_env, int qos, char *topicName)
-{
-   while(!connected){
-   }
-   otMqttsnTopic topic = otMqttsnCreateTopicName(topicName);
-   otMqttsnSubscribe(instance, &topic, qos, HandleSubscribed, NULL);
-}
-
-void waMQTTSNStart(wasm_exec_env_t exec_env, int port)
-{
-   instance=openthread_get_default_instance();
-   otMqttsnStop(instance);
-   otMqttsnStart(instance, port);
-}
-
-void waMQTTSNStop(wasm_exec_env_t exec_env)
-{
-   otMqttsnStop(instance);
-}
-
-void waMQTTSNDisconnect(wasm_exec_env_t exec_env)
-{
-    k_sleep(Z_TIMEOUT_MS(500));
-    otMqttsnClientState cliState=otMqttsnGetState(instance);
-     switch (cliState)
-    {
-    case kStateDisconnected:
-        //printk("State: Disconnected\n");
-        break;
-    case kStateActive:
-        //printk("State: Active\n");
-        otMqttsnDisconnect(instance);
-        break;
-    case kStateAsleep:
-        //printk("State: Asleep\n");
-        break;
-    case kStateAwake:
-        //printk("State: Awake\n");
-        break;
-    case kStateLost:
-        //printk("State: Lost\n");
-        break;
-    }
-}*/
 
 int waCoapPost(wasm_exec_env_t exec_env, char* ipv4Address, int port, char* path, char* sendBuf, int sendBufLen) {
    printk("WASM sending to %s:%d/%s\n",ipv4Address,port,path);
@@ -347,10 +191,17 @@ float waReadSensor(wasm_exec_env_t exec_env, char* attr, char* result, int len)
 
 int waGetEnvironmentInt(wasm_exec_env_t exec_env, char* key, int* val, int len) {
 
-   for(uint8_t i = 0; i < wasm_num_environment_vars; i++) {
-      if(strcmp(key, wasm_environment_keys[i]) == 0) {
-	 *val = wasm_environment_values[i];
-	 return 1;
+   k_tid_t id = k_current_get();
+
+   for(uint8_t i = 0; i < 6; i++) {
+      if(wasm_threads[i].thread_id == id) {
+	 for(uint8_t j = 0; j < wasm_threads[i].wasm_num_environment_vars; j++) {
+   	    if(strcmp(key, wasm_threads[i].wasm_environment_keys[j]) == 0) {
+   	       *val = wasm_threads[i].wasm_environment_values[j];
+	       printk("Returning WASM environemnt value %d for key %s\n", wasm_threads[i].wasm_environment_values[j], key);
+   	       return 1;
+   	    }
+   	 }
       }
    }
 
@@ -359,15 +210,22 @@ int waGetEnvironmentInt(wasm_exec_env_t exec_env, char* key, int* val, int len) 
 
 int waGetEnvironmentString(wasm_exec_env_t exec_env, char* key, char* str, int len) {
 
-   for(uint8_t i = 0; i < wasm_num_environment_vars; i++) {
-      if(strcmp(key, wasm_environment_keys[i]) == 0) {
-	 int slen = strlen(wasm_environment_str_values[i]);
-	 if(len < slen) {
-	    memcpy(str, wasm_environment_str_values[i], len);
-	 } else {
-	    memcpy(str, wasm_environment_str_values[i], slen);
-	 }
-	 return 1;
+   k_tid_t id = k_current_get();
+
+   for(uint8_t i = 0; i < 6; i++) {
+      if(wasm_threads[i].thread_id == id) {
+	 for(uint8_t j = 0; j < wasm_threads[i].wasm_num_environment_vars; j++) {
+   	    if(strcmp(key, wasm_threads[i].wasm_environment_keys[j]) == 0) {
+   	       int slen = strlen(wasm_threads[i].wasm_environment_str_values[j]);
+	       printk("Returning WASM environemnt value %s for key %s\n", wasm_threads[i].wasm_environment_str_values[j], key);
+   	       if(len < slen) {
+   	          memcpy(str, wasm_threads[i].wasm_environment_str_values[j], len);
+   	       } else {
+   	          memcpy(str, wasm_threads[i].wasm_environment_str_values[j], slen);
+   	       }
+   	       return 1;
+   	    }
+   	 }
       }
    }
 

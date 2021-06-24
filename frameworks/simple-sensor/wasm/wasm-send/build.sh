@@ -4,5 +4,6 @@
                         --sysroot=/Users/adkins/Research/edge-rm/agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot \
                         -Wl,--allow-undefined-file=/Users/adkins/Research/edge-rm/agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot/share/defined-symbols.txt \
                         -Wl,--no-threads,--strip-all,--no-entry -nostdlib \
+                        -Wl,--export=__heap_base -Wl,--export=__data_end \
                         -Wl,--export=main        -Wl,--allow-undefined \
                         -o out.wasm main.c

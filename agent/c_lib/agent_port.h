@@ -46,9 +46,11 @@ bool agent_port_run_wasm_task(uint8_t* wasm_binary,
                             char* environment_keys[],
                             int32_t environment_int_values[],
                             char* environment_str_values[],
-                            uint8_t num_environment_variables);
+                            uint8_t num_environment_variables,
+                            char* task_id,
+                            uint8_t task_index);
 
-bool agent_port_kill_wasm_task(void);
+bool agent_port_kill_wasm_task(char* task_id);
 
 typedef enum _task_state {
     RUNNING = 0,
@@ -57,6 +59,6 @@ typedef enum _task_state {
     STARTING = 3
 } task_state_t;
 
-task_state_t agent_port_get_wasm_task_state(char** error_message);
+task_state_t agent_port_get_wasm_task_state(char* task_id, char** error_message);
 
 #endif

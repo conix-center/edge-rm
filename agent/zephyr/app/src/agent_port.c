@@ -9,7 +9,13 @@ LOG_MODULE_REGISTER(agent_port, LOG_LEVEL_DBG);
 
 agent_port_timer_cb local_cb;
 agent_port_coap_receive_cb recv_cb;
-k_tid_t wasm_thread;
+
+typedef struct _task_thread {
+   char* task_id;
+   wasm_thread_t* wasm_thread;
+} task_thread_t;
+
+task_thread_t task_threads[6] = { 0 };
 static bool running_task = false;
 
 void agent_work_handler(struct k_work *work)
@@ -44,14 +50,19 @@ void agent_port_coap_send(const char* destination, uint16_t port, char* path, ui
    uint8_t ret_code = 0;
    uint16_t ret_len = 0;
 
+   printk("Processing unprocessed coap reply\n");
+
    int ret = 1;
    for(uint8_t i = 0; i < 100 && ret >= 0; i++) {
       ret = process_coap_reply(100, &ret_code, NULL, &ret_len);
    } 
 
+   printk("Sending coap request\n");
+
    //Send the packet
    send_coap_request(destination, port, path, payload, len);
 
+   printk("Sending coap request\n");
    //Allocate date for the response
    uint8_t* recv_payload = (uint8_t *)k_malloc(MAX_COAP_MSG_LEN);
    if (!recv_payload) {
@@ -90,14 +101,15 @@ void agent_port_free(void* pt) {
 }
 
 bool agent_port_can_run_task(void) {
-   task_state_t s = agent_port_get_wasm_task_state(NULL);
+   /*task_state_t s = agent_port_get_wasm_task_state(NULL);
 
    if(running_task == true && s != COMPLETED && s != ERRORED) {
       return false;
    } else {
       running_task = false;
       return true;
-   }
+   }*/
+   return (agent_port_get_free_cpu() > 0.1);
 }
 
 //Resources
@@ -106,11 +118,23 @@ float agent_port_get_free_memory() {
 }
 
 float agent_port_get_free_cpu() {
-   if(agent_port_can_run_task()){
-      return 1.0;
-   } else {
-      return 0;
+
+   //start the module, save the thread
+   uint8_t running_tasks = 0;
+
+   char* error_message;
+
+   for(uint8_t i = 0; i < 6; i++) {
+      if(task_threads[i].task_id != 0) {
+         task_state_t s = agent_port_get_wasm_task_state(task_threads[i].task_id, &error_message);
+
+         if(s == RUNNING) {
+            running_tasks += 1;
+         }
+      }
    }
+
+   return 1.0 - 0.166*running_tasks;
 }
 
 const char* agent_port_get_agent_id() {
@@ -152,24 +176,35 @@ bool agent_port_run_wasm_task(uint8_t* wasm_binary,
                             char* environment_keys[],
                             int32_t environment_int_values[],
                             char* environment_str_values[],
-                            uint8_t num_environment_variables) {
+                            uint8_t num_environment_variables,
+                            char* task_id,
+                            uint8_t task_index) {
 
-   //start the module, save the thread
-   running_task = true;
-   wasm_thread = run_wasm_module(wasm_binary, wasm_binary_length, environment_keys, environment_int_values, environment_str_values, num_environment_variables);
+    printk("Request to start run WASM task with index %d\n", task_index);
+
+   task_threads[task_index].task_id = task_id;
+   task_threads[task_index].wasm_thread = run_wasm_module(wasm_binary, wasm_binary_length, environment_keys, environment_int_values, environment_str_values, num_environment_variables, task_index);
 
    return true;
 }
 
-task_state_t agent_port_get_wasm_task_state(char** error_message) {
+task_state_t agent_port_get_wasm_task_state(char* task_id, char** error_message) {
 
-   uint32_t state =  wasm_thread->base.thread_state;
+   int8_t t_idx = -1;
+   for(uint8_t i = 0; i < 6; i++) {
+      if(strcmp(task_threads[i].task_id,task_id) == 0) {
+         t_idx = i;
+         break;
+      }
+   }
+
+   uint32_t state = task_threads[t_idx].wasm_thread->thread_id->base.thread_state;
 
    if(state & _THREAD_DEAD || state & _THREAD_ABORTING) {
       //check for errors 
-      if(check_wasm_errored()) {
+      if(check_wasm_errored(task_threads[t_idx].wasm_thread)) {
          if(error_message != NULL) {
-            *error_message = get_wasm_error_message();
+            *error_message = get_wasm_error_message(task_threads[t_idx].wasm_thread);
          }
          return ERRORED;
       } else {
@@ -185,8 +220,15 @@ task_state_t agent_port_get_wasm_task_state(char** error_message) {
    }
 }
 
-bool agent_port_kill_wasm_task(void) {
-   k_thread_abort(wasm_thread);
-   cleanup_wasm_module();
+bool agent_port_kill_wasm_task(char* task_id) {
+   int8_t t_idx = -1;
+   for(uint8_t i = 0; i < 6; i++) {
+      if(strcmp(task_threads[i].task_id,task_id) == 0) {
+         t_idx = i;
+      }
+   }
+
+   k_thread_abort(task_threads[t_idx].wasm_thread->thread_id);
+   cleanup_wasm_module(task_threads[t_idx].wasm_thread);
    return true;
 }
