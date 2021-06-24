@@ -17,7 +17,7 @@ plt.plot(x,y3, '--', linewidth=2.0, color='r')
 plt.legend(prop={'size': 12})
 plt.grid()
 plt.xlabel('Filter Rate (%)')
-plt.ylabel('Power (nW)')
+plt.ylabel('Power (uW)')
 
 # plt.show()
 plt.savefig('powertradeoff.png', bbox_inches='tight')

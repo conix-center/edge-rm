@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.rcParams["figure.figsize"] = (5,3.2)
+plt.rcParams["figure.figsize"] = (5,2.5)
 plt.rcParams['axes.axisbelow'] = True
 
 labels = ['1', '2', '4', '16', '32']

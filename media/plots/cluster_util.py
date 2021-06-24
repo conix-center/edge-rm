@@ -2,7 +2,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-plt.rcParams["figure.figsize"] = (5,3.2)
+plt.rcParams["figure.figsize"] = (5,1.7)
 plt.rcParams['axes.axisbelow'] = True
 
 width = 5  # the width of the bars
@@ -20,19 +20,19 @@ labels_ints = [5 * int(l) - width/2 for l in labels]
 x = np.arange(len(labels))  # the label locations
 
 fig, ax = plt.subplots()
-ax.bar(labels_ints, sensor_framewrk, width, linewidth=0, label='SimpleSensor', color='green')
+ax.bar(labels_ints, sensor_framewrk, width, linewidth=0, label='SensorSample', color='green')
 ax.bar(labels_ints, map_reduce_means, width, linewidth=0, label='MapReduce', bottom=sensor_framewrk, color='cornflowerblue')
-ax.bar(labels_ints, ddflow_framework, width, linewidth=0, label='DDFlow', bottom=ddflow_bottom, color='orange')
+ax.bar(labels_ints, ddflow_framework, width, linewidth=0, label='Dataflow', bottom=ddflow_bottom, color='orange')
 ax.set_ylim([0,100])
-ax.set_xlim([0,800])
+ax.set_xlim([0,600])
 
 # Add some text for labels, title and custom x-axis tick labels, etc.
-ax.set_ylabel('Cluster Utilization (%)')
-ax.set_xlabel('Time (s)')
+ax.set_ylabel('Cluster CPU\nUtilization (%)')
+# ax.set_xlabel('Time (s)')
 ax.yaxis.grid()
 # ax.set_xticks([60, 180, 300, 420, 540])
 # ax.set_xticklabels([60 * l for l in labels_ints])
-ax.legend(loc='upper right', prop={'size': 12})
+ax.legend(loc='upper right', prop={'size': 10}, ncol=3, bbox_to_anchor=(1.05,1.4))
 
 
 # def autolabel(rects):
