@@ -75,7 +75,7 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
         return
 
     #Find a wasm agent
-    wasm_agents = framework.findAgents(offers, {'executors':'WASM','cpus':1.0,sensor_name:None})
+    wasm_agents = framework.findAgents(offers, {'executors':'WASM','cpus':0.1,sensor_name:None})
     if(len(wasm_agents) == 0):
         print("No available sensor agents.",file=sys.stderr)
         return

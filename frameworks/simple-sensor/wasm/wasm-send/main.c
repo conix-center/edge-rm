@@ -17,30 +17,13 @@ int main(int argc, char *argv[]){
     int period;
     waGetEnvironmentInt("PERIOD", &period, 1);
 
-    char filt[5];
-    waGetEnvironmentString("FILT_FUNC", filt, 5);
-
-    int fval;
-    waGetEnvironmentInt("FILT_VAL", &fval, 1);
-
     int m = waGetMs();
     char sResult[20];
     int l;
     float f;
     while(waGetMs() - m < 120000) {
         f = waReadSensor(sensor, sResult, 20);
-        if(filt[0] == 'G') {
-            if(f > fval) {
-                waCoapPost(ip, port, path, sResult, 20);
-            }
-        } else if (filt[0] == 'L') {
-            if(f < fval) {
-                waCoapPost(ip, port, path, sResult, 20);
-            }
-        } else {
-            waCoapPost(ip, port, path, sResult, 20);
-        }
-
+        waCoapPost(ip, port, path, sResult, 20);
         waDelayMs(period*1000);
     }
 

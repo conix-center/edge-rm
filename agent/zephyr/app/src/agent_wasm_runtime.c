@@ -8,8 +8,8 @@
 #include "wasm_export.h"
 
 #define CONFIG_GLOBAL_HEAP_BUF_SIZE 80072
-#define CONFIG_APP_STACK_SIZE 2048
-#define CONFIG_APP_HEAP_SIZE 2048
+#define CONFIG_APP_STACK_SIZE 1024
+#define CONFIG_APP_HEAP_SIZE 1024
 #define CONFIG_MAIN_THREAD_STACK_SIZE 4096
 
 static int app_argc;
@@ -59,7 +59,7 @@ static void* app_instance_main(wasm_module_inst_t module_inst, wasm_thread_t* wa
 }
 
 // Global Heap for the WASM runtime
-static char global_heap_buf[6][16384] = { 0 };
+static char global_heap_buf[6][19000] = { 0 };
 
 void cleanup_wasm_module(wasm_thread_t* wasm_thread) {
     /* destroy the module instance */
@@ -117,7 +117,7 @@ void iwasm_main(void *arg1, void *arg2, void *arg3)
     // TODO
     init_args.mem_alloc_type = Alloc_With_Pool;
     init_args.mem_alloc_option.pool.heap_buf = wasm_thread->heap_buf;
-    init_args.mem_alloc_option.pool.heap_size = 16384;
+    init_args.mem_alloc_option.pool.heap_size = 19000;
 
     // Native symbols need below registration phase
     init_args.n_native_symbols = sizeof(native_symbols) / sizeof(NativeSymbol);

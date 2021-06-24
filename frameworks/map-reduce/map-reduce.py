@@ -57,7 +57,7 @@ def schedule_map(framework, offers, wasm_file, sensor, sensor_filters, reduce_se
     env['IP'] = reduce_server_ip
     env['PORT'] = reduce_server_port
 
-    map_agents = framework.findAgents(offers, {'executors':'WASM','cpus':1.0, sensor:None})
+    map_agents = framework.findAgents(offers, {'executors':'WASM','cpus':0.1, sensor:None})
 
     #if(len(map_agents) == 0):
     #    print("No map agents found.")
