@@ -11,27 +11,27 @@ import shutil
 def build(map_func, period):
 
     #create a master undefined symbols file
-    shutil.copy('../../agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot/share/defined-symbols.txt','./map-wrapper/defined-symbols.txt')
+    shutil.copy('../../agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot/share/defined-symbols.txt','../map-reduce/map-wrapper/defined-symbols.txt')
 
-    f = open('./map-wrapper/defined-symbols.txt', 'a')
-    a = open('./map-wrapper/wasm_runtime_api.txt')
+    f = open('../map-reduce/map-wrapper/defined-symbols.txt', 'a')
+    a = open('../map-reduce/map-wrapper/wasm_runtime_api.txt')
     f.write(a.read())
     f.close()
 
     if map_func:
         # there is a map func - include it in the clang call
 
-        rel_path = os.path.relpath(map_func, './map-wrapper/')
+        rel_path = os.path.relpath(map_func, '../map-reduce/map-wrapper/')
 
         
-        subprocess.run(["/usr/local/opt/llvm@9/bin/clang",
+        subprocess.check_output(["/usr/local/opt/llvm@9/bin/clang",
                         "--target=wasm32",
                         "-O1",
                         "-z",
                         "stack-size=4096",
                         "-Wl,--initial-memory=65536",
                         "--sysroot=../../agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot",
-                        "-Wl,--allow-undefined-file=./map-wrapper/defined-symbols.txt",
+                        "-Wl,--allow-undefined-file=../map-reduce/map-wrapper/defined-symbols.txt",
                         "-Wl,--no-threads,--strip-all,--no-entry",
                         "-nostdlib",
                         "-Wl,--export=__heap_base",
@@ -41,18 +41,19 @@ def build(map_func, period):
                         "-DPERIOD=" + period,
                         "-o",
                         "out.wasm",
-                        "./map-wrapper/main.c"])
+                        "../map-reduce/map-wrapper/main.c"])
+        
 
     else:
         # there is no map func - import an empty map func
-        subprocess.run(["/usr/local/opt/llvm@9/bin/clang",
+        subprocess.check_output(["/usr/local/opt/llvm@9/bin/clang",
                         "--target=wasm32",
                         "-O1",
                         "-z",
                         "stack-size=4096",
                         "-Wl,--initial-memory=65536",
                         "--sysroot=../../agent/zephyr/app/wamr/wamr-sdk/app/libc-builtin-sysroot",
-                        "-Wl,--allow-undefined-file=./map-wrapper/defined-symbols.txt",
+                        "-Wl,--allow-undefined-file=../map-reduce/map-wrapper/defined-symbols.txt",
                         "-Wl,--no-threads,--strip-all,--no-entry",
                         "-nostdlib",
                         "-Wl,--export=__heap_base",
@@ -61,7 +62,7 @@ def build(map_func, period):
                         "-DPERIOD=" + period,
                         "-o",
                         "out.wasm",
-                        "./map-wrapper/main.c"])
+                        "../map-reduce/map-wrapper/main.c"])
 
 
 if __name__ == '__main__':  # pragma: no cover

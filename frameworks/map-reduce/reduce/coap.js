@@ -54,7 +54,7 @@ server.on('request', function(req, res) {
     console.log("Received data!")
     if(!scrippie) return res.end("Not loaded.")
     if(!scrippie.reduce) return res.end("No reduce.")
-    var result = scrippie.reduce(String(req.payload));
+    var result = scrippie.reduce(req.payload);
     if(result != null && result != undefined) {
       data[key].push(result);
     }

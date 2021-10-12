@@ -25,7 +25,9 @@ int main(int argc, char *argv[]){
     char sResult[20];
     int l;
     float f;
-    while(1) {
+
+    int m = waGetMs();
+    while(waGetMs() - m < 120000) {
 
         //read the sensor
         f = waReadSensor(sensor, sResult, 20);

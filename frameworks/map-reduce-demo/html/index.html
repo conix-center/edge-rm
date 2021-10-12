@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- D3 Loading -->
+  <meta charset="utf-8">
+  <script src="https://d3js.org/d3.v4.min.js"></script>
+
+<style>
+table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+tr:nth-child(even) {
+  background-color: #dddddd;
+}
+
+.mytask {
+  background-color: #ddffdd !important;
+}
+
+.goodagent {
+  background-color: #ddffdd !important;
+}
+
+.badagent {
+  background-color: #f7a9a3 !important;
+}
+
+.frameworkheaders {
+  margin-left:5px;
+  margin-top:5px;
+  margin-bottom:5px;
+  font-family:Arial;
+}
+.functionheaders {
+  margin-left:5px;
+  margin-top:20px;
+  margin-bottom:5px;
+  font-family:Arial;
+}
+
+.topleftclass {
+  float: left;
+  height: 280px;
+  border-width:1px;
+  border-style:solid;
+  border-color:grey;
+  border-radius:10px;
+  margin-top:10px;
+  margin-left:0.5%;
+  margin-right:0.3%;
+  min-width:1000px;
+  width: 98%;
+}
+.toprightclass {
+  float: left;
+  height: 280px;
+  border-width:1px;
+  border-style:solid;
+  border-color:grey;
+  border-radius:10px;
+  margin-top:10px;
+  margin-left:0.3%;
+  margin-right:0.5%;
+  margin-bottom:20px;
+  min-width:600px;
+  width: 49%;
+}
+
+.leftclass {
+  float: left;
+  width: 70%;
+  min-width:700px;
+}
+
+.rightclass {
+  float: left;
+  margin-right:7px;
+  min-width:350px;
+  width: 29%;
+}
+
+.innerleftclass {
+  float: left;
+  width: 30%;
+}
+.functionclass {
+  float: right;
+  width: 69%;
+  margin-left:0.3%;
+  height: 100%;
+}
+.mapclass {
+  float: left;
+  width: 32%;
+  margin-left:10px;
+  height: 100%;
+}
+.reduceclass {
+  float: left;
+  width: 32%;
+  margin-left:20px;
+  height: 100%;
+}
+.resultclass {
+  float: left;
+  width: 28%;
+  margin-left:20px;
+  height: 100%;
+}
+
+.code {
+  font-family: math;
+}
+
+
+.predictions {
+  margin: 0 auto;
+  margin-top:10px;
+  margin-bottom:10px;
+  height: 100%;
+  width: 90%;
+  max-height: 220px;
+  max-width: 200px;
+  overflow: auto;
+}
+
+.predictionsSensor {
+  margin: 0 auto;
+  margin-bottom:10px;
+  height: 100%;
+  border-color:grey;
+  border-style:dotted;
+  border-width:1px;
+  border-radius:3px;
+  max-height: 220px;
+  max-width: 200px;
+  overflow: auto;
+}
+
+/* D3 styles */
+svg {
+  /*flex-basis: 100%;*/
+  /*min-width: 400px;*/
+  /*width: 100%;*/
+  width: 100%;
+  height: 300px;
+}
+.links line {
+  stroke: #aaa;
+}
+.nodes circle {
+  pointer-events: all;
+}
+
+
+</style>
+</head>
+<body>
+
+<!---<h1>Edge Resource Manager Demo</h1>-->
+<!-- Div for camera framework UI -->
+<div class="topleftclass">
+
+  <div class="innerleftclass">
+    <h3 class='frameworkheaders'>Process-Aggregate Framework</h2>
+
+    <p style='font-size:75%;margin-left:7px;margin-top:10px;margin-bottom:15px'>
+    1) User specifies map and reduce tasks<br>
+    2) Framework configures and launches tasks:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;1. Reduce launcher (if not already running)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;2. One or more sample-and-map tasks on the device<br>
+    3) These tasks perform the following actions:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;1. Sample-and-map sends data to the unique reduce server<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;2. The result of the reduce server is sent to the user<br>
+    <br>
+    <label for="sensor">Sense </label>
+    <select name="sensor" id="sensorselect">
+      <option value="temperature_sensor">Temperature</option>
+      <option value="humidity_sensor">Humidity</option>
+      <option value="pressure_sensor">Pressure</option>
+    </select>
+    <label for="period"> every </label>
+    <input type="text" id="period" name="period" style="width:30px" value="10">
+    <label for="period"> seconds</label>
+  </div>
+
+  <div class='functionclass'>
+  <div class="mapclass">
+    <h4 class='functionheaders'>Process Function (c)</h4>
+    <textarea class='code' name="text" id="mapcode" cols="30" rows="13">
+float map(float f) {
+    return f;
+}
+    </textarea>
+  </div>
+
+  <div class="reduceclass">
+    <h4 class='functionheaders'>Aggregate Function (js)</h4>
+    <textarea class='code' name="text" id="reducecode" cols="30" rows="13">
+function reduce(data) {
+    return data;
+}
+
+module.exports = {reduce}
+    </textarea>
+  </div>
+  <div class="resultclass">
+    <h4 class='functionheaders'>Results</h4>
+    <div id='sensordata' class='predictionsSensor' onscroll="onScrolled()"></div>
+  </div>
+  </div>
+    <div style="margin-left:7px;margin-top:15px;height:35px">
+    <div style="width:25%;float:left;">
+      <button onclick="submitSensor()" id="sensorsubmit">Submit Job</button>
+    </div>
+    <div style="width:74%;float:right;margin-left:7px;height:100%;position:relative;top:-28px;">
+      <p id='sensorError' style="color:red;padding:0px;margin:0px;font-size:80%;"></p>
+    </div>
+  </div>
+
+</div>
+
+<!-- <br/> -->
+<!-- <form action="/stop">
+    <input type="submit" value="Stop Tasks"/>
+</form> -->
+
+<!---<h3 id='numagents'></h3> -->
+<!-- I think these would look better side to side -->
+<div>
+<div class="leftclass">
+<svg></svg>
+</div>
+<div class="rightclass">
+<p id='agents'></p>
+</div>
+</div>
+
+<div id='tasks' style='margin-top:20px;margin-left:0.5%;margin-right:0.5%;width:99%;overflow-y:scroll;'>
+</div>
+
+</div>
+
+
+<!-- D3 Script -->
+<script>
+var svg = d3.select("svg"),
+    width = +svg.node().getBoundingClientRect().width,
+    height = +svg.node().getBoundingClientRect().height;
+
+// svg objects
+var link, node, textElems;
+// animation objects
+var circles = [];
+// the data - an object with nodes and links
+var graph;
+
+// load the data
+d3.json("/network.json", function(error, _graph) {
+  if (error) throw error;
+  graph = _graph;
+  initializeDisplay();
+  initializeSimulation();
+});
+
+
+
+//////////// FORCE SIMULATION //////////// 
+
+// force simulator
+var simulation = d3.forceSimulation();
+
+// set up the simulation and event to update locations after each tick
+function initializeSimulation() {
+  simulation.nodes(graph.nodes);
+  initializeForces();
+  simulation.on("tick", ticked);
+}
+
+// values for all forces
+forceProperties = {
+    center: {
+        x: 0.5,
+        y: 0.5
+    },
+    charge: {
+        enabled: true,
+        strength: -200,
+        distanceMin: 1,
+        distanceMax: 2000
+    },
+    collide: {
+        enabled: true,
+        strength: 1,
+        iterations: 1,
+        radius: 40
+    },
+    forceX: {
+        enabled: true,
+        strength: .2,
+        x: .5
+    },
+    forceY: {
+        enabled: true,
+        strength: .2,
+        y: .5
+    },
+    link: {
+        enabled: true,
+        distance: 50,
+        iterations: 1
+    }
+}
+
+// add forces to the simulation
+function initializeForces() {
+    // add forces and associate each with a name
+    simulation
+        .force("link", d3.forceLink())
+        .force("charge", d3.forceManyBody())
+        .force("collide", d3.forceCollide())
+        .force("center", d3.forceCenter())
+        .force("forceX", d3.forceX())
+        .force("forceY", d3.forceY());
+    // apply properties to each of the forces
+    updateForces();
+}
+
+// apply new force properties
+function updateForces() {
+    // get each force by name and update the properties
+    simulation.force("center")
+        .x(width * forceProperties.center.x)
+        .y(height * forceProperties.center.y);
+    simulation.force("charge")
+        .strength(forceProperties.charge.strength * forceProperties.charge.enabled)
+        .distanceMin(forceProperties.charge.distanceMin)
+        .distanceMax(forceProperties.charge.distanceMax);
+    simulation.force("collide")
+        .strength(forceProperties.collide.strength * forceProperties.collide.enabled)
+        .radius(forceProperties.collide.radius)
+        .iterations(forceProperties.collide.iterations);
+    simulation.force("forceX")
+        .strength(forceProperties.forceX.strength * forceProperties.forceX.enabled)
+        .x(width * forceProperties.forceX.x);
+    // simulation.force("forceY")
+    //     .strength(forceProperties.forceY.strength * forceProperties.forceY.enabled)
+    //     .y(height * forceProperties.forceY.y);
+    simulation.force("link")
+        .id(function(d) {return d.id;})
+        .distance(forceProperties.link.distance)
+        .iterations(forceProperties.link.iterations)
+        .links(forceProperties.link.enabled ? graph.links : []);
+
+    simulation.force("forceX")
+        .strength(forceProperties.forceX.strength * forceProperties.forceX.enabled)
+        .x(function(d) {
+          if (d.group != 2 && d.group != 3 && d.group != 4) return width * forceProperties.forceX.x;
+          if (d.group == 4) return -width * forceProperties.forceX.x; 
+          return 0;
+        });
+
+    // updates ignored until this is run
+    // restarts the simulation (important if simulation has already slowed down)
+    simulation.alpha(1).restart();
+}
+
+
+
+//////////// DISPLAY ////////////
+
+// generate the svg objects and force simulation
+function initializeDisplay() {
+  // set the data and properties of link lines
+  link = svg.append("g")
+        .attr("class", "links")
+    .selectAll("line")
+    .data(graph.links)
+    .enter().append("line");
+
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+  circles.push(svg.append('circle').attr('cx',-10).attr('cy',-10).attr('r',5).style('fill','rgb(0,255,255)'))
+
+  // set the data and properties of node circles
+
+  var elemEnter = svg.append("g")
+        .attr("class", "nodes")
+    .selectAll("circle")
+    .data(graph.nodes)
+    .enter()
+
+  node = elemEnter.append("circle")
+        .call(d3.drag()
+            .on("start", dragstarted)
+            .on("drag", dragged)
+            .on("end", dragended));
+
+  textElems = elemEnter.append("text")
+        .attr('font-size',13)
+        .text(node => node.name)
+
+  // node tooltip
+  node.append("title")
+      .text(function(d) { return d.name + (d.resources ? "\n" + d.resources : ""); });
+  // visualize the graph
+  updateDisplay();
+}
+
+function getColorForGroup(g) {
+  if (g == '1') return '#305F72';
+  if (g == '2') return '#568EA6';
+  if (g == '3') return '#F1D1B5';
+  if (g == '4') return '#F18C8E';
+  return 'orange';
+}
+
+// update the display based on the forces (but not positions)
+function updateDisplay() {
+    node
+        .attr("r", 15)
+        // .attr("stroke", forceProperties.charge.strength > 0 ? "blue" : "red")
+        .attr('stroke', function(d) { return getColorForGroup(d.group)})
+        .attr('fill', function(d) { return getColorForGroup(d.group)})
+        // .attr("stroke-width", forceProperties.charge.enabled==false ? 0 : Math.abs(forceProperties.charge.strength)/15);
+
+    link
+        .attr("stroke-width", forceProperties.link.enabled ? 1 : .5)
+        .attr("opacity", forceProperties.link.enabled ? 1 : 0);
+}
+
+
+
+// update the display positions after each simulation tick
+function ticked() {
+    link
+        .attr("x1", function(d) { return d.source.x; })
+        .attr("y1", function(d) { return d.source.y; })
+        .attr("x2", function(d) { return d.target.x; })
+        .attr("y2", function(d) { return d.target.y; });
+
+    node
+        .attr("cx", function(d) { return d.x; })
+        .attr("cy", function(d) { return d.y; });
+
+    textElems
+        .style("text-anchor", "middle")
+        .attr('dx', function(d) {return d.x;})
+        .attr('dy', function(d) {return d.y - 20;})
+    d3.select('#alpha_value').style('flex-basis', (simulation.alpha()*100) + '%');
+
+    console.log('tick')
+}
+
+var cnt = 200;
+var fromID = '';
+var toID = '';
+var startX = 0;
+var startY = 0;
+var endX = 0;
+var endY = 0;
+var circleQueue = []
+function circleTick() {
+  for(var i = 0; i < circleQueue.length; i++) {
+    var circle = circles[i];
+    var cQ = circleQueue[i];
+    if(cQ.length > 0) {
+      var cnt = cQ[0][0]
+      if (cnt >= 100 && cQ.length > 1) {
+        //there's another message waiting, pop this one!
+        cQ.shift();
+      }
+      //we've got a message to send
+      var cnt = cQ[0][0]
+      var fromID = cQ[0][1]
+      var toID = cQ[0][4]
+
+      //update start and end coords
+      //only if we're focused on screen, otherwise just leave it off screen
+      if(document.hasFocus()) {
+        node.attr("cx", function(d) {
+          if(d.id == fromID) {
+            cQ[0][2] = d.x;
+            cQ[0][3] = d.y;
+          } else if (d.id == toID) {
+            cQ[0][5] = d.x;
+            cQ[0][6] = d.y;
+          }
+          return d.x;
+        })
+      } else {
+        cQ[0][2] = -10
+        cQ[0][3] = -10
+        cQ[0][5] = -10
+        cQ[0][6] = -10
+      }
+
+      //extract update start/end coords
+      var startX = cQ[0][2]
+      var startY = cQ[0][3]
+      var endX = cQ[0][5]
+      var endY = cQ[0][6]
+
+      //update circle location
+      circle.attr('cx', Math.abs(100 - cnt) * startX / 100 + (100 - Math.abs(100 - cnt)) * endX / 100);
+      circle.attr('cy', Math.abs(100 - cnt) * startY / 100 + (100 - Math.abs(100 - cnt)) * endY / 100);
+
+      if(cnt < 100) {
+        cQ[0][0] += document.hasFocus() ? 6 : 100
+      } else {
+        cQ[0][2] = -10
+        cQ[0][3] = -10
+        cQ[0][5] = -10
+        cQ[0][6] = -10
+      }
+    }
+  }
+}
+
+var circleTickInterval = undefined;
+
+function sendMessage(from, to, circleToUse) {
+  while(circleQueue.length <= circleToUse) {
+    //circleQueue is an array of length (# circles), each element is an array that represents a single message
+    circleQueue.push([])
+  }
+  //add a new message to the circleQueue for this particular circle
+  circleQueue[circleToUse].push([0,from,-10,-10,to,-10,-10])
+  if(!circleTickInterval) {
+    circleTickInterval = setInterval(circleTick, 20)
+  }
+}
+
+//////////// UI EVENTS ////////////
+
+function dragstarted(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.3).restart();
+  d.fx = d.x;
+  d.fy = d.y;
+}
+
+function dragged(d) {
+  d.fx = d3.event.x;
+  d.fy = d3.event.y;
+}
+
+function dragended(d) {
+  if (!d3.event.active) simulation.alphaTarget(0.0001);
+  d.fx = null;
+  d.fy = null;
+}
+
+// update size-related forces
+// d3.select(window).on("resize", function(){
+//     width = +svg.node().getBoundingClientRect().width;
+//     height = +svg.node().getBoundingClientRect().height;
+//     updateForces();
+// });
+
+// convenience function to update everything (run after UI input)
+function updateAll() {
+    updateForces();
+    updateDisplay();
+}
+</script>
+
+<script>
+
+
+var agentName = {};
+var sensor_server_running = false;
+
+function loadTasks(){
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function () {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      var resp = JSON.parse(xmlHttp.responseText);
+      if(resp.error) {
+        document.getElementById('tasks').innerHTML = resp.error.toString();
+      } else {
+        var tableHTML = "<table style='font-size:85%;'><tr><th>Task Name</th><th>Task ID</th><th>Assigned Agent</th><th>Framework</th><th>Type</th><th>Image</th><th>State</th></tr>"
+        var cnt = 0;
+        sensor_server_running = false;
+        for(var i =0; i<resp.length;i++) {
+          var task = resp[i];
+          if ((task.state != "KILLED" && task.state != "COMPLETED" && task.state != "ERRORED") || task.name.startsWith(clientID)) {
+
+            var tr_case = task.name.startsWith(clientID) ? '<tr class="mytask">' : "<tr>"
+            var task_name = task.name
+            if(task.name.startsWith(clientID)) {
+              task_name = task_name.replace(clientID, "@me")
+            }
+            
+            if(task.name.endsWith("SensorServer") && task.state == "RUNNING") {
+              sensor_server_running = true;
+            }
+
+            tableHTML += `${tr_case}<td>${task_name}</td><td>${task.taskId}</td><td>${agentName[task.agentId]}</td><td>${task.framework.name}</td><td>${task.container.type}</td><td>${task.container.docker ? task.container.docker.image : ""}</td><td>${task.state}</td></tr>`
+            cnt += 1
+          }
+        }
+        tableHTML += "</table>"
+        document.getElementById('tasks').innerHTML = tableHTML
+      }
+    } 
+  }
+  xmlHttp.open("GET", '/tasks', true);
+  xmlHttp.send(null);
+}
+loadTasks();
+
+var clientID = 'default'
+function loadID() {
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function () {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      clientID = xmlHttp.responseText;
+    } 
+  }
+  xmlHttp.open("GET", '/clientID', true);
+  xmlHttp.send(null);
+}
+loadID();
+
+var scrolled = false;
+function updateScroll() {
+
+  if(!scrolled) {
+    var element = document.getElementById("sensordata");
+    element.scrollTop = element.scrollHeight;
+  }
+
+}
+
+function onScrolled() {
+    console.log("scrolled:");
+    var element = document.getElementById("sensordata");
+    if(element.scrollTop == element.scrollHeight) {
+      console.log("true");
+      scrolled = false;
+    } else {
+      scrolled = true;
+    }
+}
+
+//once a second
+setInterval(updateScroll,300);
+
+function loadSensorPredictions(){
+  if(sensor_server_running) {
+    var xmlHttp = new XMLHttpRequest();
+    xmlHttp.onreadystatechange = function () {
+      if (xmlHttp.readyState == 4 && xmlHttp.status == 200) {
+
+        //console.log("Got response:", xmlHttp.responseText);
+
+        var resp = JSON.parse(xmlHttp.responseText);
+        console.log(resp)
+
+        if(resp.error) {
+          //Leave it
+          //document.getElementById('sensordata').innerHTML = ''
+        } else if(resp.length <= 0) {
+          //document.getElementById('sensordata').innerHTML = 'Not ready yet'
+        } else {
+          console.log("Response length greater than zero");
+          console.log(resp)
+          var cnt = 0;
+
+          // Get existing ptext
+          origp = document.getElementById('sensordata').innerHTML;
+          console.log(origp)
+
+          // Strip off first and last lines
+          origpsplit = origp.split(/\n/);
+          console.log(origpsplit)
+
+          body = origpsplit.slice(1,-1);
+          console.log(body)
+
+          var pText = "<p style='font-size:40%;font-family:monospace;margin-left:3px'>\n";
+          pText += body;
+          for(var i =0; i < resp.length; i++) {
+            pText += resp[i];
+            pText += "<br>";
+            pText += "\n";
+          }
+          pText += "</p>"
+          document.getElementById('sensordata').innerHTML = pText;
+        }
+      } 
+    }
+    //console.log("Getting preductions from sensor");
+    xmlHttp.open("GET", '/sensorPredictions', true);
+    xmlHttp.send(null);
+  } else {
+    console.log("Sensor server not running");
+  }
+}
+loadSensorPredictions();
+
+function submitSensor() {
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function () {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      alert("Tasks submitted! Look for your tasks at the bottom of the page.")
+      console.log(xmlHttp.responseText)
+      var resp = xmlHttp.responseText;
+      document.getElementById('sensorError').innerHTML = resp;
+    } 
+  }
+  
+  //parse the values
+  var sensor = document.getElementById('sensorselect').value
+  var period = document.getElementById('period').value
+  var map = document.getElementById('mapcode').value
+  var reduce = document.getElementById('reducecode').value
+  if(period == '') {
+      document.getElementById('sensorError').innerHTML = 'You must specify a sampling period.';
+      return;
+  } else {
+      document.getElementById('sensorError').innerHTML = '';
+  }
+
+  var sdata = {'period':period,'sensor': sensor,'map':map,'reduce':reduce};
+  console.log(sdata);
+
+  xmlHttp.open("POST", '/startMapReduce', true);
+  xmlHttp.setRequestHeader('Content-Type', 'application/json');
+  xmlHttp.send(JSON.stringify(sdata));
+
+}
+
+document.getElementById('mapcode').addEventListener('keydown', function(e) {
+  if (e.key == 'Tab') {
+    e.preventDefault();
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    this.value = this.value.substring(0, start) +
+      "\t" + this.value.substring(end);
+
+    // put caret at right position again
+    this.selectionStart =
+      this.selectionEnd = start + 1;
+  }
+});
+
+
+document.getElementById('reducecode').addEventListener('keydown', function(e) {
+  if (e.key == 'Tab') {
+    e.preventDefault();
+    var start = this.selectionStart;
+    var end = this.selectionEnd;
+
+    // set textarea value to: text before caret + tab + text after caret
+    this.value = this.value.substring(0, start) +
+      "\t" + this.value.substring(end);
+
+    // put caret at right position again
+    this.selectionStart =
+      this.selectionEnd = start + 1;
+  }
+});
+
+/*function loadFramework() {
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function () {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      var resp = JSON.parse(xmlHttp.responseText);
+      if(resp.error) {
+        document.getElementById('framework').innerHTML = resp.error.toString();
+      } else {
+        document.getElementById('framework').innerHTML = `Framework: ${resp.framework.name}`
+      }
+    } 
+  }
+  xmlHttp.open("GET", '/framework', true);
+  xmlHttp.send(null);
+}
+loadFramework();*/
+
+var lastPing = {};
+
+function loadAgents() {
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.onreadystatechange = function () {
+    if (xmlHttp.readyState == 4 && xmlHttp.status == 200){
+      var resp = JSON.parse(xmlHttp.responseText);
+      sendMessage("CameraFramework", "Master", 0);
+      sendMessage("Master", "CameraFramework", 0);
+      sendMessage("CameraFramework", "Me", 0);
+      sendMessage("SensorFramework", "Master", 1);
+      sendMessage("Master", "SensorFramework", 1);
+      sendMessage("SensorFramework", "Me", 1);
+      if(resp.error) {
+        document.getElementById('agents').innerHTML = resp.error.toString();
+      } else {
+        var tableHTML = "<table style='font-size:75%'><tr><th>Agent Name</th><th>Agent ID</th><th>Time Since<br/>Last Ping</th></tr>"
+        for(var i =0; i<resp.length;i++) {
+          var agent = resp[i];
+          if(((Date.now() - agent.lastPing)/1000) < (agent.pingRate/1000)*3 + 10) {
+            tableHTML += `<tr class="goodagent" ><td>${agent.name}</td><td>${agent.id}</td><td>${((Date.now() - agent.lastPing)/1000).toFixed(0)}s</td></tr>`
+          } else if(((Date.now() - agent.lastPing)/1000) < (agent.pingRate/1000)*10 + 10) {
+            tableHTML += `<tr class="badagent" ><td>${agent.name}</td><td>${agent.id}</td><td>${((Date.now() - agent.lastPing)/1000).toFixed(0)}s</td></tr>`
+          }
+          agentName[agent.id] = agent.name;
+
+          //check if there's a new ping
+          if (lastPing[agent.id] != agent.lastPing) {
+            lastPing[agent.id] = agent.lastPing;
+            sendMessage(agent.id, "Master", i+2); //circle 0+1 is reserved for client => master => client
+          }
+        }
+        tableHTML += "</table>"
+        document.getElementById('agents').innerHTML = tableHTML
+        //document.getElementById('numagents').innerHTML = `${resp.length} Agents`
+      }
+    } 
+  }
+  xmlHttp.open("GET", '/agents', true);
+  xmlHttp.send(null);
+}
+loadAgents();
+
+setInterval(function() {
+  sendMessage("Me", "CameraFramework", 0);
+  sendMessage("Me", "SensorFramework", 1);
+  loadAgents();
+  loadSensorPredictions();
+  loadTasks();
+}, 1000)
+
+</script>
+
+</body>
+</html>
+
