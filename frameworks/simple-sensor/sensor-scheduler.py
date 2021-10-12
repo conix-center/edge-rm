@@ -55,7 +55,7 @@ def main(host, port, client, sensor, period, func, val):  # pragma: no cover
         env['FILT_VAL'] = int(args.fval)
     elif args.ffunc == "L":
         env['FILT_FUNC'] = 'L'
-        env['FILT_VAL'] = int(args.ffval)
+        env['FILT_VAL'] = int(args.fval)
 
     #Sensor
     sensor_name = None
