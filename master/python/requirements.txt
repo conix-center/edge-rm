@@ -1,4 +1,4 @@
 protobuf
 websockets
 flask
-git+git://github.com/jnoor/CoAPthon3@master
+git+https://github.com/jnoor/CoAPthon3@master
