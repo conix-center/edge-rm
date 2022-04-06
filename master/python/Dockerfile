@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.8-slim-buster
+# amd64/ needed for building portable images when building on Mac M1 machines
+FROM amd64/python:3.8-slim-buster
 
 WORKDIR /app
 
