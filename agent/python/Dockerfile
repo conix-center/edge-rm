@@ -13,7 +13,7 @@ COPY . .
 
 # ENV DOCKER_HOST=tcp://localhost:2375
 
-ENV CENTRAL_API_PORT=8080
+ENV CENTRAL_API_PORT=80
 ENV CENTRAL_HOST=localhost
 ENV CONFIG="./config.yaml"
 
