@@ -11,7 +11,7 @@ RUN python3 -m pip install -r requirements.txt
 
 COPY . .
 
-# ENV DOCKER_HOST=tcp://localhost:2375
+COPY --from=docker:dind /usr/local/bin/docker /usr/local/bin/
 
 ENV CENTRAL_API_PORT=80
 ENV CENTRAL_HOST=localhost
