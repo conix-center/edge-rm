@@ -1,0 +1,49 @@
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: edge-rm-ns
+---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: edge-rm-ns
+  name: edge-rm-central-svc
+  labels:
+    run: edge-rm-central
+spec:
+  ports:
+  - port: 5683
+    name: coap
+    protocol: TCP
+  - port: 80
+    name: api
+    protocol: TCP
+  selector:
+    run: edge-rm-central-svc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: edge-rm-ns
+  name: edge-rm-central
+  labels:
+    app: edge-rm
+    component: central
+spec:
+  selector:
+    matchLabels:
+      run: edge-rm-central
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        run: edge-rm-central
+    spec:
+      containers:
+      - name: edge-rm-central
+        image: lab11/edge-rm-central:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        - containerPort: 5683
