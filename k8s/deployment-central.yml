@@ -10,7 +10,7 @@ metadata:
   namespace: edge-rm-ns
   name: edge-rm-central-svc
   labels:
-    run: edge-rm-central
+    run: edge-rm-central-svc
 spec:
   ports:
   - port: 5683
@@ -20,7 +20,7 @@ spec:
     name: api
     protocol: TCP
   selector:
-    run: edge-rm-central-svc
+    run: edge-rm-central
 ---
 apiVersion: apps/v1
 kind: Deployment
