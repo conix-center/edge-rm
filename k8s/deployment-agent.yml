@@ -31,6 +31,12 @@ spec:
         # do we need the edge-rm-central SERVICE_PORT? 
         - name: CENTRAL_PORT
           value: "80"
+        # attempt to get rid of delay before agent output shows up in kubectl logs
+        # (probably won't help as supposedly this is default behavior as of python 3.7)
+        - name: PYTHONUNBUFFERED
+          value: "1"
+        - name: PYTHONIOENCODING
+          value: UTF-8
       - name: dind
         # note: newer versions of dind do not listen on 2375, only TLS on 2376
         image: docker:18.09-dind
