@@ -2,24 +2,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  namespace: edge-rm-ns
-  name: edge-rm-agent
+  namespace: edge-rm
+  name: agent
   labels:
     app: edge-rm
     component: agent
 spec:
   selector:
     matchLabels:
-      run: edge-rm-agent
+      run: agent
   replicas: 1
   template:
     metadata:
-      namespace: edge-rm-ns
+      namespace: edge-rm
       labels:
-        run: edge-rm-agent
+        run: agent
     spec:
       containers:
-      - name: edge-rm-agent
+      - name: agent
         image: lab11/edge-rm-agent:latest
         imagePullPolicy: Always
         env:
@@ -27,7 +27,7 @@ spec:
         - name: DOCKER_HOST
           value: tcp://localhost:2375
         - name: CENTRAL_HOST
-          value: edge-rm-central-svc
+          value: central-svc
         # do we need the edge-rm-central SERVICE_PORT? 
         - name: CENTRAL_PORT
           value: "80"
