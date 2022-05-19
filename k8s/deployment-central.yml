@@ -12,6 +12,7 @@ metadata:
   labels:
     run: edge-rm-central-svc
 spec:
+  type: LoadBalancer
   ports:
   - port: 5683
     name: coap
