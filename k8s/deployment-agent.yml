@@ -29,7 +29,7 @@ spec:
         - name: CENTRAL_HOST
           value: central-svc
         # do we need the edge-rm-central SERVICE_PORT? 
-        - name: CENTRAL_PORT
+        - name: CENTRAL_API_PORT
           value: "80"
         # attempt to get rid of delay before agent output shows up in kubectl logs
         # (probably won't help as supposedly this is default behavior as of python 3.7)
