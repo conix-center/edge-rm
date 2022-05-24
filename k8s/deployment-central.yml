@@ -12,10 +12,11 @@ metadata:
   labels:
     run: edge-rm-central-svc
 spec:
+  type: LoadBalancer
   ports:
-  - port: 5683
-    name: coap
-    protocol: UDP
+  # - port: 5683
+  #   name: coap
+  #   protocol: UDP
   - port: 80
     name: api
     protocol: TCP
