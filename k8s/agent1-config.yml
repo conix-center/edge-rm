@@ -1,0 +1,39 @@
+#If the name field is filled out this will be the common device name. Otherwise
+#the agent will use the hostname of the device
+#name: test-agent
+
+#max memory to allow the agent to use
+maxMem: 4GB
+
+#max CPU to allow the agent to use. Currently unitless
+maxCPUs: 2.5
+
+#max Disk to allow the agent to use
+maxDisk: 50GB
+
+#optional ping rate in milliseconds (default 1000ms)
+pingRate: 1000
+
+#optional specification to load wasm runtime
+loadWasm: true
+
+## If domain is set this is a global accessible domain or IP
+#domain: test.com
+#
+## A list of devices for the docker container
+#devices: 
+#   #The device name is the generic name of the device that will be advertised.
+# - name: picam
+#   #the device's ID should be unique per agent
+#   id: /dev/vchiq
+#   shared: True
+#   dockerDevices:
+#    - hostPath: /dev/vchiq
+#      containerPath: /dev/vchiq
+#      permission: rwm
+#   dockerVolumes:
+#    - hostPath: /opt/vc
+#      containerPath: /opt/vc
+#      permission: ro
+#   environmentVariables: 
+#    - "LD_LIBRARY_PATH=/opt/vc/lib"
