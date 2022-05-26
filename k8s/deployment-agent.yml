@@ -1,27 +1,60 @@
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: edge-rm-ns
+  name: edge-rm-agent1-svc
+  labels:
+    run: edge-rm-agent1-svc
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5001
+    targetPort: 5001
+    name: agent1-port1
+    protocol: TCP
+  - port: 5002
+    name: agent1-port2
+    protocol: TCP
+  - port: 5003
+    name: agent1-port3
+    protocol: TCP
+  - port: 5004
+    name: agent1-port4
+    protocol: TCP
+  - port: 5005
+    name: agent1-port5
+    protocol: TCP
+  selector:
+    run: edge-rm-agent1
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   namespace: edge-rm-ns
-  name: edge-rm-agent
+  name: edge-rm-agent1
   labels:
     app: edge-rm
     component: agent
 spec:
   selector:
     matchLabels:
-      run: edge-rm-agent
+      run: edge-rm-agent1
   replicas: 1
   template:
     metadata:
       namespace: edge-rm-ns
       labels:
-        run: edge-rm-agent
+        run: edge-rm-agent1
     spec:
       containers:
-      - name: edge-rm-agent
+      - name: edge-rm-agent1
         image: lab11/edge-rm-agent:latest
         imagePullPolicy: Always
+        volumeMounts:
+          - name: agent1-conf
+            mountPath: /app/config/agent1-config.yml
+            subPath: agent1-config.yml
         env:
         # the magic to make give access to the docker-in-docker container:
         - name: DOCKER_HOST
@@ -31,12 +64,20 @@ spec:
         # do we need the edge-rm-central SERVICE_PORT? 
         - name: CENTRAL_API_PORT
           value: "80"
+        - name: CONFIG
+          value: /app/config/agent1-config.yml
         # attempt to get rid of delay before agent output shows up in kubectl logs
         # (probably won't help as supposedly this is default behavior as of python 3.7)
         - name: PYTHONUNBUFFERED
           value: "1"
         - name: PYTHONIOENCODING
           value: UTF-8
+        ports:
+        - containerPort: 5001
+        - containerPort: 5002
+        - containerPort: 5003
+        - containerPort: 5004
+        - containerPort: 5005
       - name: dind
         # note: newer versions of dind do not listen on 2375, only TLS on 2376
         image: docker:18.09-dind
@@ -46,5 +87,12 @@ spec:
           - name: dind-storage
             mountPath: /var/lib/docker
       volumes:
+        - name: agent1-conf
+          configMap:
+            # this is the name of the configmap created from the agent1-config.yml file:
+            name: agent1-cm
+            items:
+              - key: agent1-config.yml
+                path: agent1-config.yml
         - name: dind-storage
           emptyDir: {}
